@@ -1,6 +1,8 @@
 package com.example.yallabuy_user.ui.navigation
 
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -35,14 +37,17 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import com.example.testshopify.ui.navigation.BottomNavigationBar
 import com.example.yallabuy_user.R
 import com.example.yallabuy_user.collections.CollectionsScreen
 import com.example.yallabuy_user.home.HomeScreen
+import com.example.yallabuy_user.products.ProductsScreen
 
 
 private const val TAG = "MainScreen"
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen() {
@@ -66,6 +71,12 @@ fun MainScreen() {
 
                 ScreenRoute.Collections.route -> CenterAlignedTopAppBar(
                     title = { Text("Collections") },
+                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                        containerColor = Color.Yellow
+                    )
+                )
+                ScreenRoute.Collections.route -> CenterAlignedTopAppBar(
+                    title = { Text("Products") },
                     colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                         containerColor = Color.Yellow
                     )
@@ -105,13 +116,17 @@ fun MainScreen() {
         ) {
             composable(route = ScreenRoute.Home.route)
             {
-                HomeScreen()
+                HomeScreen(navController)
             }
             composable(route = ScreenRoute.Collections.route)
             {
                 CollectionsScreen(setFilterMeth = {
                     onFilterClicked = it
                 })
+            }
+            composable<ScreenRoute.ProductsScreen>{ navBackStackEntry ->
+                val data = navBackStackEntry.toRoute<ScreenRoute.ProductsScreen>()
+                ProductsScreen(collectionId = data.collectionId)
             }
         }
     }

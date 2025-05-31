@@ -69,13 +69,13 @@ fun CollectionsScreen(
             is ApiResponse.Success -> {
                 val categories = (uiCategoriesState as ApiResponse.Success).data
                 LaunchedEffect(Unit) {
-                    categories[0].id?.let { viewModel.getCategoryProducts(it) }
+                    categories[0].id?.let { viewModel.getProducts(it) }
 //                    delay(5000)
 //                    viewModel.showSubCategoryProduct("CLOTHES")
                 }
                 CategoriesChips(categories, onChipClicked = { categoryId ->
                     Log.i(TAG, "CollectionsScreen CID: $categoryId")
-                    coroutineScope.launch { viewModel.getCategoryProducts(categoryId) }
+                    coroutineScope.launch { viewModel.getProducts(categoryId) }
                 })
             }
 
@@ -150,11 +150,10 @@ private fun CategoriesChips(
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
-private fun Product(product: ProductsItem) {
+fun Product(product: ProductsItem) {
     Card(
         modifier = Modifier
-            .width(220.dp)
-            .fillMaxHeight(),
+            .fillMaxSize(),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
@@ -176,7 +175,7 @@ private fun Product(product: ProductsItem) {
                 contentScale = ContentScale.Fit
             )
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                product.title?.let { Text(it, fontSize = 18.sp) }
+                product.title?.let { Text(it, fontSize = 18.sp, maxLines = 2) }
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.Center

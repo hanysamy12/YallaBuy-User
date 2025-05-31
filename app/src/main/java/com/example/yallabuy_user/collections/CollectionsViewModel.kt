@@ -37,21 +37,33 @@ class CollectionsViewModel(private val repo: RepositoryInterface) : ViewModel(),
         }
     }
 
-    override suspend fun getCategoryProducts(categoryID: Long) {
+    override suspend fun getProducts(categoryID: Long?) {
         try {
-            repo.getCategoryProducts(categoryID)
-                .map { it.products.orEmpty().filterNotNull() }
-                .catch { error -> _products.value = ApiResponse.Failure(error) }
-                .collect { products ->
-                    originalProducts = products
-                    _products.value = ApiResponse.Success(products)
+            Log.i(TAG, "getProducts: $categoryID")
+            if (categoryID != null) {
+                repo.getCategoryProducts(categoryID)
+                    .map { it.products.orEmpty().filterNotNull() }
+                    .catch { error -> _products.value = ApiResponse.Failure(error) }
+                    .collect { products ->
+                        originalProducts = products
+                        _products.value = ApiResponse.Success(products)
 
-                }
+                    }
+            }else{
+                repo.getAllProducts()
+                    .map { it.products.orEmpty().filterNotNull() }
+                    .catch { error -> _products.value = ApiResponse.Failure(error) }
+                    .collect { products ->
+                        originalProducts = products
+                        _products.value = ApiResponse.Success(products)
+                    }
+            }
 
         } catch (e: Exception) {
             _products.value = ApiResponse.Failure(e)
         }
     }
+
 
     override fun showSubCategoryProduct(subCategory: String) {
        Log.i(TAG, "showSubCategoryProduct: $subCategory")
@@ -60,5 +72,9 @@ class CollectionsViewModel(private val repo: RepositoryInterface) : ViewModel(),
         }
         _products.value = ApiResponse.Success(filteredList)
         Log.i(TAG, "showSubCategoryProduct: ${_products.value}")
+    }
+
+    override fun showFilteredProduct(minPrice: Double, maxPrice: Double) {
+
     }
 }

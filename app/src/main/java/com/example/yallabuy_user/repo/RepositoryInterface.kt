@@ -10,4 +10,6 @@ interface RepositoryInterface {
     suspend fun getAllCategories(): Flow<CategoryResponse>
     suspend fun getAllBrands(): Flow<BrandResponse>
     suspend fun getCategoryProducts(categoryID: Long): Flow<ProductResponse>
+    suspend fun getAllProducts(): Flow<ProductResponse>
+
 }

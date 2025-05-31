@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -33,21 +34,24 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.yallabuy_user.R
 import com.example.yallabuy_user.utilities.ApiResponse
 import com.example.yallabuy_user.data.models.CustomCollectionsItem
 import com.example.yallabuy_user.data.models.SmartCollectionsItem
+import com.example.yallabuy_user.ui.navigation.ScreenRoute
 import org.koin.androidx.compose.koinViewModel
 
 private const val TAG = "HomeScreen"
 
 @Composable
-fun HomeScreen(homeViewModel: HomeViewModel = koinViewModel()) {
+fun HomeScreen(navController: NavController, homeViewModel: HomeViewModel = koinViewModel()) {
     LaunchedEffect(Unit) {
         homeViewModel.getAllCategories()
         homeViewModel.getAllBrands()
@@ -57,13 +61,15 @@ fun HomeScreen(homeViewModel: HomeViewModel = koinViewModel()) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-        // .background(color = Color.Yellow)
     ) {
         when (uiBrandState) {
             is ApiResponse.Success -> {
                 val brands = (uiBrandState as ApiResponse.Success).data
                 val categories = (uiCategoriesState as ApiResponse.Success).data
-                HomeContent(categories, brands)
+                HomeContent(categories, brands, onCatClicked = {catId->
+                    Log.i(TAG, "HomeScreen: Collection ID = $catId")
+                    navController.navigate(ScreenRoute.ProductsScreen(catId))
+                })
 
                 Log.i(TAG, "HomeScreen $categories")
                 Log.i(TAG, "HomeScreen $brands")
@@ -82,11 +88,11 @@ fun HomeScreen(homeViewModel: HomeViewModel = koinViewModel()) {
 
 }
 
-
 @Composable
 private fun HomeContent(
     categories: List<CustomCollectionsItem>,
-    brands: List<SmartCollectionsItem>
+    brands: List<SmartCollectionsItem>,
+    onCatClicked: (Long?) -> Unit
 ) {
 
     Column {
@@ -107,20 +113,47 @@ private fun HomeContent(
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            CircularImageWithTitle(categories[1],R.drawable.img_kid)
-            CircularImageWithTitle(categories[2],R.drawable.img_man)
-            CircularImageWithTitle(categories[4],R.drawable.img_women)
-            CircularImageWithTitle(categories[3],R.drawable.img_sale)
-            }
+            CircularImageWithTitle(categories[1], R.drawable.img_kid, onCatClicked = { catID ->
+                onCatClicked(catID)
+            })
+            CircularImageWithTitle(categories[2], R.drawable.img_man, onCatClicked = { catID ->
+                onCatClicked(catID)
+            })
+            CircularImageWithTitle(categories[4], R.drawable.img_women, onCatClicked = { catID ->
+                onCatClicked(catID)
+            })
+            CircularImageWithTitle(categories[3], R.drawable.img_sale, onCatClicked = { catID ->
+                onCatClicked(catID)
+            })
+        }
 
         Spacer(Modifier.height(20.dp))
+        Text(
+            "Show All Products",
+            modifier = Modifier
+                .padding(start = 6.dp)
+                .clickable {
+                    Log.i(TAG, "All Products Clicked")
+                    onCatClicked(null)
+                },
+            color = Color.DarkGray,
+            fontSize = 20.sp,
+            textDecoration = TextDecoration.Underline
+        )
+        Spacer(
+            Modifier
+                .height(20.dp)
+        )
         LazyRow(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 12.dp, start = 6.dp)
         ) {
             items(brands.size) { index ->
-                RoundedImageWithTitle(brands[index])
+                RoundedImageWithTitle(brands[index], onBrandClicked = { brandId ->
+                    onCatClicked(brandId)
+                    Log.i(TAG, "BrandClicked: $brandId")
+                })
                 Spacer(Modifier.width(6.dp))
             }
         }
@@ -147,8 +180,15 @@ private fun SliderItem() {
 
 
 @Composable
-fun CircularImageWithTitle(category: CustomCollectionsItem, imgId : Int) {
+fun CircularImageWithTitle(
+    category: CustomCollectionsItem,
+    imgId: Int,
+    onCatClicked: (Long) -> Unit
+) {
     Column(
+        modifier = Modifier.clickable {
+            category.id?.let { onCatClicked(it) }
+        },
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Image(
@@ -162,18 +202,20 @@ fun CircularImageWithTitle(category: CustomCollectionsItem, imgId : Int) {
         )
         Spacer(modifier = Modifier.height(4.dp))
         Text(category.title ?: "No Title")
-        //category.title?.let { Text(text = it, fontSize = 14.sp) }
     }
 }
 
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
-fun RoundedImageWithTitle(brand: SmartCollectionsItem) {
+fun RoundedImageWithTitle(brand: SmartCollectionsItem, onBrandClicked: (Long) -> Unit) {
     Card(
         modifier = Modifier
             .width(220.dp)
-            .fillMaxHeight(),
+            .fillMaxHeight()
+            .clickable {
+                brand.id?.let { onBrandClicked(it) }
+            },
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
@@ -189,10 +231,8 @@ fun RoundedImageWithTitle(brand: SmartCollectionsItem) {
                 model = brand.image?.src, contentDescription = brand.title, modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(16.dp)),
-                contentScale = ContentScale.Fit
+                contentScale = ContentScale.FillBounds
             )
-            Text(brand.title ?: "No Title")
-          //  brand.title?.let { Text(text = it, fontSize = 22.sp) }
         }
     }
 }
@@ -209,7 +249,6 @@ fun ProgressShow() {
         Spacer(Modifier.height(350.dp))
         LinearProgressIndicator()
         Text("Waiting", fontSize = 22.sp)
-
     }
 
 }
