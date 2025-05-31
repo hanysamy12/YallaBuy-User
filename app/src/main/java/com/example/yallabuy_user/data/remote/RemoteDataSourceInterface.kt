@@ -1,0 +1,13 @@
+package com.example.yallabuy_user.data.remote
+
+
+import com.example.yallabuy_user.data.models.BrandResponse
+import com.example.yallabuy_user.data.models.CategoryResponse
+import com.example.yallabuy_user.data.models.ProductResponse
+import kotlinx.coroutines.flow.Flow
+
+interface RemoteDataSourceInterface {
+    suspend fun getAllCategories(): Flow<CategoryResponse>
+    suspend fun getAllBrands(): Flow<BrandResponse>
+    suspend fun getCategoryProducts(categoryID :Long): Flow<ProductResponse>
+}
