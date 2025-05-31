@@ -1,18 +1,18 @@
-package com.example.yallabuy_user.viewmodel
+package com.example.yallabuy_user.collections
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
-
+import com.example.yallabuy_user.data.models.CustomCollectionsItem
+import com.example.yallabuy_user.data.models.ProductsItem
 import com.example.yallabuy_user.repo.RepositoryInterface
-import com.example.yallabuy_user.helper.ApiResponse
-import com.example.yallabuy_user.models.CustomCollectionsItem
-import com.example.yallabuy_user.models.ProductsItem
+import com.example.yallabuy_user.utilities.ApiResponse
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 
 private const val TAG = "CollectionsViewModel"
+
 
 class CollectionsViewModel(private val repo: RepositoryInterface) : ViewModel(),
     CollectionsViewModelInterface {
@@ -54,7 +54,7 @@ class CollectionsViewModel(private val repo: RepositoryInterface) : ViewModel(),
     }
 
     override fun showSubCategoryProduct(subCategory: String) {
-        Log.i(TAG, "showSubCategoryProduct: $subCategory")
+       Log.i(TAG, "showSubCategoryProduct: $subCategory")
         val filteredList = originalProducts.filter {
             it.productType?.trim()?.equals(subCategory, ignoreCase = true) == true
         }

@@ -1,4 +1,4 @@
-package com.example.yallabuy_user.helper
+package com.example.yallabuy_user.utilities
 
 
 sealed class ApiResponse<out T> {

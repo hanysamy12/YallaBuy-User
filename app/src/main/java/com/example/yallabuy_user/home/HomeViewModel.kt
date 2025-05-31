@@ -1,10 +1,10 @@
-package com.example.yallabuy_user.viewmodel
+package com.example.yallabuy_user.home
 
 import androidx.lifecycle.ViewModel
 import com.example.yallabuy_user.repo.RepositoryInterface
-import com.example.yallabuy_user.helper.ApiResponse
-import com.example.yallabuy_user.models.CustomCollectionsItem
-import com.example.yallabuy_user.models.SmartCollectionsItem
+import com.example.yallabuy_user.utilities.ApiResponse
+import com.example.yallabuy_user.data.models.CustomCollectionsItem
+import com.example.yallabuy_user.data.models.SmartCollectionsItem
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch

@@ -1,9 +1,9 @@
 package com.example.yallabuy_user.data.remote
 
 import com.example.yallabuy_user.BuildConfig
-import com.example.yallabuy_user.models.BrandResponse
-import com.example.yallabuy_user.models.CategoryResponse
-import com.example.yallabuy_user.models.ProductResponse
+import com.example.yallabuy_user.data.models.BrandResponse
+import com.example.yallabuy_user.data.models.CategoryResponse
+import com.example.yallabuy_user.data.models.ProductResponse
 import okhttp3.Interceptor
 import okhttp3.Response
 import retrofit2.http.GET

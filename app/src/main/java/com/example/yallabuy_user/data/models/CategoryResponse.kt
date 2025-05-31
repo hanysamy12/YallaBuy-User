@@ -1,4 +1,4 @@
-package com.example.yallabuy_user.models
+package com.example.yallabuy_user.data.models
 
 import com.google.gson.annotations.SerializedName
 

@@ -1,4 +1,4 @@
-package com.example.yallabuy_user.ui.screens
+package com.example.yallabuy_user.collections
 
 import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
@@ -38,10 +38,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
-import com.example.yallabuy_user.helper.ApiResponse
-import com.example.yallabuy_user.models.CustomCollectionsItem
-import com.example.yallabuy_user.models.ProductsItem
-import com.example.yallabuy_user.viewmodel.CollectionsViewModel
+import com.example.yallabuy_user.utilities.ApiResponse
+import com.example.yallabuy_user.data.models.CustomCollectionsItem
+import com.example.yallabuy_user.data.models.ProductsItem
+import com.example.yallabuy_user.home.ProgressShow
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 

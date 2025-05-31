@@ -1,4 +1,5 @@
-package com.example.yallabuy_user.viewmodel
+package com.example.yallabuy_user.collections
+
 
 interface CollectionsViewModelInterface {
     suspend fun getAllCategories()

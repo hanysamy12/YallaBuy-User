@@ -36,10 +36,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.testshopify.ui.navigation.BottomNavigationBar
-import com.example.testshopify.ui.navigation.ScreenRoute
 import com.example.yallabuy_user.R
-import com.example.yallabuy_user.ui.screens.CollectionsScreen
-import com.example.yallabuy_user.ui.screens.HomeScreen
+import com.example.yallabuy_user.collections.CollectionsScreen
+import com.example.yallabuy_user.home.HomeScreen
 
 
 private const val TAG = "MainScreen"
