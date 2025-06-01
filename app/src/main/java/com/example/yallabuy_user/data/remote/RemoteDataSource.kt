@@ -24,4 +24,8 @@ class RemoteDataSource (private val service: ApiService) :
         return flowOf(products)
     }
 
+    override suspend fun getAllProducts(): Flow<ProductResponse> {
+        val products = service.getAllProducts()
+        return flowOf(products)
+    }
 }

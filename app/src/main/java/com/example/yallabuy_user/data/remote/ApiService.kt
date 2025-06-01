@@ -30,4 +30,7 @@ interface ApiService {
 
     @GET("collections/{categoryID}/products.json")
     suspend fun getCategoryProducts(@Path("categoryID") categoryID: Long): ProductResponse
+
+    @GET("products.json")
+    suspend fun getAllProducts(): ProductResponse
 }

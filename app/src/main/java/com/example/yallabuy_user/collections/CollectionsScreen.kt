@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -38,10 +37,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
-import com.example.yallabuy_user.utilities.ApiResponse
 import com.example.yallabuy_user.data.models.CustomCollectionsItem
 import com.example.yallabuy_user.data.models.ProductsItem
 import com.example.yallabuy_user.home.ProgressShow
+import com.example.yallabuy_user.utilities.ApiResponse
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 
@@ -69,13 +68,12 @@ fun CollectionsScreen(
             is ApiResponse.Success -> {
                 val categories = (uiCategoriesState as ApiResponse.Success).data
                 LaunchedEffect(Unit) {
-                    categories[0].id?.let { viewModel.getCategoryProducts(it) }
-//                    delay(5000)
-//                    viewModel.showSubCategoryProduct("CLOTHES")
+                    categories[0].id?.let { viewModel.getProducts(it) }
+
                 }
                 CategoriesChips(categories, onChipClicked = { categoryId ->
                     Log.i(TAG, "CollectionsScreen CID: $categoryId")
-                    coroutineScope.launch { viewModel.getCategoryProducts(categoryId) }
+                    coroutineScope.launch { viewModel.getProducts(categoryId) }
                 })
             }
 
@@ -150,11 +148,10 @@ private fun CategoriesChips(
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
-private fun Product(product: ProductsItem) {
+fun Product(product: ProductsItem) {
     Card(
         modifier = Modifier
-            .width(220.dp)
-            .fillMaxHeight(),
+            .fillMaxSize(),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
@@ -176,7 +173,7 @@ private fun Product(product: ProductsItem) {
                 contentScale = ContentScale.Fit
             )
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                product.title?.let { Text(it, fontSize = 18.sp) }
+                product.title?.let { Text(it, fontSize = 18.sp, maxLines = 2) }
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.Center

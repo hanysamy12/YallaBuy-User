@@ -19,4 +19,8 @@ class Repository(private val remoteDataSource: RemoteDataSourceInterface) : Repo
     override suspend fun getCategoryProducts(categoryID: Long): Flow<ProductResponse> {
         return remoteDataSource.getCategoryProducts(categoryID)
     }
+
+    override suspend fun getAllProducts(): Flow<ProductResponse> {
+        return remoteDataSource.getAllProducts()
+    }
 }

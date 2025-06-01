@@ -1,5 +1,6 @@
 package com.example.yallabuy_user.di
 
+import com.example.yallabuy_user.cart.CartViewModel
 import com.example.yallabuy_user.home.HomeViewModel
 import com.example.yallabuy_user.repo.RepositoryInterface
 import com.example.yallabuy_user.data.remote.ApiService
@@ -8,6 +9,8 @@ import com.example.yallabuy_user.data.remote.RemoteDataSource
 import com.example.yallabuy_user.data.remote.RemoteDataSourceInterface
 import com.example.yallabuy_user.repo.Repository
 import com.example.yallabuy_user.collections.CollectionsViewModel
+import com.example.yallabuy_user.profile.ProfileViewModel
+import com.example.yallabuy_user.wish.WishViewModel
 
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
@@ -44,7 +47,17 @@ val dataModule = module {
         HomeViewModel(get())
     }
     viewModel {
+        WishViewModel()
+    }
+    viewModel {
         CollectionsViewModel(get())
     }
+    viewModel {
+        CartViewModel()
+    }
+    viewModel {
+        ProfileViewModel()
+    }
+
 
 }
