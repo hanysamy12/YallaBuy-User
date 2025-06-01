@@ -12,7 +12,13 @@ sealed class ScreenRoute(val route: String){
     @Serializable
     data object Home : ScreenRoute("home")
     @Serializable
+    data object WishList : ScreenRoute("wish")
+    @Serializable
     data object Collections : ScreenRoute("collections")
+    @Serializable
+    data object Cart : ScreenRoute("cart")
+    @Serializable
+    data object Profile : ScreenRoute("profile")
     @Serializable
     data class ProductsScreen (val collectionId:Long?): ScreenRoute("products")
 }

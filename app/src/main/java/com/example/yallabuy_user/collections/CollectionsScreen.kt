@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -38,10 +37,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
-import com.example.yallabuy_user.utilities.ApiResponse
 import com.example.yallabuy_user.data.models.CustomCollectionsItem
 import com.example.yallabuy_user.data.models.ProductsItem
 import com.example.yallabuy_user.home.ProgressShow
+import com.example.yallabuy_user.utilities.ApiResponse
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 
@@ -70,8 +69,7 @@ fun CollectionsScreen(
                 val categories = (uiCategoriesState as ApiResponse.Success).data
                 LaunchedEffect(Unit) {
                     categories[0].id?.let { viewModel.getProducts(it) }
-//                    delay(5000)
-//                    viewModel.showSubCategoryProduct("CLOTHES")
+
                 }
                 CategoriesChips(categories, onChipClicked = { categoryId ->
                     Log.i(TAG, "CollectionsScreen CID: $categoryId")

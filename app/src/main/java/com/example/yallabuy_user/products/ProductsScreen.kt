@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -32,6 +33,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.yallabuy_user.collections.CollectionsViewModel
 import com.example.yallabuy_user.collections.Product
 import com.example.yallabuy_user.home.ProgressShow
@@ -40,16 +42,19 @@ import org.koin.androidx.compose.koinViewModel
 
 private const val TAG = "ProductsScreen"
 @Composable
-fun ProductsScreen(collectionId : Long?,viewModel: CollectionsViewModel = koinViewModel()) {
+fun ProductsScreen(isFilterBarShown:Boolean = false,collectionId : Long? = null,viewModel: CollectionsViewModel = koinViewModel()) {
     val uiProductsState by viewModel.products.collectAsState()
     val searchQuery = remember { mutableStateOf("") }
-    var sliderPosition by remember { mutableFloatStateOf(50f) }
 
+    var currentPrice by remember { mutableFloatStateOf(5000f) }
+    val maxPrice = remember { mutableFloatStateOf(5000f) }
+    val minPrice = remember { mutableFloatStateOf(50f) }
+    var priceUnit = remember { mutableStateOf("USD") }
     LaunchedEffect(Unit) {
         viewModel.getProducts(collectionId)
     }
 
-    Box(){
+    Box{
          Column(modifier = Modifier.padding(6.dp)) {
              OutlinedTextField(
                  value = searchQuery.value, onValueChange = { query ->
@@ -68,30 +73,38 @@ fun ProductsScreen(collectionId : Long?,viewModel: CollectionsViewModel = koinVi
                  },
                  singleLine = true,
                  colors = OutlinedTextFieldDefaults.colors(
-                     focusedContainerColor = MaterialTheme.colorScheme.background, // Background when focused
-                     unfocusedContainerColor = Color.LightGray,   // Background when unfocused
+                     focusedContainerColor = MaterialTheme.colorScheme.background,
+                     unfocusedContainerColor = Color.LightGray,
                      focusedTextColor = Color.Black,
-                     unfocusedTextColor = Color.Black, // Force same color always
+                     unfocusedTextColor = Color.Black,
                      disabledTextColor = Color.Black,
                      errorTextColor = Color.Red
 
                  )
              )
                  //set range from min price to max prise
-             Slider(modifier = Modifier.padding(horizontal = 22.dp).height(22.dp),
-                 value = sliderPosition,
-                 onValueChange = { sliderPosition = it },
-                 valueRange = 0f..100f,
-                 colors = SliderDefaults.colors(
-                     thumbColor = MaterialTheme.colorScheme.primary,
-                     activeTrackColor = MaterialTheme.colorScheme.primary,
-                     inactiveTrackColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.24f)
+             Row (modifier = Modifier
+                 .padding(horizontal = 12.dp)){
+                 Text("Price:${currentPrice.toInt()} ${priceUnit.value}", fontSize = 13.sp)
+                 Slider(
+                     modifier = Modifier
+                         .height(22.dp),
+                     value = currentPrice,
+                     onValueChange = { currentPrice = it },
+                     valueRange = minPrice.floatValue..maxPrice.floatValue,
+                     colors = SliderDefaults.colors(
+                         thumbColor = MaterialTheme.colorScheme.primary,
+                         activeTrackColor = MaterialTheme.colorScheme.primary,
+                         inactiveTrackColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.24f)
+                     )
                  )
-             )
+             }
             when (uiProductsState) {
                 is ApiResponse.Success -> {
                     val products = (uiProductsState as ApiResponse.Success).data
                    // Log.i(TAG, "Products Screen: Products $products")
+                    minPrice.floatValue = 200f
+                    maxPrice.floatValue = 2000f
                     LazyVerticalGrid(
                         columns = GridCells.Fixed(2),
                         modifier = Modifier

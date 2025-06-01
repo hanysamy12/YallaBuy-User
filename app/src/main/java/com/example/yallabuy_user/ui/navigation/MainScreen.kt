@@ -16,10 +16,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
@@ -38,11 +41,13 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
-import com.example.testshopify.ui.navigation.BottomNavigationBar
 import com.example.yallabuy_user.R
+import com.example.yallabuy_user.cart.CartScreen
 import com.example.yallabuy_user.collections.CollectionsScreen
 import com.example.yallabuy_user.home.HomeScreen
 import com.example.yallabuy_user.products.ProductsScreen
+import com.example.yallabuy_user.profile.ProfileScreen
+import com.example.yallabuy_user.wish.WishScreen
 
 
 private const val TAG = "MainScreen"
@@ -57,55 +62,87 @@ fun MainScreen() {
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = currentBackStackEntry?.destination?.route
 
-    Scaffold(
-        modifier = Modifier.fillMaxSize(),
-        snackbarHost = {},
-        topBar = {
-            when (currentRoute) {
-                ScreenRoute.Home.route -> CenterAlignedTopAppBar(
-                    title = { Text("Home") },
-                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                        containerColor = Color.Yellow
-                    )
-                )
+    var isShowFilterBarProductsScreen by remember { mutableStateOf(false) }
 
-                ScreenRoute.Collections.route -> CenterAlignedTopAppBar(
-                    title = { Text("Collections") },
-                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                        containerColor = Color.Yellow
-                    )
+    val bottomNavRoutes = listOf(
+        ScreenRoute.Home.route,
+        ScreenRoute.Collections.route,
+        ScreenRoute.WishList.route,
+        ScreenRoute.Cart.route,
+        ScreenRoute.Profile.route
+    )
+    Scaffold(modifier = Modifier.fillMaxSize(), snackbarHost = {}, topBar = {
+        when (currentRoute) {
+            ScreenRoute.Home.route -> CenterAlignedTopAppBar(
+                title = { Text("Home") },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = Color(0xFFFFC107)
                 )
-                ScreenRoute.Collections.route -> CenterAlignedTopAppBar(
-                    title = { Text("Products") },
-                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                        containerColor = Color.Yellow
-                    )
+            )
+
+            ScreenRoute.WishList.route -> CenterAlignedTopAppBar(
+                title = { Text("Wish List") },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = Color(0xFFFFC107)
                 )
-            }
-        },
-        bottomBar = {
-            Box(modifier = Modifier.height(60.dp)) {
+            )
+
+
+            ScreenRoute.Collections.route -> CenterAlignedTopAppBar(
+                title = { Text("Collections") },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = Color(0xFFFFC107)
+                )
+            )
+
+            ScreenRoute.Cart.route -> CenterAlignedTopAppBar(
+                title = { Text("Cart") },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = Color(0xFFFFC107)
+                )
+            )
+
+            ScreenRoute.Profile.route -> CenterAlignedTopAppBar(
+                title = { Text("My Account") },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = Color(0xFFFFC107)
+                )
+            )
+
+            ScreenRoute.ProductsScreen(null).route -> CenterAlignedTopAppBar(
+                title = { Text("Products") },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = Color.Yellow
+                ),
+                /*actions = {
+                    IconButton(onClick = {
+                        isShowFilterBarProductsScreen = !isShowFilterBarProductsScreen
+                    }) {
+                        Icon(
+                            imageVector = Icons.Default.Edit,
+                            contentDescription = "Toggle Filter"
+                        )
+                    }
+                }*/)
+        }
+    }, bottomBar = {
+        if (currentRoute in bottomNavRoutes) {
+            Box() {
                 BottomNavigationBar((navController))
             }
             Log.i(TAG, "MainScreen: CurrentRoute  $currentRoute")
-        },
-        floatingActionButton = {
-            if (currentRoute != null) {
-
-                ExpandableFAB(
-                    currentRoute = currentRoute,
-                    onClothesClick = {
-                        onFilterClicked?.invoke("CLOTHES")
-                        ///   Log.i(TAG, "MainScreen: CLOTHES")
-                    },
-                    onShoesClick = {
-                        onFilterClicked?.invoke("SHOES")
-                        // Log.i(TAG, "MainScreen: SHOES")
-                    })
-            }
-
-
         }
+    }, floatingActionButton = {
+        if (currentRoute != null) {
+            ExpandableFAB(currentRoute = currentRoute, onClothesClick = {
+                onFilterClicked?.invoke("CLOTHES")
+            }, onShoesClick = {
+                onFilterClicked?.invoke("SHOES")
+            })
+        }
+
+
+    }
 
 
     ) { contentPadding ->
@@ -114,19 +151,29 @@ fun MainScreen() {
             startDestination = ScreenRoute.Home.route,
             modifier = Modifier.padding(contentPadding)
         ) {
-            composable(route = ScreenRoute.Home.route)
-            {
+            composable(route = ScreenRoute.Home.route) {
                 HomeScreen(navController)
             }
-            composable(route = ScreenRoute.Collections.route)
-            {
+            composable(route = ScreenRoute.WishList.route) {
+                WishScreen(navController)
+            }
+            composable(route = ScreenRoute.Collections.route) {
                 CollectionsScreen(setFilterMeth = {
                     onFilterClicked = it
                 })
             }
-            composable<ScreenRoute.ProductsScreen>{ navBackStackEntry ->
+            composable(route = ScreenRoute.Cart.route) {
+                CartScreen(navController)
+            }
+            composable(route = ScreenRoute.Profile.route) {
+                ProfileScreen(navController)
+            }
+            composable<ScreenRoute.ProductsScreen> { navBackStackEntry ->
                 val data = navBackStackEntry.toRoute<ScreenRoute.ProductsScreen>()
-                ProductsScreen(collectionId = data.collectionId)
+                ProductsScreen(
+                    isFilterBarShown = isShowFilterBarProductsScreen,
+                    collectionId = data.collectionId
+                )
             }
         }
     }
@@ -142,8 +189,7 @@ fun ExpandableFAB(
 
     if (currentRoute == ScreenRoute.Collections.route) {
         Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.BottomEnd
+            modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.BottomEnd
         ) {
             Column(
                 horizontalAlignment = Alignment.End,
@@ -152,14 +198,10 @@ fun ExpandableFAB(
             ) {
                 //Clothes (top)
                 AnimatedVisibility(
-                    visible = isExpanded,
-                    enter = slideInVertically(
-                        initialOffsetY = { it },
-                        animationSpec = tween(300)
-                    ) + fadeIn(),
-                    exit = slideOutVertically(
-                        targetOffsetY = { it },
-                        animationSpec = tween(300)
+                    visible = isExpanded, enter = slideInVertically(
+                        initialOffsetY = { it }, animationSpec = tween(300)
+                    ) + fadeIn(), exit = slideOutVertically(
+                        targetOffsetY = { it }, animationSpec = tween(300)
                     ) + fadeOut()
                 ) {
                     FloatingActionButton(onClick = {
@@ -177,14 +219,10 @@ fun ExpandableFAB(
 
                 // Shoes down
                 AnimatedVisibility(
-                    visible = isExpanded,
-                    enter = slideInVertically(
-                        initialOffsetY = { it },
-                        animationSpec = tween(250)
-                    ) + fadeIn(),
-                    exit = slideOutVertically(
-                        targetOffsetY = { it },
-                        animationSpec = tween(250)
+                    visible = isExpanded, enter = slideInVertically(
+                        initialOffsetY = { it }, animationSpec = tween(250)
+                    ) + fadeIn(), exit = slideOutVertically(
+                        targetOffsetY = { it }, animationSpec = tween(250)
                     ) + fadeOut()
                 ) {
                     FloatingActionButton(onClick = {
