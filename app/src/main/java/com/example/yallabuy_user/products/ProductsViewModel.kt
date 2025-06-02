@@ -74,7 +74,11 @@ class ProductsViewModel(private val repo: RepositoryInterface) : ViewModel(),
         Log.i(TAG, "showSubCategoryProduct: ${_products.value}")
     }
 
-    override fun showFilteredProduct(minPrice: Double, maxPrice: Double) {
-
+    override fun showFilteredProduct(minPrice: Float, maxPrice: Float) {
+        val filteredList = originalProducts.filter { product ->
+            (product.variants?.get(0)?.price?.toFloatOrNull() ?: Float.MAX_VALUE) <= maxPrice
+        }
+        _products.value = ApiResponse.Success(filteredList)
+        Log.i(TAG, "showSubCategoryProduct: ${_products.value}")
     }
 }

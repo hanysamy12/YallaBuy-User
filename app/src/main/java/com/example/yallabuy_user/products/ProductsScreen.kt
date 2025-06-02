@@ -51,15 +51,17 @@ fun ProductsScreen(
     val uiProductsState by viewModel.products.collectAsState()
     val searchQuery = remember { mutableStateOf("") }
 
-
-    var maxPrice by remember { mutableFloatStateOf(5000f) }
-    var minPrice by remember { mutableFloatStateOf(5f) }
-    var currentPrice by remember { mutableFloatStateOf(maxPrice) }
+    var maxPrice by remember { mutableFloatStateOf(0f) }
+    var minPrice by remember { mutableFloatStateOf(0f) }
+    var currentPrice by remember { mutableFloatStateOf(0f) }
     var priceUnit by remember { mutableStateOf("EG") }
+
+    var isPriceSet by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) {
         viewModel.getProducts(collectionId)
 
     }
+
 
     Box {
         Column(modifier = Modifier.padding(6.dp)) {
@@ -86,11 +88,16 @@ fun ProductsScreen(
                     unfocusedTextColor = Color.Black,
                     disabledTextColor = Color.Black,
                     errorTextColor = Color.Red
-
                 )
             )
-            //set range from min price to max prise
             if (isFilterBarShown) {
+                if (!isPriceSet) {
+                    val (min, max) = getMinAMxPrice(products = (uiProductsState as ApiResponse.Success).data)
+                    minPrice = min
+                    maxPrice = max
+                    currentPrice = max
+                    isPriceSet = true
+                }
                 Row(
                     modifier = Modifier
                         .padding(horizontal = 12.dp)
@@ -100,7 +107,11 @@ fun ProductsScreen(
                         modifier = Modifier
                             .height(22.dp),
                         value = currentPrice,
-                        onValueChange = { currentPrice = it },
+                        onValueChange = {
+                            currentPrice = it
+                            viewModel.showFilteredProduct(minPrice, it)
+                        },
+                        //steps = 10,
                         valueRange = minPrice..maxPrice,
                         colors = SliderDefaults.colors(
                             thumbColor = MaterialTheme.colorScheme.primary,
@@ -114,9 +125,8 @@ fun ProductsScreen(
                 is ApiResponse.Success -> {
                     val products = (uiProductsState as ApiResponse.Success).data
                     // Log.i(TAG, "Products Screen: Products $products")
-                    val (min, max) = getMinAMxPrice(products = (uiProductsState as ApiResponse.Success).data)
-                    minPrice = min
-                    maxPrice = max
+
+                    Log.i(TAG, "ProductsScreen: Max Min $maxPrice > $minPrice")
                     LazyVerticalGrid(
                         columns = GridCells.Fixed(2),
                         modifier = Modifier
@@ -127,6 +137,7 @@ fun ProductsScreen(
                     ) {
                         items(products.size) { index ->
                             Product(products[index])
+                            Log.i(TAG, "ProductsScreen: Product Price ${products[index].variants?.get(0)?.price}")
                         }
                     }
                 }
