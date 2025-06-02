@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
@@ -36,10 +35,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import androidx.navigation.toRoute
 import com.example.yallabuy_user.R
 import com.example.yallabuy_user.cart.CartScreen
@@ -72,15 +73,17 @@ fun MainScreen() {
         ScreenRoute.Profile.route
     )
     Scaffold(modifier = Modifier.fillMaxSize(), snackbarHost = {}, topBar = {
-        when (currentRoute) {
-            ScreenRoute.Home.route -> CenterAlignedTopAppBar(
+        Log.i(TAG, "MainScreen: CurrentRoute  $currentRoute")
+
+        when {
+            currentRoute == ScreenRoute.Home.route -> CenterAlignedTopAppBar(
                 title = { Text("Home") },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                     containerColor = Color(0xFFFFC107)
                 )
             )
 
-            ScreenRoute.WishList.route -> CenterAlignedTopAppBar(
+            currentRoute == ScreenRoute.WishList.route -> CenterAlignedTopAppBar(
                 title = { Text("Wish List") },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                     containerColor = Color(0xFFFFC107)
@@ -88,49 +91,52 @@ fun MainScreen() {
             )
 
 
-            ScreenRoute.Collections.route -> CenterAlignedTopAppBar(
+            currentRoute == ScreenRoute.Collections.route -> CenterAlignedTopAppBar(
                 title = { Text("Collections") },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                     containerColor = Color(0xFFFFC107)
                 )
             )
 
-            ScreenRoute.Cart.route -> CenterAlignedTopAppBar(
+            currentRoute == ScreenRoute.Cart.route -> CenterAlignedTopAppBar(
                 title = { Text("Cart") },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                     containerColor = Color(0xFFFFC107)
                 )
             )
 
-            ScreenRoute.Profile.route -> CenterAlignedTopAppBar(
+            currentRoute == ScreenRoute.Profile.route -> CenterAlignedTopAppBar(
                 title = { Text("My Account") },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                     containerColor = Color(0xFFFFC107)
                 )
             )
-
-            ScreenRoute.ProductsScreen(null).route -> CenterAlignedTopAppBar(
-                title = { Text("Products") },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = Color.Yellow
-                ),
-                /*actions = {
-                    IconButton(onClick = {
-                        isShowFilterBarProductsScreen = !isShowFilterBarProductsScreen
-                    }) {
-                        Icon(
-                            imageVector = Icons.Default.Edit,
-                            contentDescription = "Toggle Filter"
-                        )
+            currentRoute?.startsWith(ScreenRoute.ProductsScreen.BASE_ROUTE) == true -> {
+                CenterAlignedTopAppBar(
+                    title = { Text("Products") },
+                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                        containerColor = Color(0xFFFFC107)
+                    ),
+                    actions = {
+                        IconButton(onClick = {
+                            isShowFilterBarProductsScreen = !isShowFilterBarProductsScreen
+                        }) {
+                            Icon(
+                                imageVector = Icons.Default.Edit,
+                                contentDescription = "Toggle Filter"
+                            )
+                        }
                     }
-                }*/)
+                )
+            }
+
         }
+
     }, bottomBar = {
         if (currentRoute in bottomNavRoutes) {
-            Box() {
+            Box {
                 BottomNavigationBar((navController))
             }
-            Log.i(TAG, "MainScreen: CurrentRoute  $currentRoute")
         }
     }, floatingActionButton = {
         if (currentRoute != null) {
@@ -168,11 +174,29 @@ fun MainScreen() {
             composable(route = ScreenRoute.Profile.route) {
                 ProfileScreen(navController)
             }
-            composable<ScreenRoute.ProductsScreen> { navBackStackEntry ->
-                val data = navBackStackEntry.toRoute<ScreenRoute.ProductsScreen>()
+            //with null
+            composable(ScreenRoute.ProductsScreen.BASE_ROUTE) {
                 ProductsScreen(
                     isFilterBarShown = isShowFilterBarProductsScreen,
-                    collectionId = data.collectionId
+                    collectionId = null
+                )
+            }
+            //with value
+            composable(
+                route = ScreenRoute.ProductsScreen.FULL_ROUTE,
+                arguments = listOf(
+                    navArgument("collectionId") {
+                        type = NavType.StringType  // Changed to StringType
+                        nullable = true
+                    }
+                )
+            ) { backStackEntry ->
+                val collectionIdStr = backStackEntry.arguments?.getString("collectionId")
+                val collectionId = collectionIdStr?.toLongOrNull()
+
+                ProductsScreen(
+                    isFilterBarShown = isShowFilterBarProductsScreen,
+                    collectionId = collectionId
                 )
             }
         }

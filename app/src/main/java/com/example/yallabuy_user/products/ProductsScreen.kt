@@ -34,77 +34,89 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.yallabuy_user.collections.CollectionsViewModel
 import com.example.yallabuy_user.collections.Product
+import com.example.yallabuy_user.data.models.ProductsItem
 import com.example.yallabuy_user.home.ProgressShow
 import com.example.yallabuy_user.utilities.ApiResponse
 import org.koin.androidx.compose.koinViewModel
 
 private const val TAG = "ProductsScreen"
+
 @Composable
-fun ProductsScreen(isFilterBarShown:Boolean = false,collectionId : Long? = null,viewModel: CollectionsViewModel = koinViewModel()) {
+fun ProductsScreen(
+    isFilterBarShown: Boolean = false,
+    collectionId: Long? = null,
+    viewModel: ProductsViewModel = koinViewModel()
+) {
     val uiProductsState by viewModel.products.collectAsState()
     val searchQuery = remember { mutableStateOf("") }
 
-    var currentPrice by remember { mutableFloatStateOf(5000f) }
-    val maxPrice = remember { mutableFloatStateOf(5000f) }
-    val minPrice = remember { mutableFloatStateOf(50f) }
-    var priceUnit = remember { mutableStateOf("USD") }
+
+    var maxPrice by remember { mutableFloatStateOf(5000f) }
+    var minPrice by remember { mutableFloatStateOf(5f) }
+    var currentPrice by remember { mutableFloatStateOf(maxPrice) }
+    var priceUnit by remember { mutableStateOf("EG") }
     LaunchedEffect(Unit) {
         viewModel.getProducts(collectionId)
+
     }
 
-    Box{
-         Column(modifier = Modifier.padding(6.dp)) {
-             OutlinedTextField(
-                 value = searchQuery.value, onValueChange = { query ->
-                     searchQuery.value = query
-                     Log.i(TAG, "Search: $query")
-                 },
-                 modifier = Modifier
-                     .fillMaxWidth()
-                     .padding(vertical = 16.dp, horizontal = 22.dp)
-                     .heightIn(min = 40.dp),
-                 shape = RoundedCornerShape(14.dp),
-                 label = { Text("What are you looking for ?") },
+    Box {
+        Column(modifier = Modifier.padding(6.dp)) {
+            OutlinedTextField(
+                value = searchQuery.value, onValueChange = { query ->
+                    searchQuery.value = query
+                    Log.i(TAG, "Search: $query")
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 3.dp, horizontal = 22.dp)
+                    .heightIn(min = 40.dp),
+                shape = RoundedCornerShape(14.dp),
+                label = { Text("What are you looking for ?") },
 
-                 leadingIcon = {
-                     Icon(imageVector = Icons.Default.Search, contentDescription = "Search Icon")
-                 },
-                 singleLine = true,
-                 colors = OutlinedTextFieldDefaults.colors(
-                     focusedContainerColor = MaterialTheme.colorScheme.background,
-                     unfocusedContainerColor = Color.LightGray,
-                     focusedTextColor = Color.Black,
-                     unfocusedTextColor = Color.Black,
-                     disabledTextColor = Color.Black,
-                     errorTextColor = Color.Red
+                leadingIcon = {
+                    Icon(imageVector = Icons.Default.Search, contentDescription = "Search Icon")
+                },
+                singleLine = true,
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedContainerColor = MaterialTheme.colorScheme.background,
+                    unfocusedContainerColor = Color.LightGray,
+                    focusedTextColor = Color.Black,
+                    unfocusedTextColor = Color.Black,
+                    disabledTextColor = Color.Black,
+                    errorTextColor = Color.Red
 
-                 )
-             )
-                 //set range from min price to max prise
-             Row (modifier = Modifier
-                 .padding(horizontal = 12.dp)){
-                 Text("Price:${currentPrice.toInt()} ${priceUnit.value}", fontSize = 13.sp)
-                 Slider(
-                     modifier = Modifier
-                         .height(22.dp),
-                     value = currentPrice,
-                     onValueChange = { currentPrice = it },
-                     valueRange = minPrice.floatValue..maxPrice.floatValue,
-                     colors = SliderDefaults.colors(
-                         thumbColor = MaterialTheme.colorScheme.primary,
-                         activeTrackColor = MaterialTheme.colorScheme.primary,
-                         inactiveTrackColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.24f)
-                     )
-                 )
-             }
+                )
+            )
+            //set range from min price to max prise
+            if (isFilterBarShown) {
+                Row(
+                    modifier = Modifier
+                        .padding(horizontal = 12.dp)
+                ) {
+                    Text("Price:${currentPrice.toInt()} ${priceUnit}", fontSize = 13.sp)
+                    Slider(
+                        modifier = Modifier
+                            .height(22.dp),
+                        value = currentPrice,
+                        onValueChange = { currentPrice = it },
+                        valueRange = minPrice..maxPrice,
+                        colors = SliderDefaults.colors(
+                            thumbColor = MaterialTheme.colorScheme.primary,
+                            activeTrackColor = MaterialTheme.colorScheme.primary,
+                            inactiveTrackColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.24f)
+                        )
+                    )
+                }
+            }
             when (uiProductsState) {
                 is ApiResponse.Success -> {
                     val products = (uiProductsState as ApiResponse.Success).data
-                   // Log.i(TAG, "Products Screen: Products $products")
-                    minPrice.floatValue = 200f
-                    maxPrice.floatValue = 2000f
+                    // Log.i(TAG, "Products Screen: Products $products")
+                    val (min, max) = getMinAMxPrice(products = (uiProductsState as ApiResponse.Success).data)
+                    minPrice = min
+                    maxPrice = max
                     LazyVerticalGrid(
                         columns = GridCells.Fixed(2),
                         modifier = Modifier
@@ -130,4 +142,15 @@ fun ProductsScreen(isFilterBarShown:Boolean = false,collectionId : Long? = null,
             }
         }
     }
+}
+
+private fun getMinAMxPrice(products: List<ProductsItem>): Pair<Float, Float> {
+    val prices = products.flatMap { product ->
+        product.variants?.mapNotNull { it?.price?.toFloatOrNull() } ?: emptyList()
+    }
+
+    val minPrice = prices.minOrNull() ?: 0f
+    val maxPrice = prices.maxOrNull() ?: 0f
+
+    return Pair(minPrice, maxPrice)
 }

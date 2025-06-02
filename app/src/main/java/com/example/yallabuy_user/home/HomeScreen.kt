@@ -67,8 +67,9 @@ fun HomeScreen(navController: NavController, homeViewModel: HomeViewModel = koin
                 val brands = (uiBrandState as ApiResponse.Success).data
                 val categories = (uiCategoriesState as ApiResponse.Success).data
                 HomeContent(categories, brands, onCatClicked = {catId->
-                    Log.i(TAG, "HomeScreen: Collection ID = $catId")
-                    navController.navigate(ScreenRoute.ProductsScreen(catId))
+                  //  Log.i(TAG, "HomeScreen: Collection ID = $catId")
+                    navController.navigate(ScreenRoute.ProductsScreen.createRoute(catId))
+
                 })
 
                 Log.i(TAG, "HomeScreen $categories")

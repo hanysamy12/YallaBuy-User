@@ -1,4 +1,4 @@
-package com.example.yallabuy_user.collections
+package com.example.yallabuy_user.products
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
@@ -11,11 +11,11 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 
-private const val TAG = "CollectionsViewModel"
+private const val TAG = "ProductsViewModel"
 
 
-class CollectionsViewModel(private val repo: RepositoryInterface) : ViewModel(),
-    CollectionsViewModelInterface {
+class ProductsViewModel(private val repo: RepositoryInterface) : ViewModel(),
+    ProductsViewModelInterface {
 
     private val _categories =
         MutableStateFlow<ApiResponse<List<CustomCollectionsItem>>>(ApiResponse.Loading)

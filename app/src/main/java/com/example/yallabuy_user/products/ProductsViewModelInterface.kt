@@ -1,7 +1,7 @@
-package com.example.yallabuy_user.collections
+package com.example.yallabuy_user.products
 
 
-interface CollectionsViewModelInterface {
+interface ProductsViewModelInterface {
     suspend fun getAllCategories()
     suspend fun getProducts(categoryID: Long?)
     fun showSubCategoryProduct(subCategory : String)
