@@ -19,6 +19,7 @@ data class ProductsItem(
 	val images: List<ImagesItem?>? = null,
 	val createdAt: String? = null,
 	val handle: String? = null,
+	val variants: List<VariantsItem?>? = null,
 	val title: String? = null,
 	val tags: String? = null,
 	val publishedScope: String? = null,
@@ -60,3 +61,31 @@ data class ProductImage(
 	val height: Int? = null
 )
 
+data class VariantsItem(
+	val inventoryManagement: String? = null,
+	val requiresShipping: Boolean? = null,
+	val oldInventoryQuantity: Int? = null,
+	val createdAt: String? = null,
+	val title: String? = null,
+	val updatedAt: String? = null,
+	val inventoryItemId: Long? = null,
+	val price: String? = null,
+	val productId: Long? = null,
+	val option3: Any? = null,
+	val option1: String? = null,
+	val id: Long? = null,
+	val option2: String? = null,
+	val grams: Int? = null,
+	val sku: String? = null,
+	val barcode: Any? = null,
+	val inventoryQuantity: Int? = null,
+	val compareAtPrice: Any? = null,
+	val taxable: Boolean? = null,
+	val fulfillmentService: String? = null,
+	val weight: Any? = null,
+	val inventoryPolicy: String? = null,
+	val weightUnit: String? = null,
+	val adminGraphqlApiId: String? = null,
+	val position: Int? = null,
+	val imageId: Any? = null
+)

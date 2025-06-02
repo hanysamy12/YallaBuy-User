@@ -40,6 +40,7 @@ import com.bumptech.glide.integration.compose.GlideImage
 import com.example.yallabuy_user.data.models.CustomCollectionsItem
 import com.example.yallabuy_user.data.models.ProductsItem
 import com.example.yallabuy_user.home.ProgressShow
+import com.example.yallabuy_user.products.ProductsViewModel
 import com.example.yallabuy_user.utilities.ApiResponse
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
@@ -49,7 +50,7 @@ private const val TAG = "CollectionsScreen"
 @Composable
 fun CollectionsScreen(
     setFilterMeth: (filter: (String) -> Unit) -> Unit,
-    viewModel: CollectionsViewModel = koinInject()
+    viewModel: ProductsViewModel = koinInject()
 ) {
 
     LaunchedEffect(UInt) {
@@ -173,14 +174,14 @@ fun Product(product: ProductsItem) {
                 contentScale = ContentScale.Fit
             )
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                product.title?.let { Text(it, fontSize = 18.sp, maxLines = 2) }
+                Text(product.title ?:"No Title", fontSize = 18.sp, maxLines = 2)
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.Center
                 ) {
-                    Text("USD")
+                    Text("EG")
                     Spacer(Modifier.width(3.dp))
-                    Text("2000.00", fontWeight = FontWeight.Bold)
+                    Text(product.variants?.get(0)?.price ?: "NO Price", fontWeight = FontWeight.Bold)
                 }
             }
 

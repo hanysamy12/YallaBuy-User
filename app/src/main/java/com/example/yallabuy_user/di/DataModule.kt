@@ -8,7 +8,7 @@ import com.example.yallabuy_user.data.remote.AuthInterceptor
 import com.example.yallabuy_user.data.remote.RemoteDataSource
 import com.example.yallabuy_user.data.remote.RemoteDataSourceInterface
 import com.example.yallabuy_user.repo.Repository
-import com.example.yallabuy_user.collections.CollectionsViewModel
+import com.example.yallabuy_user.products.ProductsViewModel
 import com.example.yallabuy_user.profile.ProfileViewModel
 import com.example.yallabuy_user.wish.WishViewModel
 
@@ -50,7 +50,7 @@ val dataModule = module {
         WishViewModel()
     }
     viewModel {
-        CollectionsViewModel(get())
+        ProductsViewModel(get())
     }
     viewModel {
         CartViewModel()

@@ -19,6 +19,20 @@ sealed class ScreenRoute(val route: String){
     data object Cart : ScreenRoute("cart")
     @Serializable
     data object Profile : ScreenRoute("profile")
+/*    @Serializable
+    data class ProductsScreen (val collectionId:Long?): ScreenRoute("products/$collectionId?")*/
+
     @Serializable
-    data class ProductsScreen (val collectionId:Long?): ScreenRoute("products")
+    data class ProductsScreen(val collectionId: String?) : ScreenRoute(
+        route = "products/{collectionId}"
+    ) {
+        companion object {
+            const val BASE_ROUTE = "products"
+            const val FULL_ROUTE = "products/{collectionId}"
+
+            fun createRoute(collectionId: Long?): String {
+                return if (collectionId != null) "products/$collectionId" else BASE_ROUTE
+            }
+        }
+    }
 }
