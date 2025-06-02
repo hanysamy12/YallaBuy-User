@@ -69,7 +69,6 @@ fun HomeScreen(navController: NavController, homeViewModel: HomeViewModel = koin
                 HomeContent(categories, brands, onCatClicked = {catId->
                   //  Log.i(TAG, "HomeScreen: Collection ID = $catId")
                     navController.navigate(ScreenRoute.ProductsScreen.createRoute(catId))
-
                 })
 
                 Log.i(TAG, "HomeScreen $categories")

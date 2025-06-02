@@ -29,7 +29,6 @@ sealed class ScreenRoute(val route: String){
         companion object {
             const val BASE_ROUTE = "products"
             const val FULL_ROUTE = "products/{collectionId}"
-
             fun createRoute(collectionId: Long?): String {
                 return if (collectionId != null) "products/$collectionId" else BASE_ROUTE
             }
