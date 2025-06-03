@@ -46,6 +46,7 @@ import com.example.yallabuy_user.R
 import com.example.yallabuy_user.cart.CartScreen
 import com.example.yallabuy_user.collections.CollectionsScreen
 import com.example.yallabuy_user.home.HomeScreen
+import com.example.yallabuy_user.productInfo.ProductInfoScreen
 import com.example.yallabuy_user.products.ProductsScreen
 import com.example.yallabuy_user.profile.ProfileScreen
 import com.example.yallabuy_user.wish.WishScreen
@@ -164,7 +165,7 @@ fun MainScreen() {
                 WishScreen(navController)
             }
             composable(route = ScreenRoute.Collections.route) {
-                CollectionsScreen(setFilterMeth = {
+                CollectionsScreen(navController,setFilterMeth = {
                     onFilterClicked = it
                 })
             }
@@ -177,6 +178,7 @@ fun MainScreen() {
             //with null
             composable(ScreenRoute.ProductsScreen.BASE_ROUTE) {
                 ProductsScreen(
+                    navController,
                     isFilterBarShown = isShowFilterBarProductsScreen,
                     collectionId = null
                 )
@@ -195,9 +197,15 @@ fun MainScreen() {
                 val collectionId = collectionIdStr?.toLongOrNull()
 
                 ProductsScreen(
+                    navController ,
                     isFilterBarShown = isShowFilterBarProductsScreen,
-                    collectionId = collectionId
+                    collectionId = collectionId ,
+
                 )
+            }
+            composable<ScreenRoute.ProductInfo> {
+                val args = it.toRoute<ScreenRoute.ProductInfo>()
+                ProductInfoScreen(args.productId)
             }
         }
     }

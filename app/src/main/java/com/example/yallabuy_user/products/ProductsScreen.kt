@@ -34,6 +34,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.example.yallabuy_user.collections.Product
 import com.example.yallabuy_user.data.models.ProductsItem
 import com.example.yallabuy_user.home.ProgressShow
@@ -44,6 +45,7 @@ private const val TAG = "ProductsScreen"
 
 @Composable
 fun ProductsScreen(
+    navController: NavController ,
     isFilterBarShown: Boolean = false,
     collectionId: Long? = null,
     viewModel: ProductsViewModel = koinViewModel()
@@ -136,7 +138,7 @@ fun ProductsScreen(
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         items(products.size) { index ->
-                            Product(products[index])
+                            Product(products[index] , navController)
                             Log.i(TAG, "ProductsScreen: Product Price ${products[index].variants?.get(0)?.price}")
                         }
                     }
