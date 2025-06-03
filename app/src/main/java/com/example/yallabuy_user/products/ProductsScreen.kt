@@ -91,7 +91,7 @@ fun ProductsScreen(
                 )
             )
             if (isFilterBarShown) {
-                if (!isPriceSet) {
+                if (!isPriceSet && uiProductsState is ApiResponse.Success) {
                     val (min, max) = getMinAMxPrice(products = (uiProductsState as ApiResponse.Success).data)
                     minPrice = min
                     maxPrice = max
