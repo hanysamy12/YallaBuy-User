@@ -94,4 +94,14 @@ dependencies {
     val koin_android_version = "4.0.2"
     implementation("io.insert-koin:koin-android:$koin_android_version")
     implementation("io.insert-koin:koin-androidx-compose:$koin_android_version")
+
+
+    //view pager
+
+    implementation("com.google.accompanist:accompanist-pager:0.34.0")
+    implementation("com.google.accompanist:accompanist-pager-indicators:0.34.0")
+
+    //Async image
+    implementation("io.coil-kt:coil-compose:2.4.0")
+
 }

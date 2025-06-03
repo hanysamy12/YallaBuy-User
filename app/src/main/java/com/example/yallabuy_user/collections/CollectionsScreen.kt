@@ -35,12 +35,14 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.yallabuy_user.data.models.CustomCollectionsItem
 import com.example.yallabuy_user.data.models.ProductsItem
 import com.example.yallabuy_user.home.ProgressShow
 import com.example.yallabuy_user.products.ProductsViewModel
+import com.example.yallabuy_user.ui.navigation.ScreenRoute
 import com.example.yallabuy_user.utilities.ApiResponse
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
@@ -49,6 +51,7 @@ private const val TAG = "CollectionsScreen"
 
 @Composable
 fun CollectionsScreen(
+    navController: NavController ,
     setFilterMeth: (filter: (String) -> Unit) -> Unit,
     viewModel: ProductsViewModel = koinInject()
 ) {
@@ -99,7 +102,7 @@ fun CollectionsScreen(
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     items(products.size) { index ->
-                        Product(products[index])
+                        Product(products[index], navController)
                     }
                 }
             }
@@ -149,13 +152,16 @@ private fun CategoriesChips(
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
-fun Product(product: ProductsItem) {
+fun Product(product: ProductsItem, navController: NavController) {
     Card(
         modifier = Modifier
             .fillMaxSize(),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp) ,
+        onClick = {
+            navController.navigate(ScreenRoute.ProductInfo(product.id ?: 0))
+        }
     ) {
         Column(
             modifier = Modifier
