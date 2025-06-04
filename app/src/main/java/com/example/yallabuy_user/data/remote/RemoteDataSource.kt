@@ -10,8 +10,10 @@ import kotlinx.coroutines.flow.flowOf
 import retrofit2.HttpException
 
 
-class RemoteDataSource (private val service: ApiService) :
-    RemoteDataSourceInterface {
+class RemoteDataSource (
+    private val service: ApiService ,
+    private val fireBaseService: FireBaseService
+) : RemoteDataSourceInterface {
     override suspend fun getAllCategories(): Flow<CategoryResponse> {
         val categories = service.getAllCategories()
         return flowOf(categories)
@@ -42,6 +44,15 @@ class RemoteDataSource (private val service: ApiService) :
         } catch (e : NullPointerException){
             Log.i("error", "getProductInfoById in remote null point  error ${e.message} ")
             flowOf()
+        }
+    }
+
+    override fun createUserAccount(email: String, password: String): String {
+        return try {
+            fireBaseService.createUserAccount(email , password)
+        }catch (e : Exception){
+            Log.i("TAG", "createUserAccount in remote data source error ${e.message}  ")
+            "error"
         }
     }
 }

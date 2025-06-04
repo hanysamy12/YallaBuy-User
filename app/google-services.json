@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "585127320580",
+    "project_id": "yallabuy-e77fb",
+    "storage_bucket": "yallabuy-e77fb.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:585127320580:android:d7e894fb15d9f34e5da951",
+        "android_client_info": {
+          "package_name": "com.example.firstdemo"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAJK8YoHXBry_hk7rhuMY1t4yxCbkJPUo4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:585127320580:android:411e4f8f6d6ea3815da951",
+        "android_client_info": {
+          "package_name": "com.example.yallabuy_user"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAJK8YoHXBry_hk7rhuMY1t4yxCbkJPUo4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

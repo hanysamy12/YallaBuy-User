@@ -13,4 +13,5 @@ interface RemoteDataSourceInterface {
     suspend fun getCategoryProducts(categoryID :Long): Flow<ProductResponse>
     suspend fun getAllProducts(): Flow<ProductResponse>
     suspend fun getProductInfoById(productId : Long) : Flow<ProductInfoResponse>
+    fun createUserAccount(email: String, password: String) : String
 }
