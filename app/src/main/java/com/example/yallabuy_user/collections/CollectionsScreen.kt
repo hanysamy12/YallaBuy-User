@@ -36,8 +36,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
-import com.bumptech.glide.integration.compose.GlideImage
 import com.example.yallabuy_user.data.models.CustomCollectionsItem
 import com.example.yallabuy_user.data.models.ProductsItem
 import com.example.yallabuy_user.home.ProgressShow
@@ -173,7 +173,7 @@ fun Product(product: ProductsItem, navController: NavController) {
         ) {
             ///Image for the first product may not changes (log the right image url )
             Log.d(TAG, "Product: Image URL ${product.image?.src}")
-            GlideImage(
+            AsyncImage(
                 model = product.image?.src, contentDescription = product.title, modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(16.dp)),
