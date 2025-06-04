@@ -43,6 +43,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.navigation.toRoute
 import com.example.yallabuy_user.R
+import com.example.yallabuy_user.authentication.registration.RegistrationScreen
 import com.example.yallabuy_user.cart.CartScreen
 import com.example.yallabuy_user.collections.CollectionsScreen
 import com.example.yallabuy_user.home.HomeScreen
@@ -155,9 +156,12 @@ fun MainScreen() {
     ) { contentPadding ->
         NavHost(
             navController = navController,
-            startDestination = ScreenRoute.Home.route,
+            startDestination = ScreenRoute.Registration,
             modifier = Modifier.padding(contentPadding)
         ) {
+            composable<ScreenRoute.Registration>{
+                RegistrationScreen(navController)
+            }
             composable(route = ScreenRoute.Home.route) {
                 HomeScreen(navController)
             }

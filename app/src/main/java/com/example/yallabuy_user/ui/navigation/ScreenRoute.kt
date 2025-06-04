@@ -37,4 +37,6 @@ sealed class ScreenRoute(val route: String){
 
     @Serializable
     data class ProductInfo(val productId : Long)
+    @Serializable
+    data object Registration
 }
