@@ -35,12 +35,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navArgument
 import androidx.navigation.toRoute
 import com.example.yallabuy_user.R
 import com.example.yallabuy_user.cart.CartScreen
@@ -180,28 +178,23 @@ fun MainScreen() {
                 ProductsScreen(
                     navController,
                     isFilterBarShown = isShowFilterBarProductsScreen,
-                    collectionId = null
+                    vendorName = null,
+                    categoryID = null
                 )
             }
             //with value
             composable(
-                route = ScreenRoute.ProductsScreen.FULL_ROUTE,
-                arguments = listOf(
-                    navArgument("collectionId") {
-                        type = NavType.StringType  // Changed to StringType
-                        nullable = true
-                    }
-                )
+                route = ScreenRoute.ProductsScreen.FULL_ROUTE
             ) { backStackEntry ->
-                val collectionIdStr = backStackEntry.arguments?.getString("collectionId")
-                val collectionId = collectionIdStr?.toLongOrNull()
-
+                val vendorName = backStackEntry.arguments?.getString("vendorName")
+                val categoryIDString = backStackEntry.arguments?.getString("categoryID")
+                val categoryID = categoryIDString?.toLongOrNull()
                 ProductsScreen(
-                    navController ,
+                    navController,
                     isFilterBarShown = isShowFilterBarProductsScreen,
-                    collectionId = collectionId ,
-
-                )
+                    vendorName = vendorName,
+                    categoryID = categoryID
+                    )
             }
             composable<ScreenRoute.ProductInfo> {
                 val args = it.toRoute<ScreenRoute.ProductInfo>()
