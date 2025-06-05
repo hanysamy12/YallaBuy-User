@@ -102,7 +102,6 @@ fun HomeScreen(navController: NavController, homeViewModel: HomeViewModel = koin
 
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun HomeContent(
     categories: List<CustomCollectionsItem>,
@@ -126,17 +125,6 @@ private fun HomeContent(
 
         Spacer(Modifier.height(20.dp))
 
-//    Column {
-//        LazyRow(
-//            modifier = Modifier
-//                .background(Color.Blue)
-//                .height(200.dp)
-//                .fillMaxWidth()
-//        ) {
-//            items(7) { _ ->
-//                SliderItem()
-//            }
-//        }
         Spacer(Modifier.height(20.dp))
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -209,7 +197,8 @@ fun CouponsCarousel(imageResIds: List<Int>) {
 fun CouponImage(imageResId: Int) {
     Box(
         modifier = Modifier
-            .fillMaxHeight()
+            //.fillMaxHeight()
+            .height(200.dp)
             .clip(RoundedCornerShape(12.dp))
             .background(Color.LightGray)
     ) {
@@ -242,22 +231,6 @@ fun PreviewCouponsCarousel() {
         CouponsCarousel(imageResIds = previewImages)
     }
 }
-//@Preview
-//@Composable
-//private fun SliderItem() {
-//
-//    Box(
-//        modifier = Modifier
-//            .fillMaxSize()
-//            .background(Color.White)
-//    ) {
-//        Image(
-//            painter = painterResource(id = R.drawable.img_sale),
-//            contentDescription = "Coupons",
-//            modifier = Modifier.fillMaxSize()
-//        )
-//    }
-//}
 
 
 @Composable
