@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+
 import androidx.lifecycle.ViewModelProvider
 import com.example.yallabuy_user.settings.model.remote.CurrencyPreferenceManager
 import com.example.yallabuy_user.settings.model.repository.CurrencyRepository
@@ -11,6 +12,9 @@ import com.example.yallabuy_user.settings.model.repository.FakeCurrencyRepositor
 import com.example.yallabuy_user.settings.view.CurrencyScreen
 
 import com.example.yallabuy_user.settings.viewmodel.CurrencyViewModel
+
+
+import com.example.yallabuy_user.settings.view.CurrencyScreen
 
 import com.example.yallabuy_user.ui.navigation.MainScreen
 import com.example.yallabuy_user.ui.theme.YallaBuyUserTheme
@@ -44,8 +48,11 @@ class MainActivity : ComponentActivity() {
         setContent {
             YallaBuyUserTheme {
                 //MainScreen()
+
               //  CurrencyScreen(currencyViewModel = viewModel)
                 CurrencyScreen(viewModel = fakeViewModel)
+
+
 
             }
         }

@@ -1,6 +1,7 @@
 package com.example.yallabuy_user.settings.viewmodel
 
 import androidx.lifecycle.ViewModel
+
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.yallabuy_user.settings.model.local.CurrencyUiState
@@ -15,6 +16,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.text.NumberFormat
 import java.util.Locale
+
 
 open class CurrencyViewModel(
     private val preferenceManager: CurrencyPreferenceManager
@@ -31,11 +33,10 @@ open class CurrencyViewModel(
     val availableCurrencies: List<String> = CurrencyPreferenceManager.SUPPORTED_CURRENCIES
 
 
-      //calle it  when the user selects a new currency from the dropdown.
+    //calle it  when the user selects a new currency from the dropdown.
     fun onCurrencySelected(newCurrencyCode: String) {
         viewModelScope.launch {
             preferenceManager.setPreferredCurrency(newCurrencyCode)
         }
     }
 }
-
