@@ -8,6 +8,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -22,8 +23,12 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.carousel.HorizontalMultiBrowseCarousel
+import androidx.compose.material3.carousel.rememberCarouselState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -97,6 +102,7 @@ fun HomeScreen(navController: NavController, homeViewModel: HomeViewModel = koin
 
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun HomeContent(
     categories: List<CustomCollectionsItem>,
@@ -105,17 +111,32 @@ private fun HomeContent(
     onBrandClicked: (String) -> Unit
 ) {
 
+    val couponImages = listOf(
+        R.drawable.sale1,
+        R.drawable.sale2,
+        R.drawable.sale3,
+        R.drawable.sale4,
+        R.drawable.sale5,
+        R.drawable.img_sale
+    )
+
     Column {
-        LazyRow(
-            modifier = Modifier
-                .background(Color.Blue)
-                .height(200.dp)
-                .fillMaxWidth()
-        ) {
-            items(7) { _ ->
-                SliderItem()
-            }
-        }
+
+        CouponsCarousel(imageResIds = couponImages)
+
+        Spacer(Modifier.height(20.dp))
+
+//    Column {
+//        LazyRow(
+//            modifier = Modifier
+//                .background(Color.Blue)
+//                .height(200.dp)
+//                .fillMaxWidth()
+//        ) {
+//            items(7) { _ ->
+//                SliderItem()
+//            }
+//        }
         Spacer(Modifier.height(20.dp))
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -169,22 +190,74 @@ private fun HomeContent(
 
 }
 
-@Preview
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun SliderItem() {
+fun CouponsCarousel(imageResIds: List<Int>) {
+    val carouselState = rememberCarouselState { imageResIds.size }
 
+    HorizontalMultiBrowseCarousel(
+        state = carouselState,
+        preferredItemWidth = 300.dp,
+        itemSpacing = 12.dp,
+        contentPadding = PaddingValues(horizontal = 16.dp)
+    ) { index ->
+        CouponImage(imageResId = imageResIds[index])
+    }
+}
+
+@Composable
+fun CouponImage(imageResId: Int) {
     Box(
         modifier = Modifier
-            .fillMaxSize()
-            .background(Color.White)
+            .fillMaxHeight()
+            .clip(RoundedCornerShape(12.dp))
+            .background(Color.LightGray)
     ) {
         Image(
-            painter = painterResource(id = R.drawable.img_sale),
-            contentDescription = "Coupons",
-            modifier = Modifier.fillMaxSize()
+            painter = painterResource(id = imageResId),
+            contentDescription = "Coupon Image",
+            modifier = Modifier
+                .fillMaxSize()
+                .clip(RoundedCornerShape(12.dp)),
+            contentScale = ContentScale.Crop
         )
     }
 }
+
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewCouponsCarousel() {
+    val previewImages = listOf(
+        android.R.drawable.ic_menu_gallery,
+        android.R.drawable.ic_menu_gallery,
+        android.R.drawable.ic_menu_gallery,
+        android.R.drawable.ic_menu_gallery,
+        android.R.drawable.ic_menu_gallery,
+        android.R.drawable.ic_menu_gallery
+    )
+
+    //https://developer.android.com/develop/ui/compose/components/carousel
+    MaterialTheme {
+        CouponsCarousel(imageResIds = previewImages)
+    }
+}
+//@Preview
+//@Composable
+//private fun SliderItem() {
+//
+//    Box(
+//        modifier = Modifier
+//            .fillMaxSize()
+//            .background(Color.White)
+//    ) {
+//        Image(
+//            painter = painterResource(id = R.drawable.img_sale),
+//            contentDescription = "Coupons",
+//            modifier = Modifier.fillMaxSize()
+//        )
+//    }
+//}
 
 
 @Composable
