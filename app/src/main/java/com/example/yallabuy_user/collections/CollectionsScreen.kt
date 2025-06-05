@@ -35,12 +35,13 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
-import com.bumptech.glide.integration.compose.GlideImage
+import androidx.navigation.NavController
+import coil.compose.AsyncImage
 import com.example.yallabuy_user.data.models.CustomCollectionsItem
 import com.example.yallabuy_user.data.models.ProductsItem
 import com.example.yallabuy_user.home.ProgressShow
 import com.example.yallabuy_user.products.ProductsViewModel
+import com.example.yallabuy_user.ui.navigation.ScreenRoute
 import com.example.yallabuy_user.utilities.ApiResponse
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
@@ -49,6 +50,7 @@ private const val TAG = "CollectionsScreen"
 
 @Composable
 fun CollectionsScreen(
+    navController: NavController ,
     setFilterMeth: (filter: (String) -> Unit) -> Unit,
     viewModel: ProductsViewModel = koinInject()
 ) {
@@ -69,12 +71,11 @@ fun CollectionsScreen(
             is ApiResponse.Success -> {
                 val categories = (uiCategoriesState as ApiResponse.Success).data
                 LaunchedEffect(Unit) {
-                    categories[0].id?.let { viewModel.getProducts(it) }
+                    categories[0].id?.let { viewModel.getCategoryProducts(it) }
 
                 }
                 CategoriesChips(categories, onChipClicked = { categoryId ->
-                    Log.i(TAG, "CollectionsScreen CID: $categoryId")
-                    coroutineScope.launch { viewModel.getProducts(categoryId) }
+                    coroutineScope.launch { categoryId?.let { viewModel.getCategoryProducts(categoryId)} }
                 })
             }
 
@@ -89,7 +90,6 @@ fun CollectionsScreen(
         when (uiProductsState) {
             is ApiResponse.Success -> {
                 val products = (uiProductsState as ApiResponse.Success).data
-                Log.i(TAG, "CollectionsScreen: Products $products")
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(2),
                     modifier = Modifier
@@ -99,14 +99,13 @@ fun CollectionsScreen(
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     items(products.size) { index ->
-                        Product(products[index])
+                        Product(products[index], navController)
                     }
                 }
             }
 
             is ApiResponse.Failure -> {
                 val msg = (uiProductsState as ApiResponse.Failure).toString()
-                Log.i(TAG, "Products Failure Error $msg")
             }
 
             ApiResponse.Loading -> {
@@ -119,7 +118,7 @@ fun CollectionsScreen(
 @Composable
 private fun CategoriesChips(
     categories: List<CustomCollectionsItem>,
-    onChipClicked: (categoryId: Long) -> Unit
+    onChipClicked: (categoryId: Long?) -> Unit
 ) {
     val chipsLabels = categories.map { it.title }
 
@@ -147,15 +146,17 @@ private fun CategoriesChips(
     }
 }
 
-@OptIn(ExperimentalGlideComposeApi::class)
 @Composable
-fun Product(product: ProductsItem) {
+fun Product(product: ProductsItem, navController: NavController) {
     Card(
         modifier = Modifier
             .fillMaxSize(),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp) ,
+        onClick = {
+            navController.navigate(ScreenRoute.ProductInfo(product.id ?: 0))
+        }
     ) {
         Column(
             modifier = Modifier
@@ -166,8 +167,7 @@ fun Product(product: ProductsItem) {
 
         ) {
             ///Image for the first product may not changes (log the right image url )
-            Log.d(TAG, "Product: Image URL ${product.image?.src}")
-            GlideImage(
+            AsyncImage(
                 model = product.image?.src, contentDescription = product.title, modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(16.dp)),

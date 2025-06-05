@@ -4,6 +4,7 @@ package com.example.yallabuy_user.repo
 import com.example.yallabuy_user.data.models.BrandResponse
 import com.example.yallabuy_user.data.models.CategoryResponse
 import com.example.yallabuy_user.data.models.ProductResponse
+import com.example.yallabuy_user.data.models.productInfo.ProductInfoResponse
 import kotlinx.coroutines.flow.Flow
 
 interface RepositoryInterface {
@@ -11,5 +12,5 @@ interface RepositoryInterface {
     suspend fun getAllBrands(): Flow<BrandResponse>
     suspend fun getCategoryProducts(categoryID: Long): Flow<ProductResponse>
     suspend fun getAllProducts(): Flow<ProductResponse>
-
+    suspend fun getProductById(productId : Long) : Flow<ProductInfoResponse>
 }

@@ -4,6 +4,7 @@ import com.example.yallabuy_user.BuildConfig
 import com.example.yallabuy_user.data.models.BrandResponse
 import com.example.yallabuy_user.data.models.CategoryResponse
 import com.example.yallabuy_user.data.models.ProductResponse
+import com.example.yallabuy_user.data.models.productInfo.ProductInfoResponse
 import okhttp3.Interceptor
 import okhttp3.Response
 import retrofit2.http.GET
@@ -33,4 +34,9 @@ interface ApiService {
 
     @GET("products.json")
     suspend fun getAllProducts(): ProductResponse
+
+    @GET("products/{product_id}.json")
+    suspend fun getProductById(
+        @Path("product_id") productId : Long
+    ) : ProductInfoResponse
 }
