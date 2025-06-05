@@ -43,6 +43,4 @@ class SettingsViewModel : ViewModel() {
         )
     }
 
-    // Add functions here to handle specific setting clicks if needed
-    // e.g., fun navigateToAddressScreen() { ... }
 }
