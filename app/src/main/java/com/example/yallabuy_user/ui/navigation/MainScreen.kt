@@ -35,17 +35,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navArgument
 import androidx.navigation.toRoute
 import com.example.yallabuy_user.R
 import com.example.yallabuy_user.cart.CartScreen
 import com.example.yallabuy_user.collections.CollectionsScreen
 import com.example.yallabuy_user.home.HomeScreen
+import com.example.yallabuy_user.productInfo.ProductInfoScreen
 import com.example.yallabuy_user.products.ProductsScreen
 import com.example.yallabuy_user.profile.ProfileScreen
 import com.example.yallabuy_user.wish.WishScreen
@@ -164,7 +163,7 @@ fun MainScreen() {
                 WishScreen(navController)
             }
             composable(route = ScreenRoute.Collections.route) {
-                CollectionsScreen(setFilterMeth = {
+                CollectionsScreen(navController,setFilterMeth = {
                     onFilterClicked = it
                 })
             }
@@ -177,27 +176,29 @@ fun MainScreen() {
             //with null
             composable(ScreenRoute.ProductsScreen.BASE_ROUTE) {
                 ProductsScreen(
+                    navController,
                     isFilterBarShown = isShowFilterBarProductsScreen,
-                    collectionId = null
+                    vendorName = null,
+                    categoryID = null
                 )
             }
             //with value
             composable(
-                route = ScreenRoute.ProductsScreen.FULL_ROUTE,
-                arguments = listOf(
-                    navArgument("collectionId") {
-                        type = NavType.StringType  // Changed to StringType
-                        nullable = true
-                    }
-                )
+                route = ScreenRoute.ProductsScreen.FULL_ROUTE
             ) { backStackEntry ->
-                val collectionIdStr = backStackEntry.arguments?.getString("collectionId")
-                val collectionId = collectionIdStr?.toLongOrNull()
-
+                val vendorName = backStackEntry.arguments?.getString("vendorName")
+                val categoryIDString = backStackEntry.arguments?.getString("categoryID")
+                val categoryID = categoryIDString?.toLongOrNull()
                 ProductsScreen(
+                    navController,
                     isFilterBarShown = isShowFilterBarProductsScreen,
-                    collectionId = collectionId
-                )
+                    vendorName = vendorName,
+                    categoryID = categoryID
+                    )
+            }
+            composable<ScreenRoute.ProductInfo> {
+                val args = it.toRoute<ScreenRoute.ProductInfo>()
+                ProductInfoScreen(args.productId)
             }
         }
     }

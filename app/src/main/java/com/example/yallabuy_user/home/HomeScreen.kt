@@ -39,18 +39,19 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
-import com.bumptech.glide.integration.compose.GlideImage
+import coil.compose.AsyncImage
 import com.example.yallabuy_user.R
-import com.example.yallabuy_user.utilities.ApiResponse
 import com.example.yallabuy_user.data.models.CustomCollectionsItem
 import com.example.yallabuy_user.data.models.SmartCollectionsItem
 import com.example.yallabuy_user.ui.navigation.ScreenRoute
+import com.example.yallabuy_user.utilities.ApiResponse
 import org.koin.androidx.compose.koinViewModel
 
 private const val TAG = "HomeScreen"
@@ -64,20 +65,28 @@ fun HomeScreen(navController: NavController, homeViewModel: HomeViewModel = koin
     val uiCategoriesState by homeViewModel.categories.collectAsState()
     val uiBrandState by homeViewModel.brands.collectAsState()
     Box(
-        modifier = Modifier
-            .fillMaxSize()
+        modifier = Modifier.fillMaxSize()
     ) {
         when (uiBrandState) {
             is ApiResponse.Success -> {
                 val brands = (uiBrandState as ApiResponse.Success).data
                 val categories = (uiCategoriesState as ApiResponse.Success).data
-                HomeContent(categories, brands, onCatClicked = {catId->
-                  //  Log.i(TAG, "HomeScreen: Collection ID = $catId")
-                    navController.navigate(ScreenRoute.ProductsScreen.createRoute(catId))
+                HomeContent(categories, brands, onCatClicked = { catId ->
+                    //  Log.i(TAG, "HomeScreen: Collection ID = $catId")
+                    navController.navigate(
+                        ScreenRoute.ProductsScreen.createRoute(
+                            vendorName = null,
+                            categoryID = catId
+                        )
+                    )
+                }, onBrandClicked = { brandName ->
+                    navController.navigate(
+                        ScreenRoute.ProductsScreen.createRoute(
+                            vendorName = brandName,
+                            categoryID = null
+                        )
+                    )
                 })
-
-                Log.i(TAG, "HomeScreen $categories")
-                Log.i(TAG, "HomeScreen $brands")
 
             }
 
@@ -98,7 +107,8 @@ fun HomeScreen(navController: NavController, homeViewModel: HomeViewModel = koin
 private fun HomeContent(
     categories: List<CustomCollectionsItem>,
     brands: List<SmartCollectionsItem>,
-    onCatClicked: (Long?) -> Unit
+    onCatClicked: (Long?) -> Unit,
+    onBrandClicked: (String) -> Unit
 ) {
 
     val couponImages = listOf(
@@ -129,8 +139,7 @@ private fun HomeContent(
 //        }
         Spacer(Modifier.height(20.dp))
         Row(
-            modifier = Modifier
-                .fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -162,8 +171,7 @@ private fun HomeContent(
             textDecoration = TextDecoration.Underline
         )
         Spacer(
-            Modifier
-                .height(20.dp)
+            Modifier.height(20.dp)
         )
         LazyRow(
             modifier = Modifier
@@ -172,7 +180,7 @@ private fun HomeContent(
         ) {
             items(brands.size) { index ->
                 RoundedImageWithTitle(brands[index], onBrandClicked = { brandId ->
-                    onCatClicked(brandId)
+                    onBrandClicked(brandId)
                     Log.i(TAG, "BrandClicked: $brandId")
                 })
                 Spacer(Modifier.width(6.dp))
@@ -254,15 +262,12 @@ fun PreviewCouponsCarousel() {
 
 @Composable
 fun CircularImageWithTitle(
-    category: CustomCollectionsItem,
-    imgId: Int,
-    onCatClicked: (Long) -> Unit
+    category: CustomCollectionsItem, imgId: Int, onCatClicked: (Long) -> Unit
 ) {
     Column(
         modifier = Modifier.clickable {
             category.id?.let { onCatClicked(it) }
-        },
-        horizontalAlignment = Alignment.CenterHorizontally
+        }, horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Image(
             painter = painterResource(id = imgId),
@@ -279,15 +284,14 @@ fun CircularImageWithTitle(
 }
 
 
-@OptIn(ExperimentalGlideComposeApi::class)
 @Composable
-fun RoundedImageWithTitle(brand: SmartCollectionsItem, onBrandClicked: (Long) -> Unit) {
+fun RoundedImageWithTitle(brand: SmartCollectionsItem, onBrandClicked: (String) -> Unit) {
     Card(
         modifier = Modifier
             .width(220.dp)
             .fillMaxHeight()
             .clickable {
-                brand.id?.let { onBrandClicked(it) }
+                brand.title?.let { onBrandClicked(it) }
             },
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
@@ -295,16 +299,29 @@ fun RoundedImageWithTitle(brand: SmartCollectionsItem, onBrandClicked: (Long) ->
     ) {
         Column(
             modifier = Modifier
-                .padding(10.dp)
+
                 .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.SpaceBetween
+            verticalArrangement = Arrangement.Top
         ) {
-            GlideImage(
-                model = brand.image?.src, contentDescription = brand.title, modifier = Modifier
+            AsyncImage(
+                model = brand.image?.src,
+                contentDescription = brand.title,
+                modifier = Modifier
                     .fillMaxWidth()
+                    .padding(3.dp)
+                    .weight(1f)
                     .clip(RoundedCornerShape(16.dp)),
-                contentScale = ContentScale.FillBounds
+                // contentScale = ContentScale.Crop
+            )
+            Text(
+                brand.title ?: "",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color.Gray.copy(alpha = 0.5f)),
+                fontSize = 22.sp,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center
             )
         }
     }

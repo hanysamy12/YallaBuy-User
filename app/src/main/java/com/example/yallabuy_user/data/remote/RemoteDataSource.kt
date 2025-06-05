@@ -1,10 +1,13 @@
 package com.example.yallabuy_user.data.remote
 
+import android.util.Log
 import com.example.yallabuy_user.data.models.BrandResponse
 import com.example.yallabuy_user.data.models.CategoryResponse
 import com.example.yallabuy_user.data.models.ProductResponse
+import com.example.yallabuy_user.data.models.productInfo.ProductInfoResponse
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
+import retrofit2.HttpException
 
 
 class RemoteDataSource (private val service: ApiService) :
@@ -27,5 +30,18 @@ class RemoteDataSource (private val service: ApiService) :
     override suspend fun getAllProducts(): Flow<ProductResponse> {
         val products = service.getAllProducts()
         return flowOf(products)
+    }
+
+    override suspend fun getProductInfoById(productId: Long): Flow<ProductInfoResponse> {
+        return try {
+            val infoResponse = service.getProductById(productId)
+            flowOf(infoResponse)
+        }catch ( e : HttpException){
+            Log.i("error", "getProductInfoById in remote http error ${e.message} ")
+            flowOf()
+        } catch (e : NullPointerException){
+            Log.i("error", "getProductInfoById in remote null point  error ${e.message} ")
+            flowOf()
+        }
     }
 }

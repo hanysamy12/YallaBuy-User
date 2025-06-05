@@ -34,6 +34,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.example.yallabuy_user.collections.Product
 import com.example.yallabuy_user.data.models.ProductsItem
 import com.example.yallabuy_user.home.ProgressShow
@@ -44,8 +45,10 @@ private const val TAG = "ProductsScreen"
 
 @Composable
 fun ProductsScreen(
+    navController: NavController,
     isFilterBarShown: Boolean = false,
-    collectionId: Long? = null,
+    vendorName: String? = null,
+    categoryID: Long? = null,
     viewModel: ProductsViewModel = koinViewModel()
 ) {
     val uiProductsState by viewModel.products.collectAsState()
@@ -58,10 +61,12 @@ fun ProductsScreen(
 
     var isPriceSet by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) {
-        viewModel.getProducts(collectionId)
 
+        categoryID?.let { viewModel.getCategoryProducts(categoryID) } ?: viewModel.getProducts(
+            vendorName
+        )
     }
-
+    Log.i(TAG, "ProductsScreen: $categoryID /// $vendorName")
 
     Box {
         Column(modifier = Modifier.padding(6.dp)) {
@@ -91,7 +96,7 @@ fun ProductsScreen(
                 )
             )
             if (isFilterBarShown) {
-                if (!isPriceSet) {
+                if (!isPriceSet && uiProductsState is ApiResponse.Success) {
                     val (min, max) = getMinAMxPrice(products = (uiProductsState as ApiResponse.Success).data)
                     minPrice = min
                     maxPrice = max
@@ -136,8 +141,7 @@ fun ProductsScreen(
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         items(products.size) { index ->
-                            Product(products[index])
-                            Log.i(TAG, "ProductsScreen: Product Price ${products[index].variants?.get(0)?.price}")
+                            Product(products[index], navController)
                         }
                     }
                 }
