@@ -3,6 +3,7 @@ package com.example.yallabuy_user.data.remote
 import android.util.Log
 import com.example.yallabuy_user.data.models.BrandResponse
 import com.example.yallabuy_user.data.models.CategoryResponse
+import com.example.yallabuy_user.data.models.OrdersResponse
 import com.example.yallabuy_user.data.models.ProductResponse
 import com.example.yallabuy_user.data.models.productInfo.ProductInfoResponse
 import kotlinx.coroutines.flow.Flow
@@ -43,5 +44,9 @@ class RemoteDataSource (private val service: ApiService) :
             Log.i("error", "getProductInfoById in remote null point  error ${e.message} ")
             flowOf()
         }
+    }
+    override suspend fun getPreviousOrders(userID: Long): Flow<OrdersResponse> {
+        val orders = service.getPreviousOrders(userID)
+        return flowOf(orders)
     }
 }
