@@ -16,7 +16,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -30,17 +30,19 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.yallabuy_user.R
+import com.example.yallabuy_user.data.models.OrdersItem
 import com.example.yallabuy_user.home.ProgressShow
+import com.example.yallabuy_user.ui.navigation.ScreenRoute
 import com.example.yallabuy_user.utilities.ApiResponse
 import org.koin.androidx.compose.koinViewModel
 
 private const val TAG = "PreviousOrdersScreen"
 
-@Preview
 @Composable
-fun PreviousOrdersScreen(orderViewModel: OrdersViewModel = koinViewModel()) {
+fun PreviousOrdersScreen(navController: NavController, orderViewModel: OrdersViewModel = koinViewModel()) {
     // Number of orders to display
     // Number of Items in each order
     // Order date
@@ -52,7 +54,11 @@ fun PreviousOrdersScreen(orderViewModel: OrdersViewModel = koinViewModel()) {
     }
     Box {
 
-        Column(modifier = Modifier.fillMaxSize().padding(6.dp)) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(6.dp)
+        ) {
             Spacer(Modifier.height(12.dp))
             when (uiOrdersState) {
                 is ApiResponse.Failure -> {
@@ -65,12 +71,16 @@ fun PreviousOrdersScreen(orderViewModel: OrdersViewModel = koinViewModel()) {
 
                 is ApiResponse.Success<*> -> {
                     val orders = (uiOrdersState as ApiResponse.Success).data
+
                     Text(
                         "${orders[0].customer?.firstName}${orders[0].customer?.lastName} "
                     )
-                    LazyColumn (modifier = Modifier.fillMaxSize()){
-                        items(orders.size) { _ ->
-                            OrderItem()
+                    LazyColumn(modifier = Modifier.fillMaxSize()) {
+                        items(orders.size) { index ->
+                            OrderItem(
+                                orders[index],
+                                onOrderClicked = { navController.navigate(ScreenRoute.PreviousOrderDetails(orderId = it).route) }
+                            )
                         }
                     }
                 }
@@ -79,47 +89,41 @@ fun PreviousOrdersScreen(orderViewModel: OrdersViewModel = koinViewModel()) {
     }
 }
 
-@Preview
 @Composable
-private fun OrderItem() {
-    Row(
-        modifier = Modifier
-            //.fillMaxWidth()
-            .height(100.dp)
-            .padding(4.dp), horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        AsyncImage(modifier = Modifier.size(150.dp).background(shape = RoundedCornerShape(12.dp), color = Color.White), model =  R.drawable.dummy_product, contentDescription = "")
-        Column {
-            Text("Order Date", fontWeight = FontWeight.Bold)
-            Text("Total 200.00 EGP")
-        }
-        IconButton(modifier = Modifier.width(100.dp)
-            .padding(4.dp),
-            onClick = { Log.i(TAG, "OrderItem: Clicked") },
-        ) {
-            Icon(Icons.Default.KeyboardArrowDown, contentDescription = "")
-        }
-
-        LazyColumn {
-            items(3) {
-               // ProductOrderItem()
-            }
-        }
-
-    }
-}
-
-@Preview
-@Composable
-private fun ProductOrderItem() {
+private fun OrderItem(order :OrdersItem, onOrderClicked: (Long) -> Unit) {
+    Log.i(TAG, "OrderItem: $order")
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(50.dp)
-            .padding(4.dp), horizontalArrangement = Arrangement.SpaceBetween
+            .height(100.dp)
+            .padding(4.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        AsyncImage(model = R.drawable.dummy_product, contentDescription = "")
-        Text("Product Name")
+        AsyncImage(
+            modifier = Modifier
+                .size(150.dp)
+                .background(shape = RoundedCornerShape(12.dp), color = Color.White),
+            model = R.drawable.dummy_product,
+            contentDescription = ""
+        )
+        Spacer(Modifier.width(12.dp))
+        Column {
+            val date = order.createdAt?.split("T")?.get(0)
+            Text("Date $date", fontWeight = FontWeight.Bold)
+            Text("Total ${order.currentTotalPrice} EGP")
+        }
+        IconButton(
+            modifier = Modifier
+                .width(100.dp)
+                .padding(4.dp),
+            onClick = {
+                order.id?.let { onOrderClicked(it) }
+                Log.i(TAG, "OrderItem: Clicked") },
+        ) {
+            Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = "")
+        }
+
     }
 }
+

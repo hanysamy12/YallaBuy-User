@@ -40,5 +40,11 @@ sealed class ScreenRoute(val route: String) {
     }
 
     @Serializable
+    data object PreviousOrders : ScreenRoute("previous_orders")
+
+    @Serializable
+    data class PreviousOrderDetails(val orderId: Long) : ScreenRoute("previous_orders/$orderId")
+
+    @Serializable
     data class ProductInfo(val productId: Long)
 }

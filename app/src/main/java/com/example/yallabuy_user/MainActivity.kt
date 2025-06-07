@@ -7,6 +7,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.RequiresApi
 import com.example.yallabuy_user.orders.PreviousOrdersScreen
+import com.example.yallabuy_user.ui.navigation.MainScreen
 import com.example.yallabuy_user.ui.theme.YallaBuyUserTheme
 
 class MainActivity : ComponentActivity() {
@@ -18,8 +19,8 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             YallaBuyUserTheme {
-               // MainScreen()
-                PreviousOrdersScreen()
+                MainScreen()
+               // PreviousOrdersScreen()
 
             }
         }

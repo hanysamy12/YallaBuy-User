@@ -153,6 +153,7 @@ data class OrdersItem(
 	val originalTotalAdditionalFeesSet: Any? = null,
 	val currentTotalDiscountsSet: CurrentTotalDiscountsSet? = null,
 	val billingAddress: Any? = null,
+	@SerializedName("line_items")
 	val lineItems: List<LineItemsItem?>? = null,
 	val originalTotalDutiesSet: Any? = null,
 	val presentmentCurrency: String? = null,
@@ -165,7 +166,6 @@ data class OrdersItem(
 	val reference: Any? = null,
 	val merchantBusinessEntityId: String? = null,
 	val number: Int? = null,
-	@SerializedName("created_at")
 	val checkoutId: Any? = null,
 	@SerializedName("checkout_token")
 	val checkoutToken: Any? = null,
@@ -210,6 +210,7 @@ data class OrdersItem(
 	val totalOutstanding: String? = null,
 	val orderNumber: Int? = null,
 	val discountApplications: List<Any?>? = null,
+	@SerializedName("created_at")
 	val createdAt: String? = null,
 	val totalLineItemsPriceSet: TotalLineItemsPriceSet? = null,
 	val taxesIncluded: Boolean? = null,
@@ -241,6 +242,7 @@ data class OrdersItem(
 	val totalTipReceived: String? = null,
 	val token: String? = null,
 	val cancelReason: Any? = null,
+	@SerializedName("current_total_price")
 	val currentTotalPrice: String? = null,
 	val adminGraphqlApiId: String? = null,
 	val financialStatus: String? = null,

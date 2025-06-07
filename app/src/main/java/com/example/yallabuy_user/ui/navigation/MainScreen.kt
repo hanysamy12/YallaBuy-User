@@ -44,6 +44,8 @@ import com.example.yallabuy_user.R
 import com.example.yallabuy_user.cart.CartScreen
 import com.example.yallabuy_user.collections.CollectionsScreen
 import com.example.yallabuy_user.home.HomeScreen
+import com.example.yallabuy_user.orders.OrderItemScreen
+import com.example.yallabuy_user.orders.PreviousOrdersScreen
 import com.example.yallabuy_user.productInfo.ProductInfoScreen
 import com.example.yallabuy_user.products.ProductsScreen
 import com.example.yallabuy_user.profile.ProfileScreen
@@ -110,6 +112,7 @@ fun MainScreen() {
                     containerColor = Color(0xFFFFC107)
                 )
             )
+
             currentRoute?.startsWith(ScreenRoute.ProductsScreen.BASE_ROUTE) == true -> {
                 CenterAlignedTopAppBar(
                     title = { Text("Products") },
@@ -128,6 +131,20 @@ fun MainScreen() {
                     }
                 )
             }
+
+            currentRoute == ScreenRoute.PreviousOrders.route -> CenterAlignedTopAppBar(
+                title = { Text("Previous Orders") },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = Color(0xFFFFC107)
+                )
+            )
+            ////change order ID !!!
+            currentRoute == ScreenRoute.PreviousOrderDetails(22).route -> CenterAlignedTopAppBar(
+                title = { Text("Order Details") },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = Color(0xFFFFC107)
+                )
+            )
 
         }
 
@@ -163,7 +180,7 @@ fun MainScreen() {
                 WishScreen(navController)
             }
             composable(route = ScreenRoute.Collections.route) {
-                CollectionsScreen(navController,setFilterMeth = {
+                CollectionsScreen(navController, setFilterMeth = {
                     onFilterClicked = it
                 })
             }
@@ -194,11 +211,18 @@ fun MainScreen() {
                     isFilterBarShown = isShowFilterBarProductsScreen,
                     vendorName = vendorName,
                     categoryID = categoryID
-                    )
+                )
             }
             composable<ScreenRoute.ProductInfo> {
                 val args = it.toRoute<ScreenRoute.ProductInfo>()
                 ProductInfoScreen(args.productId)
+            }
+            composable<ScreenRoute.PreviousOrders> {
+                PreviousOrdersScreen(navController)
+            }
+            composable<ScreenRoute.PreviousOrderDetails> {
+                val args = it.toRoute<ScreenRoute.PreviousOrderDetails>()
+                OrderItemScreen(args.orderId)
             }
         }
     }
