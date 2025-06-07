@@ -19,6 +19,7 @@ val properties = Properties().apply {
 
 // Extract token
 val apiToken = properties.getProperty("API_TOKEN") ?: ""
+val currencyToken = properties.getProperty("CURRENCY_API_KEY") ?: ""
 
 android {
     namespace = "com.example.yallabuy_user"
@@ -38,6 +39,8 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         buildConfigField("String", "API_TOKEN","\"$apiToken\"")
+        buildConfigField ("String", "CURRENCY_API_KEY", "\"${currencyToken}\"")
+
     }
 
     buildTypes {

@@ -82,7 +82,7 @@ fun AboutUsContent(paddingValues: PaddingValues, function: @Composable () -> Uni
     Column(
         modifier = Modifier
             .padding(paddingValues)
-            .padding(16.dp) 
+            //.padding(16.dp)
             .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally 
     ) {
@@ -93,7 +93,7 @@ fun AboutUsContent(paddingValues: PaddingValues, function: @Composable () -> Uni
             modifier = Modifier
                 .fillMaxWidth()
                 .height(400.dp),
-            contentScale = ContentScale.FillBounds //crop, fillWidth, fillHeight
+            contentScale = ContentScale.FillBounds
         )
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -113,7 +113,7 @@ fun AboutUsContent(paddingValues: PaddingValues, function: @Composable () -> Uni
             fontSize = 16.sp,
             textAlign = TextAlign.Center,
             color = colorResource(R.color.dark_blue),
-            modifier = Modifier.padding(horizontal = 16.dp) // Add horizontal padding
+            modifier = Modifier.padding(horizontal = 16.dp)
         )
 
 
@@ -130,13 +130,12 @@ fun AboutUsScreenPreview() {
         },
         containerColor = Color.White
     ) { paddingValues ->
-        // Pass a placeholder Box for the image in the preview
         AboutUsContent(paddingValues = paddingValues) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(200.dp)
-                    .background(Color.LightGray), // Placeholder background
+                    .background(Color.LightGray),
                 contentAlignment = Alignment.Center
             ) {
                 Text("Image Placeholder", color = Color.DarkGray)
