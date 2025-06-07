@@ -39,4 +39,6 @@ interface ApiService {
     suspend fun getProductById(
         @Path("product_id") productId : Long
     ) : ProductInfoResponse
+
+
 }

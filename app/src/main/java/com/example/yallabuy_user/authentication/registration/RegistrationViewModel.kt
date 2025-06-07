@@ -18,8 +18,11 @@ class RegistrationViewModel(
 ) : ViewModel() {
 
     private val _createAccount =
-        MutableSharedFlow<Boolean>()
+        MutableSharedFlow<String>()
     val createAccount = _createAccount
+
+    private val _errorInCreatingAccount = MutableSharedFlow<String>()
+    val errorInCreatingAccount = _errorInCreatingAccount
 
     private val _validationError = MutableStateFlow<String?>(null)
     val validationError = _validationError.asStateFlow()
@@ -29,7 +32,12 @@ class RegistrationViewModel(
             coroutineScope {
                 try {
                     val createAccount = repositoryInterface.createUserAccount(email, password)
-                    _createAccount.emit(createAccount)
+                    if (createAccount.contains("error")){
+                        _errorInCreatingAccount.emit(createAccount)
+                        Log.i("error", "error is $createAccount ")
+                    }else {
+                        _createAccount.emit(createAccount)
+                    }
                 } catch (e: Exception) {
                     Log.i("TAG", "createUserAccount error in view model ${e.message} ")
                 }

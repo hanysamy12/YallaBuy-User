@@ -7,22 +7,26 @@ import kotlinx.coroutines.tasks.await
 class FireBaseService(
     private val firebaseAuth: FirebaseAuth
 ) {
-    private var statues: Boolean = true
-    suspend fun createUserAccount(email: String, password: String): Boolean {
-        return try {
+    private var statues: String = ""
+    suspend fun createUserAccount(email: String, password: String): String {
+       return  try {
             firebaseAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener {
                 if (it.isSuccessful) {
-                    statues = true
-                    firebaseAuth.currentUser?.sendEmailVerification()
+                    val validation = firebaseAuth.currentUser?.sendEmailVerification()
+                    if (validation?.isSuccessful == true) {
+                       statues =  "Account created successfully"
+                    } else {
+                     statues =  "error ${validation?.exception?.message ?: "Unknown Error"}"
+                    }
                 } else {
-                    statues = false
+                  statues =   " error ${it.exception?.message}"
                 }
-
-            }
+            }.await()
             statues
         } catch (e: Exception) {
             Log.i("TAG", "createUserAccount in firebase service error ${e.message}  ")
-            false
+            statues = "error ${e.message}"
+           statues
         }
     }
 

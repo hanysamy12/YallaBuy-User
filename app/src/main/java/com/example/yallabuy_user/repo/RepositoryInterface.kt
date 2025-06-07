@@ -13,6 +13,6 @@ interface RepositoryInterface {
     suspend fun getCategoryProducts(categoryID: Long): Flow<ProductResponse>
     suspend fun getAllProducts(): Flow<ProductResponse>
     suspend fun getProductById(productId : Long) : Flow<ProductInfoResponse>
-    suspend fun createUserAccount(email: String, password: String): Boolean
+    suspend fun createUserAccount(email: String, password: String): String
     suspend fun loginUser(email : String , password : String) : Boolean
 }

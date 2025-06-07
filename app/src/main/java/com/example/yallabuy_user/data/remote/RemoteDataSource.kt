@@ -46,12 +46,12 @@ class RemoteDataSource (
             flowOf()
         }
     }
-    override suspend fun createUserAccount(email: String, password: String): Boolean {
+    override suspend fun createUserAccount(email: String, password: String): String {
         return try {
             fireBaseService.createUserAccount(email , password)
         }catch (e : Exception){
             Log.i("TAG", "createUserAccount in remote data source error ${e.message}  ")
-            false
+            "error ${e.message} "
         }
     }
 

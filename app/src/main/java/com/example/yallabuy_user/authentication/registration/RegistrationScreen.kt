@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Divider
@@ -35,6 +36,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -52,6 +54,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavHostController
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.LottieConstants
+import com.airbnb.lottie.compose.animateLottieCompositionAsState
+import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.yallabuy_user.R
 import com.example.yallabuy_user.home.ProgressShow
 import com.example.yallabuy_user.ui.navigation.ScreenRoute
@@ -66,6 +73,9 @@ fun RegistrationScreen(
 
     var createAccount = registrationViewModel.createAccount
     val validationError = registrationViewModel.validationError.collectAsState().value
+    val createAccountError = registrationViewModel.errorInCreatingAccount
+    val isAccountCreated = remember { mutableStateOf(false) }
+    var createAccountErrorText = remember { mutableStateOf("") }
     var showDialog = remember { mutableStateOf(false) }
     val showProgressBar = remember { mutableStateOf(false) }
     val email = remember { mutableStateOf("") }
@@ -77,14 +87,29 @@ fun RegistrationScreen(
     val sigmarRegularFont = FontFamily(Font(R.font.sigmarregular))
 
     LaunchedEffect(Unit) {
-        createAccount.collect{
-            if(it){
+        createAccount.collect {
+            if (it.isNotEmpty()) {
                 showDialog.value = true
-                showProgressBar.value  = false
+                showProgressBar.value = false
+                isAccountCreated.value = true
                 email.value = ""
                 userName.value = ""
                 password.value = ""
                 confirmPassword.value = ""
+            }
+        }
+    }
+    LaunchedEffect(Unit) {
+        createAccountError.collect {
+            if (it.isNotEmpty()) {
+                showDialog.value = true
+                showProgressBar.value = false
+                email.value = ""
+                userName.value = ""
+                password.value = ""
+                confirmPassword.value = ""
+                createAccountErrorText.value = it
+                isAccountCreated.value = false
             }
         }
     }
@@ -195,15 +220,16 @@ fun RegistrationScreen(
                 }
             }
         }
-        if(showProgressBar.value){
+        if (showProgressBar.value) {
             ProgressShow()
         }
-        if(showDialog.value){
-            SuccessRegistrationAlert(showDialog , onConfirmation = {
+        if (showDialog.value) {
+            SuccessRegistrationAlert(isAccountCreated, onConfirmation = {
                 showDialog.value = false
-            } , onDismissRequest = {
+            }, onDismissRequest = {
                 showDialog.value = false
-            })
+            },
+                createAccountErrorText)
         }
     }
 }
@@ -303,10 +329,50 @@ fun RegistrationTextFeilds(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SuccessRegistrationAlert(
-    showDialog: MutableState<Boolean>,
+    isAccountCreated: MutableState<Boolean>,
     onConfirmation: () -> Unit,
-    onDismissRequest: () -> Unit
+    onDismissRequest: () -> Unit,
+    createAccountErrorText: MutableState<String>
 ) {
+
+    val title = remember { mutableStateOf("") }
+    val description = remember { mutableStateOf("") }
+    val successComposition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.successanimation))
+    val failComposition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.failanimation))
+
+    val successProgress by animateLottieCompositionAsState(
+        composition = successComposition,
+        iterations = LottieConstants.IterateForever
+    )
+
+    val failProgress by animateLottieCompositionAsState(
+        composition = failComposition,
+        iterations = LottieConstants.IterateForever
+    )
+
+    if (isAccountCreated.value) {
+        title.value = "Success"
+        description.value = "Please Check your email and login "
+    } else {
+        title.value = "Fail"
+        description.value = createAccountErrorText.value
+    }
+
+    val icon: @Composable () -> Unit = {
+        if (isAccountCreated.value) {
+            LottieAnimation(
+                composition = successComposition,
+                progress = { successProgress },
+                modifier = Modifier.size(72.dp)
+            )
+        } else {
+            LottieAnimation(
+                composition = failComposition,
+                progress = { failProgress },
+                modifier = Modifier.size(72.dp)
+            )
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -336,16 +402,14 @@ fun SuccessRegistrationAlert(
                 }
             },
             // set icon
-            icon = {
-                Icon(imageVector = Icons.Default.Done, contentDescription = "Warning Icon")
-            },
+            icon = icon,
             // set title text
             title = {
-                Text(text = "Sign Up successfully", color = Color.Black)
+                Text(text = title.value, color = Color.Black)
             },
             // set description text
             text = {
-                Text(text = "Please check your email and login ", color = Color.DarkGray)
+                Text(text = description.value, color = Color.DarkGray)
             },
             // set padding for contents inside the box
             modifier = Modifier.padding(16.dp),
