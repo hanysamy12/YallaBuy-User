@@ -3,9 +3,9 @@ package com.example.yallabuy_user.settings.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.example.yallabuy_user.settings.model.local.CurrencyUiState
 import com.example.yallabuy_user.settings.model.remote.CurrencyPreferenceManager
-import com.example.yallabuy_user.settings.model.repository.CurrencyRepository
+import com.example.yallabuy_user.settings.model.repository.ICurrencyRepository
+import com.example.yallabuy_user.utilities.ApiResponse
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -16,38 +16,58 @@ import kotlinx.coroutines.launch
 import java.text.NumberFormat
 import java.util.Locale
 
-
-open class CurrencyViewModel(
-    private val preferenceManager: CurrencyPreferenceManager
+class CurrencyViewModel(
+    private val repository: ICurrencyRepository
 ) : ViewModel() {
 
+    private val _currencyState = MutableStateFlow<ApiResponse<Double>>(ApiResponse.Loading)
+    val currencyState: StateFlow<ApiResponse<Double>> = _currencyState
 
-    val preferredCurrency: StateFlow<String> = preferenceManager.preferredCurrencyFlow
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000), // keep flow active for 5s after last subscriber
-            initialValue = CurrencyPreferenceManager.DEFAULT_CURRENCY
-        )
+    private val _selectedCurrency = MutableStateFlow(CurrencyPreferenceManager.DEFAULT_CURRENCY)
+    val selectedCurrency: StateFlow<String> = _selectedCurrency
 
-    val availableCurrencies: List<String> = CurrencyPreferenceManager.SUPPORTED_CURRENCIES
-
-
-      //calle it  when the user selects a new currency from the dropdown.
-    fun onCurrencySelected(newCurrencyCode: String) {
+    init {
         viewModelScope.launch {
-            preferenceManager.setPreferredCurrency(newCurrencyCode)
+            val preferredCurrency = try {
+                repository.getPreferredCurrency()
+            } catch (e: Exception) {
+                CurrencyPreferenceManager.DEFAULT_CURRENCY
+            }
+            _selectedCurrency.value = preferredCurrency
+            selectCurrency(preferredCurrency)
+        }
+    }
+
+    fun selectCurrency(currencyCode: String) {
+        viewModelScope.launch {
+            _currencyState.value = ApiResponse.Loading
+            try {
+                repository.setPreferredCurrency(currencyCode)
+                _selectedCurrency.value = currencyCode
+
+                val rate = if (currencyCode == CurrencyPreferenceManager.DEFAULT_CURRENCY) {
+                    1.0
+                } else {
+                    repository.getCurrencyRate(
+                        baseCurrency = CurrencyPreferenceManager.DEFAULT_CURRENCY,
+                        targetCurrency = currencyCode
+                    )
+                }
+                _currencyState.value = ApiResponse.Success(rate)
+            } catch (e: Exception) {
+                _currencyState.value = ApiResponse.Failure(e)
+            }
         }
     }
 }
 
-//I will delete it after DI using hilt
 class CurrencyViewModelFactory(
-    private val preferenceManager: CurrencyPreferenceManager
+    private val repository: ICurrencyRepository
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(CurrencyViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return CurrencyViewModel(preferenceManager) as T
+            return CurrencyViewModel(repository) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

@@ -5,7 +5,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.lifecycle.ViewModelProvider
-import com.example.yallabuy_user.settings.model.repository.CurrencyRepository
 
 
 import com.example.yallabuy_user.settings.viewmodel.CurrencyViewModel

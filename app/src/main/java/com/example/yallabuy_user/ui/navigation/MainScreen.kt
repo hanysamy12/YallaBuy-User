@@ -190,13 +190,13 @@ fun MainScreen() {
                 ContactUsScreen(onNavigateBack = { navController.popBackStack() })
             }
             composable(ScreenRoute.Currency.route) {
-                val context = LocalContext.current
-                val preferenceManager = remember { CurrencyPreferenceManagerImpl(context) } // or your real impl
-                val viewModel: CurrencyViewModel = viewModel(
-                    factory = CurrencyViewModelFactory(preferenceManager)
-                )
-
-                CurrencyScreen(viewModel = viewModel)            }
+//                val context = LocalContext.current
+//                val preferenceManager = remember { CurrencyPreferenceManagerImpl(context) }
+//                val viewModel: CurrencyViewModel = viewModel(
+//                    factory = CurrencyViewModelFactory(preferenceManager)
+                CurrencyScreen( //viewModel = viewModel,
+                    onNavigateBack = { navController.popBackStack() })
+            }
 
             // settings screen with navigation callbacks
             composable(ScreenRoute.Settings.route) {

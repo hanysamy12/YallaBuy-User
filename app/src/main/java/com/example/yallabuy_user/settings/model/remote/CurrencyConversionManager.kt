@@ -1,39 +1,53 @@
 package com.example.yallabuy_user.settings.model.remote
 
-import com.example.yallabuy_user.BuildConfig
-
+import android.util.Log
+import com.example.yallabuy_user.settings.model.repository.ICurrencyRepository
 
 class CurrencyConversionManager(
-    private val currencyPreferenceManager: CurrencyPreferenceManager,
-    private val currencyRemoteDataSource: CurrencyRemoteDataSource
+    private val currencyRepository: ICurrencyRepository
 ) {
 
     private var cachedRates: Map<String, Double>? = null
+    // This stores the base currency (the currency in which the user’s amounts are originally denominated).
+    // It is initialized with a default value from CurrencyPreferenceManager.DEFAULT_CURRENCY.
     private var baseCurrency: String = CurrencyPreferenceManager.DEFAULT_CURRENCY
+    private var lastUpdateTime: Long = 0L
+
+    private val expirationMillis = CurrencyPreferenceManager.RATE_EXPIRATION_MS
 
     suspend fun convertAmount(amountInBase: Double): Double {
-        val preferred = currencyPreferenceManager.getPreferredCurrency()
+        val preferredCurrency = currencyRepository.getPreferredCurrency()
+        Log.i("TAG", "convertAmount: preferredCurrency $preferredCurrency ")
+        if (preferredCurrency == baseCurrency) return amountInBase
+        Log.i("TAG", "convertAmount: preferredCurrency after IF $preferredCurrency ")
 
-        if (preferred == baseCurrency) return amountInBase
+        val isExpired = System.currentTimeMillis() - lastUpdateTime > expirationMillis
+        val isRateMissing = cachedRates == null || preferredCurrency !in cachedRates!!
 
-        if (cachedRates == null || preferred !in cachedRates!!) {
+        if (isRateMissing || isExpired) {
+            Log.i("TAG", "convertAmount: rate is missing")
             fetchLatestRates()
         }
 
-        val rate = cachedRates?.get(preferred) ?: return amountInBase
-        return amountInBase * rate
+        val rate = cachedRates?.get(preferredCurrency)
+        Log.i("TAG", "convertAmount: rate is $rate ")
+        return if (rate != null) amountInBase * rate else amountInBase
     }
 
     suspend fun fetchLatestRates() {
-        baseCurrency = currencyPreferenceManager.getPreferredCurrency()
+        baseCurrency = currencyRepository.getPreferredCurrency()
 
-        val response = currencyRemoteDataSource.getLatestRates(
-            apiKey = BuildConfig.CURRENCY_API_KEY,
-            baseCurrency = baseCurrency
-        )
+        Log.i("TAG", "fetchLatestRates: base curr $baseCurrency ")
+        try {
+            val allRates = currencyRepository.getRatesForBase(baseCurrency)
+            Log.i("TAG", "fetchLatestRates: allRates $allRates ")
 
-        if (response.isSuccessful) {
-            cachedRates = response.body()?.conversionRates
+            cachedRates = allRates
+            lastUpdateTime = System.currentTimeMillis()
+
+        } catch (e: Exception) {
+            // Log or rethrow depending on your needs
+            Log.e("TAG", "fetchLatestRates: error $e ")
         }
     }
 }

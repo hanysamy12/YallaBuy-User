@@ -1,51 +1,53 @@
 package com.example.yallabuy_user.settings.model.repository
 
 import android.util.Log
-import com.example.yallabuy_user.settings.model.local.CurrencyLocalDataSource
+import com.example.yallabuy_user.BuildConfig
+import com.example.yallabuy_user.settings.model.remote.CurrencyPreferenceManager
 import com.example.yallabuy_user.settings.model.remote.CurrencyRemoteDataSource
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import java.util.concurrent.TimeUnit
 
-class CurrencyRepositoryImpl constructor(
+class CurrencyRepository(
     private val remoteDataSource: CurrencyRemoteDataSource,
-    private val localDataSource: CurrencyLocalDataSource,
-    ) : CurrencyRepository {
-    lateinit var apiKey: String
-    companion object {
-        private val CACHE_DURATION_MILLIS = TimeUnit.HOURS.toMillis(24)
+    private val preferenceManager: CurrencyPreferenceManager,
+) : ICurrencyRepository {
+
+    override suspend fun getPreferredCurrency(): String = preferenceManager.getPreferredCurrency()
+
+    override suspend fun setPreferredCurrency(currencyCode: String) {
+        preferenceManager.setPreferredCurrency(currencyCode)
     }
 
-    override suspend fun getLatestRates(forceRefresh: Boolean): Map<String, Double>? {
-        return withContext(Dispatchers.IO) {
-            val lastFetchTime = localDataSource.getLastFetchTimestampMillis()
-            val currentTime = System.currentTimeMillis()
-            val isCacheExpired = (currentTime - lastFetchTime) > CACHE_DURATION_MILLIS
+    override suspend fun getCurrencyRate(baseCurrency: String, targetCurrency: String): Double {
+        val now = System.currentTimeMillis()
+        val lastUpdate = preferenceManager.getLastUpdateTime() ?: 0L
 
-            if (!forceRefresh && !isCacheExpired) {
-                val cachedRates = localDataSource.getRates()
-                if (cachedRates != null) {
-                    return@withContext cachedRates
-                }
-            }
-            try {
-                val response = remoteDataSource.getLatestRates(apiKey = apiKey, baseCurrency = "USD")
+        return if (now - lastUpdate < CurrencyPreferenceManager.RATE_EXPIRATION_MS) {
+            preferenceManager.getCurrencyRate() ?: 1.0
+        } else {
 
-                if (response.isSuccessful && response.body() != null && response.body()!!.result == "success") {
-                    val rates = response.body()!!.conversionRates
-                    val fetchTimestamp = response.body()!!.timeLastUpdateUnix * 1000L
-                    localDataSource.saveRates(rates, fetchTimestamp)
-                    return@withContext rates
-                } else {
-                    val staleRates = localDataSource.getRates()
-                    Log.i("Repo", "API Error: ${response.code()} - ${response.message()}")
-                    return@withContext staleRates
-                }
-            } catch (e: Exception) {
-                Log.e("Repo", "Network Exception", e)
-                val staleRates = localDataSource.getRates()
-                return@withContext staleRates
+            val response = remoteDataSource.getLatestRates(BuildConfig.CURRENCY_API_KEY, baseCurrency)
+                .first()
+
+            if (response.result == "success") {
+                val newRate = response.conversionRates[targetCurrency] ?: 1.0
+                preferenceManager.setCurrencyRate(newRate)
+                preferenceManager.setLastUpdateTime(now)
+                newRate
+            } else {
+                preferenceManager.getCurrencyRate() ?: 1.0
             }
         }
     }
+
+    override suspend fun getRatesForBase(baseCurrency: String): Map<String, Double> {
+        return remoteDataSource
+            .getLatestRates(
+                apiKey = BuildConfig.CURRENCY_API_KEY,
+                baseCurrency = baseCurrency
+            )
+            .first()
+            .conversionRates    }
 }

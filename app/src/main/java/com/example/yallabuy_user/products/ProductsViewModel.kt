@@ -1,9 +1,11 @@
 package com.example.yallabuy_user.products
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.example.yallabuy_user.data.models.CustomCollectionsItem
 import com.example.yallabuy_user.data.models.ProductsItem
 import com.example.yallabuy_user.repo.RepositoryInterface
+import com.example.yallabuy_user.settings.model.remote.CurrencyConversionManager
 import com.example.yallabuy_user.utilities.ApiResponse
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -12,9 +14,14 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
 private const val TAG = "ProductsViewModel"
+//currency conversion
+//get currency code if it's in egyptian I will put it as it is
+//if different currency than EGP so I will check the time if it more than 24 hours I will hit the api and get the new rate
+//save the rate and date in the shared preference and do here the conversion based on the currency
 
-
-class ProductsViewModel(private val repo: RepositoryInterface) : ViewModel(),
+class ProductsViewModel(private val repo: RepositoryInterface,
+                        private val currencyConversionManager: CurrencyConversionManager
+) : ViewModel(),
     ProductsViewModelInterface {
 
     private val _categories =
@@ -38,7 +45,8 @@ class ProductsViewModel(private val repo: RepositoryInterface) : ViewModel(),
 
     override suspend fun getProducts(vendorName: String?) {
         try {
-            repo.getAllProducts().map { it.products.orEmpty().filterNotNull() }
+            repo.getAllProducts()
+                .map { it.products.orEmpty().filterNotNull() }
                 .catch { error -> _products.value = ApiResponse.Failure(error) }
                 .map { products ->
                     vendorName?.let { vendor ->
@@ -47,13 +55,33 @@ class ProductsViewModel(private val repo: RepositoryInterface) : ViewModel(),
                         }
                     } ?: products
                 }
-                .collect { filteredProducts ->
-                    originalProducts = filteredProducts
-                    _products.value = ApiResponse.Success(filteredProducts)
+                .map { products ->
+                    convertProductPrices(products)
+                }
+                .collect { convertedProducts ->
+                    originalProducts = convertedProducts
+                    _products.value = ApiResponse.Success(convertedProducts)
                 }
         } catch (e: Exception) {
             _products.value = ApiResponse.Failure(e)
         }
+    }
+
+
+    private suspend fun convertProductPrices(products: List<ProductsItem>): List<ProductsItem> {
+        val convertedProducts = mutableListOf<ProductsItem>()
+        for (product in products) {
+            val convertedVariants = product.variants?.map { variant ->
+                variant?.let {
+                    val originalPrice = it.price?.toDoubleOrNull() ?: 0.0
+                    val convertedPrice = currencyConversionManager.convertAmount(originalPrice)
+                    Log.i(TAG, "convertProductPrices: original price is $originalPrice, converted price is $convertedPrice")
+                    it.copy(price = "%.2f".format(convertedPrice)) // formatted to 2 decimal places
+                }
+            }
+            convertedProducts.add(product.copy(variants = convertedVariants))
+        }
+        return convertedProducts
     }
 
     //get category products then get all products and filter by Product ID
@@ -93,8 +121,8 @@ class ProductsViewModel(private val repo: RepositoryInterface) : ViewModel(),
         val allProducts = repo.getAllProducts().map { it.products.orEmpty().filterNotNull() }
             .catch { error -> _products.value = ApiResponse.Failure(error) }
             .first()
-        return allProducts.filter { it.id in categoryProductIDs }
+        val filtered = allProducts.filter { it.id in categoryProductIDs }
 
-
+        return convertProductPrices(filtered)
     }
 }
