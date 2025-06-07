@@ -16,6 +16,7 @@ import kotlinx.coroutines.launch
 import java.text.NumberFormat
 import java.util.Locale
 
+
 open class CurrencyViewModel(
     private val preferenceManager: CurrencyPreferenceManager
 ) : ViewModel() {
@@ -39,3 +40,15 @@ open class CurrencyViewModel(
     }
 }
 
+//I will delete it after DI using hilt
+class CurrencyViewModelFactory(
+    private val preferenceManager: CurrencyPreferenceManager
+) : ViewModelProvider.Factory {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(CurrencyViewModel::class.java)) {
+            @Suppress("UNCHECKED_CAST")
+            return CurrencyViewModel(preferenceManager) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
+    }
+}

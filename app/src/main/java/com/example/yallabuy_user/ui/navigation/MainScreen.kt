@@ -33,8 +33,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -47,7 +49,14 @@ import com.example.yallabuy_user.home.HomeScreen
 import com.example.yallabuy_user.productInfo.ProductInfoScreen
 import com.example.yallabuy_user.products.ProductsScreen
 import com.example.yallabuy_user.profile.ProfileScreen
+import com.example.yallabuy_user.settings.model.remote.CurrencyPreferenceManagerImpl
+import com.example.yallabuy_user.settings.view.CurrencyScreen
+import com.example.yallabuy_user.settings.viewmodel.CurrencyViewModel
+import com.example.yallabuy_user.settings.viewmodel.CurrencyViewModelFactory
 import com.example.yallabuy_user.wish.WishScreen
+import com.mariammuhammad.yallabuy.View.Settings.AboutUsScreen
+import com.mariammuhammad.yallabuy.View.Settings.ContactUsScreen
+import com.mariammuhammad.yallabuy.View.Settings.SettingsScreen
 
 
 private const val TAG = "MainScreen"
@@ -173,6 +182,40 @@ fun MainScreen() {
             composable(route = ScreenRoute.Profile.route) {
                 ProfileScreen(navController)
             }
+            // screens navigated from Settings
+            composable(ScreenRoute.AboutUs.route) {
+                AboutUsScreen(onNavigateBack = { navController.popBackStack() })
+            }
+            composable(ScreenRoute.ContactUs.route) {
+                ContactUsScreen(onNavigateBack = { navController.popBackStack() })
+            }
+            composable(ScreenRoute.Currency.route) {
+                val context = LocalContext.current
+                val preferenceManager = remember { CurrencyPreferenceManagerImpl(context) } // or your real impl
+                val viewModel: CurrencyViewModel = viewModel(
+                    factory = CurrencyViewModelFactory(preferenceManager)
+                )
+
+                CurrencyScreen(viewModel = viewModel)            }
+
+            // settings screen with navigation callbacks
+            composable(ScreenRoute.Settings.route) {
+                SettingsScreen(
+                    onNavigateToAboutUs = {
+                        navController.navigate(ScreenRoute.AboutUs.route)
+                    },
+                    onNavigateToContactUs = {
+                        navController.navigate(ScreenRoute.ContactUs.route)
+                    },
+                    onNavigateToCurrency = {
+                        navController.navigate(ScreenRoute.Currency.route)
+                    },
+                    onNavigateToAddress = {
+
+                    }
+                )
+            }
+
             //with null
             composable(ScreenRoute.ProductsScreen.BASE_ROUTE) {
                 ProductsScreen(
@@ -182,6 +225,7 @@ fun MainScreen() {
                     categoryID = null
                 )
             }
+
             //with value
             composable(
                 route = ScreenRoute.ProductsScreen.FULL_ROUTE

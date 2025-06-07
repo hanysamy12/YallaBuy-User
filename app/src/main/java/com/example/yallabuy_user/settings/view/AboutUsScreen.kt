@@ -35,7 +35,7 @@ import com.example.yallabuy_user.R
 
 @Composable
 fun AboutUsScreen(
-    onNavigateBack: () -> Unit = {} // Callback for back navigation
+    onNavigateBack: () -> Unit = {}
 ) {
     Scaffold(
         topBar = {
