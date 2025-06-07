@@ -1,5 +1,6 @@
 package com.example.yallabuy_user.di
 
+import com.example.yallabuy_user.authentication.login.LoginViewModel
 import com.example.yallabuy_user.authentication.registration.RegistrationViewModel
 import com.example.yallabuy_user.cart.CartViewModel
 import com.example.yallabuy_user.home.HomeViewModel
@@ -71,6 +72,9 @@ val dataModule = module {
     }
     viewModel {
         RegistrationViewModel(get())
+    }
+    viewModel {
+        LoginViewModel(get())
     }
 
 }

@@ -5,70 +5,64 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.yallabuy_user.repo.RepositoryInterface
 import com.example.yallabuy_user.utilities.ApiResponse
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class RegistrationViewModel(
     private val repositoryInterface: RepositoryInterface
 ) : ViewModel() {
 
-    private val _createAccount: MutableStateFlow<ApiResponse<String>> =
-        MutableStateFlow(ApiResponse.Loading)
+    private val _createAccount =
+        MutableSharedFlow<Boolean>()
+    val createAccount = _createAccount
 
-    val createAccount = _createAccount.asStateFlow()
+    private val _validationError = MutableStateFlow<String?>(null)
+    val validationError = _validationError.asStateFlow()
 
     private fun createUserAccount(email: String, password: String) {
         viewModelScope.launch {
-            try {
-                val createAccount = repositoryInterface.createUserAccount(email, password)
-                Log.i("TAG", "createUserAccount in view model response is $createAccount ")
-                    _createAccount.emit(ApiResponse.Success(createAccount))
-            } catch (e: Exception) {
-                Log.i("TAG", "createUserAccount error in view model ${e.message} ")
+            coroutineScope {
+                try {
+                    val createAccount = repositoryInterface.createUserAccount(email, password)
+                    _createAccount.emit(createAccount)
+                } catch (e: Exception) {
+                    Log.i("TAG", "createUserAccount error in view model ${e.message} ")
+                }
             }
         }
     }
 
 
     fun validation(email: String, userName: String, password: String, confirmPassword: String) {
-        Log.i("error", "validation $email , $password , $userName , $confirmPassword ")
         viewModelScope.launch {
-            if (email.isEmpty()) {
-                _createAccount.emit(ApiResponse.Success("Email can't be empty"))
-            } else if (userName.isEmpty()) {
-                _createAccount.emit(ApiResponse.Success("User name can't be empty"))
-            } else if (password.isEmpty()) {
-                _createAccount.emit(ApiResponse.Success("password can't be empty"))
-            } else if (confirmPassword.isEmpty()) {
-                _createAccount.emit(ApiResponse.Success(" confirm Password can't be empty"))
-            } else {
-                checkEmailAndPassword(password, confirmPassword, email)
+            when {
+                email.isEmpty() -> _validationError.emit("Email can't be empty")
+                userName.isEmpty() -> _validationError.emit("User name can't be empty")
+                password.isEmpty() -> _validationError.emit("Password can't be empty")
+                confirmPassword.isEmpty() -> _validationError.emit("Confirm Password can't be empty")
+                !checkForEmailFormatting(email) -> _validationError.emit("Email not in valid format")
+                !isPasswordStrong(password) -> _validationError.emit("Password is weak")
+                !isPasswordEqualConfirmPassword(password, confirmPassword) -> _validationError.emit(
+                    "Passwords do not match"
+                )
+
+                else -> {
+                    _validationError.emit(null)
+                    createUserAccount(email, password)
+                }
             }
         }
     }
 
-    private fun checkEmailAndPassword(password: String, confirmPassword: String, email: String) {
-        viewModelScope.launch {
-            if (isPasswordEqualConfirmPassword(password, confirmPassword)) {
-                if (checkForEmailFormatting(email)) {
-                    if (isPasswordStrong(password)) {
-                        Log.i("error", "checkEmailAndPassword send create request ")
-                        createUserAccount(email, password)
-                    }else {
-                        _createAccount.emit(ApiResponse.Success("passwords is weak  "))
-                    }
-                }else {
-                    _createAccount.emit(ApiResponse.Success("email not in email formatting "))
-                }
-            } else {
-                _createAccount.emit(ApiResponse.Success("passwords does not match "))
-            }
-        }
-    }
 
     private fun isPasswordStrong(password: String): Boolean {
-        val strongPasswordRegex = Regex("""^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@#$%^&+=!_-]).{8,}$""")
+        val strongPasswordRegex =
+            Regex("""^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@#$%^&+=!_-]).{8,}$""")
         return strongPasswordRegex.matches(password)
     }
 

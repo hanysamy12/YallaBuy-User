@@ -46,13 +46,22 @@ class RemoteDataSource (
             flowOf()
         }
     }
-
-    override fun createUserAccount(email: String, password: String): String {
+    override suspend fun createUserAccount(email: String, password: String): Boolean {
         return try {
             fireBaseService.createUserAccount(email , password)
         }catch (e : Exception){
             Log.i("TAG", "createUserAccount in remote data source error ${e.message}  ")
-            "error"
+            false
+        }
+    }
+
+    override suspend fun loginUser(email: String, password: String): Boolean {
+        return try {
+            val loginResponse = fireBaseService.loginUser(email , password)
+            Log.i("login", "loginUser in remote $loginResponse ")
+            loginResponse
+        }catch (e : Exception){
+            false
         }
     }
 }

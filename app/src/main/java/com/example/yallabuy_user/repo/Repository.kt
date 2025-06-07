@@ -41,12 +41,21 @@ class Repository(private val remoteDataSource: RemoteDataSourceInterface) : Repo
         }
     }
 
-    override fun createUserAccount(email: String, password: String): String {
+    override suspend fun createUserAccount(email: String, password: String): Boolean {
         return try {
             remoteDataSource.createUserAccount(email , password)
         }catch (e : Exception){
             Log.i("TAG", "createUserAccount in repo error ${e.message}  ")
-            "error"
+            false
+        }
+    }
+
+    override suspend fun loginUser(email: String, password: String): Boolean {
+        return try {
+            val loginResponse = remoteDataSource.loginUser(email , password)
+            loginResponse
+        }catch (e : Exception){
+            false
         }
     }
 }

@@ -2,36 +2,40 @@ package com.example.yallabuy_user.data.remote
 
 import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.tasks.await
 
 class FireBaseService(
     private val firebaseAuth: FirebaseAuth
 ) {
-    private  var  statues : String = "error"
-
-    fun createUserAccount(email: String, password: String) : String {
+    private var statues: Boolean = true
+    suspend fun createUserAccount(email: String, password: String): Boolean {
         return try {
             firebaseAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener {
                 if (it.isSuccessful) {
-                    Log.i("TAG", "createUserAccount created success ")
-                    firebaseAuth.currentUser?.sendEmailVerification()?.addOnCompleteListener {
-                        if (it.isSuccessful) {
-                            Log.i("TAG", "createUserAccount email send  success ")
-                            statues = "successful"
-                        } else {
-                            val exception = it.exception?.message
-                            statues = exception ?: "undefined exception "
-                        }
-                    }
+                    statues = true
+                    firebaseAuth.currentUser?.sendEmailVerification()
                 } else {
-                    val exception = it.exception?.message
-                    statues = exception ?: "undefined exception "
+                    statues = false
                 }
 
             }
             statues
-        }catch (e : Exception){
+        } catch (e: Exception) {
             Log.i("TAG", "createUserAccount in firebase service error ${e.message}  ")
-            "error"
+            false
+        }
+    }
+
+    suspend fun loginUser(email: String, password: String): Boolean {
+        return try {
+            val result = firebaseAuth.signInWithEmailAndPassword(email, password).await()
+            val isVerified = result.user?.isEmailVerified ?: false
+            Log.i("login", "loginUser fireBase success")
+            Log.i("login", "loginUser fireBase validation $isVerified")
+            isVerified
+        } catch (e: Exception) {
+            Log.e("login", "loginUser error: ${e.message}")
+            false
         }
     }
 }
