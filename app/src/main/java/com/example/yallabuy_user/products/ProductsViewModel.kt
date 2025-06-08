@@ -1,7 +1,10 @@
 package com.example.yallabuy_user.products
 
 import android.util.Log
+import androidx.compose.ui.text.toLowerCase
+import androidx.compose.ui.text.toUpperCase
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.yallabuy_user.data.models.CustomCollectionsItem
 import com.example.yallabuy_user.data.models.ProductsItem
 import com.example.yallabuy_user.repo.RepositoryInterface
@@ -10,6 +13,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
+import java.util.Locale
 
 private const val TAG = "ProductsViewModel"
 
@@ -80,5 +85,14 @@ class ProductsViewModel(private val repo: RepositoryInterface) : ViewModel(),
         }
         _products.value = ApiResponse.Success(filteredList)
         Log.i(TAG, "showSubCategoryProduct: ${_products.value}")
+    }
+
+    override fun searchForProduct(productName: String) {
+        viewModelScope.launch {
+            val filterProducts = originalProducts.filter { product ->
+                product.title?.contains(productName.toUpperCase(Locale.ROOT)) ?: false
+            }
+            _products.emit(ApiResponse.Success(filterProducts))
+        }
     }
 }
