@@ -28,16 +28,20 @@ class FireBaseService(
         }
     }
 
-    suspend fun loginUser(email: String, password: String): Boolean {
+    suspend fun loginUser(email: String, password: String): String {
         return try {
             val result = firebaseAuth.signInWithEmailAndPassword(email, password).await()
             val isVerified = result.user?.isEmailVerified ?: false
             Log.i("login", "loginUser fireBase success")
             Log.i("login", "loginUser fireBase validation $isVerified")
-            isVerified
+            if(isVerified){
+                "login Successfully"
+            }else {
+                "error account not verified"
+            }
         } catch (e: Exception) {
             Log.e("login", "loginUser error: ${e.message}")
-            false
+            "error ${e.message}"
         }
     }
 }

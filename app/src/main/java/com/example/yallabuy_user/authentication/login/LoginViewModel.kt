@@ -3,11 +3,10 @@ package com.example.yallabuy_user.authentication.login
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.yallabuy_user.repo.RepositoryInterface
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class LoginViewModel(
     private val repo: RepositoryInterface
@@ -17,7 +16,11 @@ class LoginViewModel(
     val validateError = _validationError.asStateFlow()
 
     private val _loginUser = MutableStateFlow<Boolean>(false)
-    val loginUser = _loginUser.asStateFlow()
+    val loginUser = _loginUser
+
+    private val _loginUserError = MutableSharedFlow<String>()
+    val loginUserError = _loginUserError
+
     fun validation(email: String, password: String) {
         viewModelScope.launch {
             when {
@@ -40,10 +43,20 @@ class LoginViewModel(
         viewModelScope.launch {
             try {
                 val loginResponse = repo.loginUser(email, password)
-                _loginUser.emit(loginResponse)
+                loginResponse.collect{
+                    if(it.contains("error")){
+                        _loginUserError.emit(it)
+                        _loginUser.emit(false)
+                    }
+                    if(it.contains("Successfully")){
+                      _loginUser.emit(true)
+                    }
+                }
             } catch (e: Exception) {
-
+                _loginUser.emit(false)
+                _loginUserError.emit("${e.message}")
             }
         }
     }
 }
+

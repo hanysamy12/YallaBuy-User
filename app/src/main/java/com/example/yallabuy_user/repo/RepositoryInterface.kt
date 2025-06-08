@@ -15,6 +15,6 @@ interface RepositoryInterface {
     suspend fun getAllProducts(): Flow<ProductResponse>
     suspend fun getProductById(productId : Long) : Flow<ProductInfoResponse>
     suspend fun createUserAccount(email: String, password: String): Flow<String>
-    suspend fun loginUser(email : String , password : String) : Boolean
+    suspend fun loginUser(email : String , password : String) : Flow<String>
     suspend fun createUserOnShopify(email: String, password: String, userName: String) : Flow<CreateUserOnShopifyResponse>
 }

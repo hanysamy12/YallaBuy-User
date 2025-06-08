@@ -60,13 +60,13 @@ class RemoteDataSource (
         }
     }
 
-    override suspend fun loginUser(email: String, password: String): Boolean {
+    override suspend fun loginUser(email: String, password: String): Flow<String> {
         return try {
             val loginResponse = fireBaseService.loginUser(email , password)
             Log.i("login", "loginUser in remote $loginResponse ")
-            loginResponse
+            flowOf( loginResponse)
         }catch (e : Exception){
-            false
+            flowOf("error ${e.message}")
         }
     }
 

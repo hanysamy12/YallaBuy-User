@@ -53,12 +53,12 @@ class Repository(private val remoteDataSource: RemoteDataSourceInterface) : Repo
         }
     }
 
-    override suspend fun loginUser(email: String, password: String): Boolean {
+    override suspend fun loginUser(email: String, password: String): Flow<String> {
         return try {
             val loginResponse = remoteDataSource.loginUser(email , password)
             loginResponse
         }catch (e : Exception){
-            false
+            flowOf("error ${e.message}")
         }
     }
 
