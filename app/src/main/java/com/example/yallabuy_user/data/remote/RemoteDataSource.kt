@@ -4,6 +4,9 @@ import android.util.Log
 import com.example.yallabuy_user.data.models.BrandResponse
 import com.example.yallabuy_user.data.models.CategoryResponse
 import com.example.yallabuy_user.data.models.ProductResponse
+import com.example.yallabuy_user.data.models.createUser.CreateUserOnShopifyResponse
+import com.example.yallabuy_user.data.models.createUser.request.CreateUSerOnShopifyRequest
+import com.example.yallabuy_user.data.models.createUser.request.CustomerRequest
 import com.example.yallabuy_user.data.models.productInfo.ProductInfoResponse
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
@@ -46,12 +49,14 @@ class RemoteDataSource (
             flowOf()
         }
     }
-    override suspend fun createUserAccount(email: String, password: String): String {
+    override suspend fun createUserAccount(email: String, password: String): Flow<String> {
         return try {
-            fireBaseService.createUserAccount(email , password)
+            val createAccountResponse = fireBaseService.createUserAccount(email , password)
+            Log.i("createUser", "createUserAccount in remote data source success   ")
+            createAccountResponse
         }catch (e : Exception){
-            Log.i("TAG", "createUserAccount in remote data source error ${e.message}  ")
-            "error ${e.message} "
+            Log.i("createUser", "createUserAccount in remote data source error ${e.message}  ")
+           flowOf ("error ${e.message} ")
         }
     }
 
@@ -62,6 +67,25 @@ class RemoteDataSource (
             loginResponse
         }catch (e : Exception){
             false
+        }
+    }
+
+    override suspend fun createUserOnShopify(
+        email: String,
+        password: String,
+        userName: String
+    ): Flow<CreateUserOnShopifyResponse> {
+        return try {
+            val customer = CustomerRequest(userName , email , password , password)
+            val request = CreateUSerOnShopifyRequest(customer)
+            val  response = service.createUserOnShopify(request)
+            flowOf(response)
+        }catch (e: HttpException) {
+            if (e.code() == 422) {
+                val errorBody = e.response()?.errorBody()?.string()
+                Log.d("ShopifyError", "Error details: $errorBody")
+            }
+            flowOf()
         }
     }
 }

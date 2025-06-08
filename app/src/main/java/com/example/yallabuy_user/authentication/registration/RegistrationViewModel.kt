@@ -4,14 +4,12 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.yallabuy_user.repo.RepositoryInterface
-import com.example.yallabuy_user.utilities.ApiResponse
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class RegistrationViewModel(
     private val repositoryInterface: RepositoryInterface
@@ -27,16 +25,21 @@ class RegistrationViewModel(
     private val _validationError = MutableStateFlow<String?>(null)
     val validationError = _validationError.asStateFlow()
 
-    private fun createUserAccount(email: String, password: String) {
+    private fun createUserAccount(email: String,userName: String, password: String) {
         viewModelScope.launch {
             coroutineScope {
                 try {
                     val createAccount = repositoryInterface.createUserAccount(email, password)
-                    if (createAccount.contains("error")){
-                        _errorInCreatingAccount.emit(createAccount)
-                        Log.i("error", "error is $createAccount ")
-                    }else {
-                        _createAccount.emit(createAccount)
+                    createAccount.collect{
+                        if(it.contains("error")) {
+                            _errorInCreatingAccount.emit(it)
+                            Log.i("createUser", "error is $createAccount ")
+                        }
+                        if(it.contains("successfully")) {
+                            Log.i("createUser", "in view model success ")
+                            createUserOnShopify(email, password, userName)
+                            _createAccount.emit(it)
+                        }
                     }
                 } catch (e: Exception) {
                     Log.i("TAG", "createUserAccount error in view model ${e.message} ")
@@ -45,6 +48,16 @@ class RegistrationViewModel(
         }
     }
 
+    private fun createUserOnShopify(email: String, password: String, userName: String){
+        viewModelScope.launch {
+            try {
+               val response =  repositoryInterface.createUserOnShopify(email , password , userName)
+                Log.i("shopify", "createUserOnShopify response in view model is success")
+            }catch (e : Exception){
+                Log.i("TAG", "createUserOnShopify error is ${e.message} ")
+            }
+        }
+    }
 
     fun validation(email: String, userName: String, password: String, confirmPassword: String) {
         viewModelScope.launch {
@@ -61,7 +74,7 @@ class RegistrationViewModel(
 
                 else -> {
                     _validationError.emit(null)
-                    createUserAccount(email, password)
+                    createUserAccount(email , userName, password)
                 }
             }
         }

@@ -4,10 +4,15 @@ import com.example.yallabuy_user.BuildConfig
 import com.example.yallabuy_user.data.models.BrandResponse
 import com.example.yallabuy_user.data.models.CategoryResponse
 import com.example.yallabuy_user.data.models.ProductResponse
+import com.example.yallabuy_user.data.models.createUser.CreateUserOnShopifyResponse
+import com.example.yallabuy_user.data.models.createUser.request.CreateUSerOnShopifyRequest
 import com.example.yallabuy_user.data.models.productInfo.ProductInfoResponse
 import okhttp3.Interceptor
 import okhttp3.Response
+import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.Headers
+import retrofit2.http.POST
 import retrofit2.http.Path
 
 
@@ -40,5 +45,9 @@ interface ApiService {
         @Path("product_id") productId : Long
     ) : ProductInfoResponse
 
-
+    @Headers("Accept: application/json")
+    @POST("customers.json?send_email_invite=true")
+    suspend fun createUserOnShopify(
+        @Body request : CreateUSerOnShopifyRequest
+    ) : CreateUserOnShopifyResponse
 }

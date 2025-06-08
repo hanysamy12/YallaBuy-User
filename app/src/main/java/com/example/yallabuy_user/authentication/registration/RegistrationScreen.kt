@@ -363,13 +363,13 @@ fun SuccessRegistrationAlert(
             LottieAnimation(
                 composition = successComposition,
                 progress = { successProgress },
-                modifier = Modifier.size(72.dp)
+                modifier = Modifier.size(100.dp)
             )
         } else {
             LottieAnimation(
                 composition = failComposition,
                 progress = { failProgress },
-                modifier = Modifier.size(72.dp)
+                modifier = Modifier.size(100.dp)
             )
         }
     }

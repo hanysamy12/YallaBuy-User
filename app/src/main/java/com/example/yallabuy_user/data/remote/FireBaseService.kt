@@ -2,31 +2,29 @@ package com.example.yallabuy_user.data.remote
 
 import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.tasks.await
 
 class FireBaseService(
     private val firebaseAuth: FirebaseAuth
 ) {
     private var statues: String = ""
-    suspend fun createUserAccount(email: String, password: String): String {
+    suspend fun createUserAccount(email: String, password: String): Flow<String> {
        return  try {
-            firebaseAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener {
-                if (it.isSuccessful) {
-                    val validation = firebaseAuth.currentUser?.sendEmailVerification()
-                    if (validation?.isSuccessful == true) {
-                       statues =  "Account created successfully"
-                    } else {
-                     statues =  "error ${validation?.exception?.message ?: "Unknown Error"}"
-                    }
-                } else {
-                  statues =   " error ${it.exception?.message}"
-                }
-            }.await()
-            statues
+           firebaseAuth.createUserWithEmailAndPassword(email, password).await()
+           try {
+               firebaseAuth.currentUser?.sendEmailVerification()?.await()
+               Log.i("createUser", "Account and verification email sent")
+               flowOf("Account created successfully. Verification email sent.")
+           } catch (e: Exception) {
+               Log.i("createUser", "Verification email failed: ${e.message}")
+               flowOf("Account created error, but failed to send verification email: ${e.message}")
+           }
         } catch (e: Exception) {
-            Log.i("TAG", "createUserAccount in firebase service error ${e.message}  ")
+            Log.i("createUser", "createUserAccount in firebase service error ${e.message}  ")
             statues = "error ${e.message}"
-           statues
+           flowOf(statues)
         }
     }
 

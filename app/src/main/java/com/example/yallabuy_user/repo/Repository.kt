@@ -6,6 +6,7 @@ import com.example.yallabuy_user.data.remote.RemoteDataSourceInterface
 import com.example.yallabuy_user.data.models.BrandResponse
 import com.example.yallabuy_user.data.models.CategoryResponse
 import com.example.yallabuy_user.data.models.ProductResponse
+import com.example.yallabuy_user.data.models.createUser.CreateUserOnShopifyResponse
 import com.example.yallabuy_user.data.models.productInfo.ProductInfoResponse
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
@@ -41,12 +42,14 @@ class Repository(private val remoteDataSource: RemoteDataSourceInterface) : Repo
         }
     }
 
-    override suspend fun createUserAccount(email: String, password: String): String {
+    override suspend fun createUserAccount(email: String, password: String): Flow<String> {
         return try {
-            remoteDataSource.createUserAccount(email , password)
+            val createUserResponse = remoteDataSource.createUserAccount(email , password)
+            Log.i("createUser", "createUserAccount in repo success ")
+            createUserResponse
         }catch (e : Exception){
-            Log.i("TAG", "createUserAccount in repo error ${e.message}  ")
-            "error ${e.message}"
+            Log.i("createUser", "createUserAccount in repo error ${e.message}  ")
+           flowOf( "error ${e.message}")
         }
     }
 
@@ -56,6 +59,19 @@ class Repository(private val remoteDataSource: RemoteDataSourceInterface) : Repo
             loginResponse
         }catch (e : Exception){
             false
+        }
+    }
+
+    override suspend fun createUserOnShopify(
+        email: String,
+        password: String,
+        userName: String
+    ): Flow<CreateUserOnShopifyResponse> {
+        return try {
+            val response = remoteDataSource.createUserOnShopify(email , password , userName)
+            response
+        }catch (e : Exception){
+            flowOf()
         }
     }
 }
