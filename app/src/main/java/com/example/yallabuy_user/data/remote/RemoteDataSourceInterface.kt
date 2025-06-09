@@ -3,6 +3,7 @@ package com.example.yallabuy_user.data.remote
 
 import com.example.yallabuy_user.data.models.BrandResponse
 import com.example.yallabuy_user.data.models.CategoryResponse
+import com.example.yallabuy_user.data.models.OrderDetailsResponse
 import com.example.yallabuy_user.data.models.OrdersResponse
 import com.example.yallabuy_user.data.models.ProductResponse
 import com.example.yallabuy_user.data.models.productInfo.ProductInfoResponse
@@ -15,5 +16,7 @@ interface RemoteDataSourceInterface {
     suspend fun getAllProducts(): Flow<ProductResponse>
     suspend fun getProductInfoById(productId : Long) : Flow<ProductInfoResponse>
     suspend fun getPreviousOrders(userID : Long) : Flow<OrdersResponse>
+    suspend fun getOrderById(orderID : Long) : Flow<OrderDetailsResponse>
+
 
 }

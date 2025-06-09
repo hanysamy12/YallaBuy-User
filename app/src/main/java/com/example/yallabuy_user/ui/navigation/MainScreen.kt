@@ -80,7 +80,7 @@ fun MainScreen() {
             currentRoute == ScreenRoute.Home.route -> CenterAlignedTopAppBar(
                 title = { Text("Home") },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = Color(0xFFFFC107)
+                    containerColor = Color(0xFF3B9A94)
                 )
             )
 
@@ -95,7 +95,7 @@ fun MainScreen() {
             currentRoute == ScreenRoute.Collections.route -> CenterAlignedTopAppBar(
                 title = { Text("Collections") },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = Color(0xFFFFC107)
+                    containerColor = Color(0xFF3B9A94)
                 )
             )
 
@@ -217,12 +217,12 @@ fun MainScreen() {
                 val args = it.toRoute<ScreenRoute.ProductInfo>()
                 ProductInfoScreen(args.productId)
             }
-            composable<ScreenRoute.PreviousOrders> {
+            composable(ScreenRoute.PreviousOrders.route) {
                 PreviousOrdersScreen(navController)
             }
-            composable<ScreenRoute.PreviousOrderDetails> {
-                val args = it.toRoute<ScreenRoute.PreviousOrderDetails>()
-                OrderItemScreen(args.orderId)
+            composable(route = ScreenRoute.PreviousOrderDetails.FULL_ROUTE) { navBackStackEntry ->
+                val orderId = navBackStackEntry.arguments?.getString("orderId")?.toLongOrNull()
+                OrderItemScreen(orderId, navController)
             }
         }
     }

@@ -31,6 +31,7 @@ data class ShippingAddress(
 
 data class ShopMoney(
 	val amount: String? = null,
+	@SerializedName("currency_code")
 	val currencyCode: String? = null
 )
 
@@ -45,6 +46,7 @@ data class TotalDiscountSet(
 )
 
 data class CurrentSubtotalPriceSet(
+	@SerializedName("shop_money")
 	val shopMoney: ShopMoney? = null,
 	val presentmentMoney: PresentmentMoney? = null
 )
@@ -268,6 +270,7 @@ data class LineItemsItem(
 	val taxLines: List<Any?>? = null,
 	val price: String? = null,
 	val vendor: String? = null,
+	@SerializedName("product_id")
 	val productId: Long? = null,
 	val id: Long? = null,
 	val grams: Int? = null,

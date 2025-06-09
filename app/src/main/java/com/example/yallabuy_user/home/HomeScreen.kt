@@ -291,10 +291,11 @@ fun RoundedImageWithTitle(brand: SmartCollectionsItem, onBrandClicked: (String) 
                 brand.title ?: "",
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(Color.Gray.copy(alpha = 0.5f)),
+                    .background(Color(0xFF3B9A94)),
                 fontSize = 22.sp,
                 fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
+                color = Color(0xFFF8EBD9)
             )
         }
     }

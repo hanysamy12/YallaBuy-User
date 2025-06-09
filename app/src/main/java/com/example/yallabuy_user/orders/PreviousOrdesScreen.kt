@@ -28,7 +28,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
@@ -42,10 +41,9 @@ import org.koin.androidx.compose.koinViewModel
 private const val TAG = "PreviousOrdersScreen"
 
 @Composable
-fun PreviousOrdersScreen(navController: NavController, orderViewModel: OrdersViewModel = koinViewModel()) {
-    // Number of orders to display
-    // Number of Items in each order
-    // Order date
+fun PreviousOrdersScreen(
+    navController: NavController, orderViewModel: OrdersViewModel = koinViewModel()
+) {
 
     val uiOrdersState by orderViewModel.orders.collectAsState()
 
@@ -72,15 +70,16 @@ fun PreviousOrdersScreen(navController: NavController, orderViewModel: OrdersVie
                 is ApiResponse.Success<*> -> {
                     val orders = (uiOrdersState as ApiResponse.Success).data
 
-                    Text(
-                        "${orders[0].customer?.firstName}${orders[0].customer?.lastName} "
-                    )
                     LazyColumn(modifier = Modifier.fillMaxSize()) {
                         items(orders.size) { index ->
                             OrderItem(
-                                orders[index],
-                                onOrderClicked = { navController.navigate(ScreenRoute.PreviousOrderDetails(orderId = it).route) }
-                            )
+                                orders[index], onOrderClicked = {
+                                    navController.navigate(
+                                        ScreenRoute.PreviousOrderDetails.createRoute(
+                                            it
+                                        )
+                                    )
+                                })
                         }
                     }
                 }
@@ -90,8 +89,7 @@ fun PreviousOrdersScreen(navController: NavController, orderViewModel: OrdersVie
 }
 
 @Composable
-private fun OrderItem(order :OrdersItem, onOrderClicked: (Long) -> Unit) {
-    Log.i(TAG, "OrderItem: $order")
+private fun OrderItem(order: OrdersItem, onOrderClicked: (Long) -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -104,7 +102,7 @@ private fun OrderItem(order :OrdersItem, onOrderClicked: (Long) -> Unit) {
             modifier = Modifier
                 .size(150.dp)
                 .background(shape = RoundedCornerShape(12.dp), color = Color.White),
-            model = R.drawable.dummy_product,
+            model = R.drawable.ic_app,
             contentDescription = ""
         )
         Spacer(Modifier.width(12.dp))
@@ -119,7 +117,7 @@ private fun OrderItem(order :OrdersItem, onOrderClicked: (Long) -> Unit) {
                 .padding(4.dp),
             onClick = {
                 order.id?.let { onOrderClicked(it) }
-                Log.i(TAG, "OrderItem: Clicked") },
+            },
         ) {
             Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = "")
         }
