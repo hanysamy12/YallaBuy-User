@@ -1,6 +1,5 @@
 package com.example.yallabuy_user.orders
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -38,7 +37,6 @@ import com.example.yallabuy_user.ui.navigation.ScreenRoute
 import com.example.yallabuy_user.utilities.ApiResponse
 import org.koin.androidx.compose.koinViewModel
 
-private const val TAG = "PreviousOrdersScreen"
 
 @Composable
 fun PreviousOrdersScreen(

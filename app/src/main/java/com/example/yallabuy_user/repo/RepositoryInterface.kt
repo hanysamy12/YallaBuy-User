@@ -4,7 +4,6 @@ package com.example.yallabuy_user.repo
 import com.example.yallabuy_user.data.models.BrandResponse
 import com.example.yallabuy_user.data.models.CategoryResponse
 import com.example.yallabuy_user.data.models.OrderDetailsResponse
-import com.example.yallabuy_user.data.models.OrdersItem
 import com.example.yallabuy_user.data.models.OrdersResponse
 import com.example.yallabuy_user.data.models.ProductResponse
 import com.example.yallabuy_user.data.models.productInfo.ProductInfoResponse
