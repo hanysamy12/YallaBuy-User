@@ -71,8 +71,10 @@ fun ProductsScreen(
     Box {
         Column(modifier = Modifier.padding(6.dp)) {
             OutlinedTextField(
-                value = searchQuery.value, onValueChange = { query ->
+                value = searchQuery.value,
+                onValueChange = { query ->
                     searchQuery.value = query
+                    viewModel.searchForProduct(searchQuery.value)
                     Log.i(TAG, "Search: $query")
                 },
                 modifier = Modifier
@@ -141,6 +143,11 @@ fun ProductsScreen(
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         items(products.size) { index ->
+                            Product(products[index], navController)
+                            Log.i(
+                                TAG,
+                                "ProductsScreen: Product Price ${products[index].variants?.get(0)?.price}"
+                            )
                             Product(products[index], navController)
                         }
                     }

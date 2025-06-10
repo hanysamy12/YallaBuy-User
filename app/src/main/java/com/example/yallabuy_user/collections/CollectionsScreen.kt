@@ -138,8 +138,8 @@ private fun CategoriesChips(
                 },
                 modifier = Modifier.padding(horizontal = 4.dp),
                 colors = AssistChipDefaults.assistChipColors(
-                    containerColor = if (selectedIndex == index) Color.Yellow
-                    else Color.White
+                    containerColor = if (selectedIndex == index) Color(0xFF3B9A94)
+                    else Color(0xFFF8EBD9)
                 )
             )
         }

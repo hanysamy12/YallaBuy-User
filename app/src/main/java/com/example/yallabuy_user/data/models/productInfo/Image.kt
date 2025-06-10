@@ -8,7 +8,7 @@ data class Image(
     val id: Long,
     val position: Int,
     val product_id: Long,
-    val src: String,
+    var src: String,
     val updated_at: String,
     val variant_ids: List<Any>,
     val width: Int
