@@ -1,5 +1,6 @@
 package com.example.yallabuy_user.home
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.example.yallabuy_user.repo.RepositoryInterface
 import com.example.yallabuy_user.utilities.ApiResponse
@@ -21,10 +22,14 @@ class HomeViewModel(private val repo: RepositoryInterface) : ViewModel(), HomeVi
 
     override suspend fun getAllCategories() {
         try {
+            Log.i("TAG", "getAllCategories: ")
             repo.getAllCategories()
                 .map { it.customCollections.orEmpty().filterNotNull()}
                 .catch { error -> _categories.value = ApiResponse.Failure(error) }
-                .collect{categories -> _categories.value = ApiResponse.Success(categories)}
+                .collect{categories -> _categories.value = ApiResponse.Success(categories)
+                    Log.i("TAG", "Collect: $categories")
+                }
+
         } catch (e: Exception) {
             _categories.value = ApiResponse.Failure(e)
         }
