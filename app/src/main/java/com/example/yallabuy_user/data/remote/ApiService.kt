@@ -1,6 +1,7 @@
 package com.example.yallabuy_user.data.remote
 
 import com.example.yallabuy_user.BuildConfig
+import com.example.yallabuy_user.data.models.cart.DraftOrderBody
 import com.example.yallabuy_user.data.models.BrandResponse
 import com.example.yallabuy_user.data.models.CategoryResponse
 import com.example.yallabuy_user.data.models.OrderDetailsResponse
@@ -10,12 +11,21 @@ import com.example.yallabuy_user.data.models.createUser.CreateUserOnShopifyRespo
 import com.example.yallabuy_user.data.models.createUser.request.CreateUSerOnShopifyRequest
 import com.example.yallabuy_user.data.models.customer.CustomerDataResponse
 import com.example.yallabuy_user.data.models.productInfo.ProductInfoResponse
+import com.example.yallabuy_user.settings.model.remote.address.AddressBody
+import com.example.yallabuy_user.settings.model.remote.address.AddressesResponse
+import com.example.yallabuy_user.settings.model.remote.address.DeleteResponse
+import com.example.yallabuy_user.settings.model.remote.address.NewAddressResponse
 import okhttp3.Interceptor
 import okhttp3.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Headers
 import retrofit2.http.POST
+import retrofit2.http.DELETE
+import retrofit2.http.GET
+import retrofit2.http.Header
+import retrofit2.http.POST
+import retrofit2.http.PUT
 import retrofit2.http.Path
 import retrofit2.http.Query
 
@@ -31,7 +41,7 @@ class AuthInterceptor() : Interceptor {
     }
 }
 
-interface ApiService {
+interface ApiService  {
     @GET("custom_collections.json")
     suspend fun getAllCategories(): CategoryResponse
 
@@ -46,7 +56,8 @@ interface ApiService {
 
     @GET("products/{product_id}.json")
     suspend fun getProductById(
-        @Path("product_id") productId: Long
+
+      @Path("product_id") productId: Long
     ): ProductInfoResponse
 
     @GET("customers/{userID}/orders.json")
@@ -65,4 +76,70 @@ interface ApiService {
     suspend fun getUserDataByEmail(
         @Query("email") email : String
     ) : CustomerDataResponse
+        @Path("product_id") productId : Long
+    ) : ProductInfoResponse
+
+
+    @GET("customers/{customer_id}/addresses.json")
+    suspend fun getAddresses(
+        @Path("customer_id") customerId: String
+    ): retrofit2.Response<AddressesResponse>
+
+    @GET("customers/{customer_id}/addresses/{address_id}.json")
+    suspend fun getCustomerAddressById(
+        @Path("customer_id") customerId: Long,
+        @Path("address_id") addressId: Long,
+    ): retrofit2.Response<NewAddressResponse>
+
+    @POST("customers/{customer_id}/addresses.json")
+    suspend fun createCustomerAddress(
+        @Path("customer_id") customerId: Long,
+        @Body newAddressBody: AddressBody,
+    ): retrofit2.Response<NewAddressResponse>
+
+    @PUT("customers/{customer_id}/addresses/{address_id}.json")
+    suspend fun updateCustomerAddress(
+        @Path("customer_id") customerId: Long,
+        @Path("address_id") addressId: Long,
+        @Body updatedAddressBody: AddressBody,
+    ): retrofit2.Response<NewAddressResponse>
+
+    @DELETE("admin/api/2025-04/customers/{customer_id}/addresses/{address_id}.json")
+    suspend fun deleteCustomerAddress(
+        @Path("customer_id") customerId: Long,
+        @Path("address_id") addressId: Long,
+    ): retrofit2.Response<DeleteResponse>
+
+
+    @POST("admin/api/2025-04/draft_orders.json")
+    suspend fun createDraftOrder(
+        @Body draftOrderBody: DraftOrderBody
+    ): retrofit2.Response<DraftOrderBody>
+
+
+    @GET("/admin/api/2025-04/draft_orders/{draft_order_id}.json")
+    suspend fun getDraftOrder(
+        @Path("draft_order_id") draftOrderID: Long
+    ): retrofit2.Response<DraftOrderBody>
+
+
+    @PUT("/admin/api/2025-04/draft_orders/{draft_order_id}.json")
+    suspend fun updateDraftOrder(
+        @Body draftOrderBody: DraftOrderBody,
+        @Path("draft_order_id") draftOrderID: Long
+    ): retrofit2.Response<DraftOrderBody>
+
+
+    @DELETE("/admin/api/2025-04/draft_orders/{draft_order_id}.json")
+    suspend fun deleteDraftOrder(
+        @Header("X-Shopify-Access-Token") accessToken: String,
+        @Path("draft_order_id") draftOrderID: Long
+    )
+
+    @GET("admin/api/2023-04/products/{product_id}.json")
+    suspend fun getProductByID(
+        @Path("product_id") productID: Long
+    ): retrofit2.Response<ProductResponse>
+
+
 }

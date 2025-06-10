@@ -39,6 +39,7 @@ import com.example.yallabuy_user.collections.Product
 import com.example.yallabuy_user.data.models.ProductsItem
 import com.example.yallabuy_user.home.ProgressShow
 import com.example.yallabuy_user.utilities.ApiResponse
+import com.example.yallabuy_user.utilities.Common
 import org.koin.androidx.compose.koinViewModel
 
 private const val TAG = "ProductsScreen"
@@ -58,6 +59,8 @@ fun ProductsScreen(
     var minPrice by remember { mutableFloatStateOf(0f) }
     var currentPrice by remember { mutableFloatStateOf(0f) }
     var priceUnit by remember { mutableStateOf("EG") }
+    val currencyOptions = listOf("EGP", "$", "€", "SAR")
+
 
     var isPriceSet by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) {
@@ -109,7 +112,7 @@ fun ProductsScreen(
                     modifier = Modifier
                         .padding(horizontal = 12.dp)
                 ) {
-                    Text("Price:${currentPrice.toInt()} ${priceUnit}", fontSize = 13.sp)
+                    Text("Price:${currentPrice.toInt()} ${Common.currencyCode.getCurrencyCode()}", fontSize = 13.sp)
                     Slider(
                         modifier = Modifier
                             .height(22.dp),

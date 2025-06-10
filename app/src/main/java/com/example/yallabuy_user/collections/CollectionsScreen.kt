@@ -43,6 +43,7 @@ import com.example.yallabuy_user.home.ProgressShow
 import com.example.yallabuy_user.products.ProductsViewModel
 import com.example.yallabuy_user.ui.navigation.ScreenRoute
 import com.example.yallabuy_user.utilities.ApiResponse
+import com.example.yallabuy_user.utilities.Common
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 
@@ -179,7 +180,7 @@ fun Product(product: ProductsItem, navController: NavController) {
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.Center
                 ) {
-                    Text("EG")
+                    Text(Common.currencyCode.getCurrencyCode())
                     Spacer(Modifier.width(3.dp))
                     Text(product.variants?.get(0)?.price ?: "NO Price", fontWeight = FontWeight.Bold)
                 }

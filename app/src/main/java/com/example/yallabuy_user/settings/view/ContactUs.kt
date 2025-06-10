@@ -68,7 +68,7 @@ fun ContactUsScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(400.dp),
-                contentScale = ContentScale.Crop
+                contentScale = ContentScale.FillBounds
             )
         }
     }

@@ -29,6 +29,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
@@ -42,6 +43,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -55,14 +57,23 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.yallabuy_user.R
+import com.example.yallabuy_user.data.models.cart.Customer
+import com.example.yallabuy_user.data.models.cart.DraftOrder
+import com.example.yallabuy_user.data.models.cart.DraftOrderBody
+import com.example.yallabuy_user.data.models.cart.LineItem
+import com.example.yallabuy_user.data.models.cart.Property
+import com.example.yallabuy_user.cart.viewmodel.CartViewModel
 
 
 @Composable
-fun ProductInfoScreen(productId : Long , productInfoViewModel: ProductInfoViewModel = koinViewModel()){
+fun ProductInfoScreen(productId : Long ,
+                      productInfoViewModel: ProductInfoViewModel = koinViewModel(),
+                      cartViewModel: CartViewModel = koinViewModel()
+                     ){
 
     val productInfo = productInfoViewModel.productInfo.collectAsState().value
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(productId) {
         productInfoViewModel.getProductInfoById(productId)
     }
 
@@ -77,7 +88,7 @@ fun ProductInfoScreen(productId : Long , productInfoViewModel: ProductInfoViewMo
             Column {
                 ProductImage(productInfo.data)
                 Spacer(Modifier.height(5.dp))
-                ProductDetail(productInfo.data)
+               // ProductDetail(productInfo.data, onAddToCartClick ={cartViewModel.addProductToCart()} )
 
             }
         }
@@ -144,10 +155,13 @@ fun ProductImage(data: ProductInfoResponse) {
 }
 
 @Composable
-fun ProductDetail(data: ProductInfoResponse) {
+fun ProductDetail(data: ProductInfoResponse, onAddToCartClick:(DraftOrderBody)-> Unit) {
 
-    var productCounter by  remember { mutableIntStateOf(1) }
+    var productCounter by  remember { mutableLongStateOf(1L) }
 
+    var selectedSize by remember { mutableStateOf("") }
+    var selectedColor by remember { mutableStateOf("") }
+    var showMissingSelectionDialog by remember { mutableStateOf(false) }
     Column {
         Text(
             data?.product?.title ?: "No Title Available",
@@ -165,19 +179,68 @@ fun ProductDetail(data: ProductInfoResponse) {
             modifier = Modifier.padding(5.dp)
         )
 
-        SizesDropDownMenu(data)
+        SizesDropDownMenu(data) { selectedSize = it }
         Spacer(modifier = Modifier.height(3.dp))
-        ColorDropDownMenu(data)
+        ColorDropDownMenu(data) { selectedColor = it }
 
         Price(data , count = productCounter)
 
         Row {
-            QuantitySelectorCard(productCounter = productCounter,
+            QuantitySelectorCard(
+                productCounter = productCounter,
                 onIncrease = { productCounter += 1 },
                 onDecrease = { if (productCounter > 1) productCounter -= 1 }
             )
             Button(
-                onClick = { },
+                onClick = {
+
+                    if (selectedSize.isEmpty() || selectedColor.isEmpty()) {
+                        showMissingSelectionDialog = true
+                    } else {
+                        val selectedVariant = data.product.variants.find {
+                            it.option1 == selectedSize && it.option2 == selectedColor
+                        }
+                        selectedVariant?.let { variant ->
+                            val draftOrderObject = DraftOrderBody(
+                                draftOrder = DraftOrder(
+                                    Id = 0L,
+                                    note = "Added from Product Details",
+                                    lineItems = mutableListOf(
+                                        LineItem(
+                                            variantID = variant.id,
+                                            productID = variant.product_id,
+                                            title = data.product.title,
+                                            quantity = productCounter,
+                                            name = variant.title,
+                                            price = variant.price,
+                                            properties = listOf(
+                                                Property("Color", selectedColor),
+                                                Property("Size", selectedSize),
+                                                Property(
+                                                    "Quantity_in_Stock",
+                                                    variant.inventory_quantity.toString()
+                                                ),
+                                                Property("Image", data.product.image.src),
+                                                Property("SavedAt", "Cart")
+                                            )
+                                        )
+                                    ),
+                                    totalPrice = (variant.price.toDoubleOrNull()
+                                        ?: 0.0 * productCounter).toString(),
+                                    customer = Customer(
+                                        id = 8805732188478
+                                    )
+                                )
+                            )
+                            //send viewModel to draftorder object
+                            //you can try to do it using lambda
+
+                            onAddToCartClick(draftOrderObject)
+                        }
+                    }
+                },
+
+
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(80.dp)
@@ -191,12 +254,27 @@ fun ProductDetail(data: ProductInfoResponse) {
                 Text("Add To Cart" , fontSize = 20.sp)
             }
         }
+        if (showMissingSelectionDialog) {
+            AlertDialog(
+                onDismissRequest = { showMissingSelectionDialog = false },
+                title = { Text("Selection Required") },
+                text = { Text("Please select both size and color before adding to cart") },
+                confirmButton = {
+                    Button(
+                        onClick = { showMissingSelectionDialog = false },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color.Black)
+                    ) {
+                        Text("OK", color = Color.White)
+                    }
+                }
+            )
+        }
     }
 }
 
 @Composable
 fun QuantitySelectorCard(
-    productCounter: Int,
+    productCounter: Long,
     onIncrease: () -> Unit,
     onDecrease: () -> Unit
 ) {
@@ -242,12 +320,18 @@ fun QuantitySelectorCard(
     }
 }
 @Composable
-fun SizesDropDownMenu(data: ProductInfoResponse) {
+fun SizesDropDownMenu(data: ProductInfoResponse,
+                      onSizeSelected: (String) -> Unit
+) {
     val isDropDownSelected = remember { mutableStateOf(false) }
     val itemSelectedIndex = remember { mutableIntStateOf(0) }
 
-    val variants = data?.product?.variants ?: emptyList()
+    val variants = data.product.variants
     val selectedSize = variants.getOrNull(itemSelectedIndex.intValue)?.option1 ?: "No Sizes Available"
+
+    LaunchedEffect(Unit) {
+        onSizeSelected(selectedSize)
+    }
 
     Column(
         modifier = Modifier
@@ -301,23 +385,31 @@ fun SizesDropDownMenu(data: ProductInfoResponse) {
                             )
                         },
                         onClick = {
-                            itemSelectedIndex.value = index
+                            Log.i("TAG", "SizesDropDownMenu: ${variant.option1}")
+                            itemSelectedIndex.intValue = index
+                            onSizeSelected(variant.option1)
                             isDropDownSelected.value = false
+
                         }
                     )
                 }
             }
         }
     }
+
 }
 
 @Composable
-fun ColorDropDownMenu(data: ProductInfoResponse) {
+fun ColorDropDownMenu(data: ProductInfoResponse,
+                      onColorSelected: (String) -> Unit) {
+
     val isDropDownSelected = remember { mutableStateOf(false) }
     val itemSelectedIndex = remember { mutableIntStateOf(0) }
 
-    val variants = data?.product?.variants ?: emptyList()
-    val selectedSize = variants.getOrNull(itemSelectedIndex.intValue)?.option2 ?: "No Colors Available"
+   // val variants = data?.product?.variants ?: emptyList() //I edited that
+
+    val variants = data.product.variants
+    val selectedColor = variants.getOrNull(itemSelectedIndex.intValue)?.option2 ?: "No Colors Available"
 
     Column(
         modifier = Modifier
@@ -343,7 +435,7 @@ fun ColorDropDownMenu(data: ProductInfoResponse) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = selectedSize,
+                    text = selectedColor,
                     style = MaterialTheme.typography.bodyLarge,
                     color = Color.Black
                 )
@@ -366,12 +458,14 @@ fun ColorDropDownMenu(data: ProductInfoResponse) {
                     DropdownMenuItem(
                         text = {
                             Text(
-                                text = variant.option1,
+                                text = variant.option2,
                                 style = MaterialTheme.typography.bodyMedium
                             )
                         },
                         onClick = {
-                            itemSelectedIndex.value = index
+                            Log.i("TAG", "ColorDropDownMenu: ${variant.option2}")
+                            itemSelectedIndex.intValue = index
+                            onColorSelected(variant.option2)
                             isDropDownSelected.value = false
                         }
                     )
@@ -382,7 +476,7 @@ fun ColorDropDownMenu(data: ProductInfoResponse) {
 }
 
 @Composable
-fun Price(data: ProductInfoResponse, count: Int) {
+fun Price(data: ProductInfoResponse, count: Long) {
     var priceInBound = remember { mutableDoubleStateOf(0.0) }
     priceInBound.doubleValue = ((data?.product?.variants?.get(0)?.price?.toDoubleOrNull() ?: 0.0) * 50 ) * count
     Text(text = "  Total Price :  ${priceInBound.doubleValue}  EGP" , modifier = Modifier.padding(10.dp)

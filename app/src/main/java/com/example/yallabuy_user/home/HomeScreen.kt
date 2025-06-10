@@ -72,7 +72,7 @@ fun HomeScreen(navController: NavController, homeViewModel: HomeViewModel = koin
                 val brands = (uiBrandState as ApiResponse.Success).data
                 val categories = (uiCategoriesState as ApiResponse.Success).data
                 HomeContent(categories, brands, onCatClicked = { catId ->
-                    //  Log.i(TAG, "HomeScreen: Collection ID = $catId")
+                      Log.i(TAG, "HomeScreen: Collection ID = $catId")
                     navController.navigate(
                         ScreenRoute.ProductsScreen.createRoute(
                             vendorName = null,
@@ -120,12 +120,22 @@ private fun HomeContent(
     )
 
     Column {
-
+        Spacer(modifier = Modifier.height(10.dp))
+        Text(
+            text = "Please tap on the image to get the coupon:",
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
+            fontSize = 16.sp,
+          //  color = Color.White,
+            textAlign = TextAlign.Center,
+            fontWeight = FontWeight.Medium
+        )
         CouponsCarousel(imageResIds = couponImages)
 
         Spacer(Modifier.height(20.dp))
 
-        Spacer(Modifier.height(20.dp))
+
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly,

@@ -49,6 +49,7 @@ import com.example.yallabuy_user.authentication.login.CustomerIdPreferences
 import com.example.yallabuy_user.authentication.login.LoginScreen
 import com.example.yallabuy_user.authentication.registration.RegistrationScreen
 import com.example.yallabuy_user.cart.CartScreen
+import com.example.yallabuy_user.cart.view.CartScreen
 import com.example.yallabuy_user.collections.CollectionsScreen
 import com.example.yallabuy_user.home.HomeScreen
 import com.example.yallabuy_user.orders.OrderItemScreen
@@ -56,7 +57,13 @@ import com.example.yallabuy_user.orders.PreviousOrdersScreen
 import com.example.yallabuy_user.productInfo.ProductInfoScreen
 import com.example.yallabuy_user.products.ProductsScreen
 import com.example.yallabuy_user.profile.ProfileScreen
+import com.example.yallabuy_user.settings.view.AddressScreen
+import com.example.yallabuy_user.settings.view.CurrencyScreen
+import com.example.yallabuy_user.settings.view.MapLocationScreen
 import com.example.yallabuy_user.wish.WishScreen
+import com.mariammuhammad.yallabuy.View.Settings.AboutUsScreen
+import com.mariammuhammad.yallabuy.View.Settings.ContactUsScreen
+import com.mariammuhammad.yallabuy.View.Settings.SettingsScreen
 
 
 private const val TAG = "MainScreen"
@@ -211,6 +218,52 @@ fun MainScreen() {
             composable(route = ScreenRoute.Profile.route) {
                 ProfileScreen(navController)
             }
+            // screens navigated from Settings
+            composable(ScreenRoute.AboutUs.route) {
+                AboutUsScreen(onNavigateBack = { navController.popBackStack() })
+            }
+            composable(ScreenRoute.ContactUs.route) {
+                ContactUsScreen(onNavigateBack = { navController.popBackStack() })
+            }
+            composable(ScreenRoute.Currency.route) {
+
+                CurrencyScreen( //viewModel = viewModel,
+                    onNavigateBack = { navController.popBackStack() })
+            }
+            composable(ScreenRoute.Address.route) {
+                AddressScreen(//viewModel = viewModel
+                    customerId = 8805732188478,
+                    onNavigateBack = { navController.popBackStack() },
+                    onNavigateToMap = {
+                        navController.navigate(ScreenRoute.Map.route)
+                    }
+                )
+            }
+
+            composable(ScreenRoute.Map.route){
+                MapLocationScreen() {
+
+                }
+            }
+
+            composable(ScreenRoute.Settings.route) {
+                SettingsScreen(
+                    onNavigateToAboutUs = {
+                        navController.navigate(ScreenRoute.AboutUs.route)
+                    },
+                    onNavigateToContactUs = {
+                        navController.navigate(ScreenRoute.ContactUs.route)
+                    },
+                    onNavigateToCurrency = {
+                        navController.navigate(ScreenRoute.Currency.route)
+                    },
+                    onNavigateToAddress = {
+                        navController.navigate(ScreenRoute.Address.route)
+                    }
+                )
+            }
+
+
             //with null
             composable(ScreenRoute.ProductsScreen.BASE_ROUTE) {
                 ProductsScreen(
@@ -220,6 +273,7 @@ fun MainScreen() {
                     categoryID = null
                 )
             }
+
             //with value
             composable(
                 route = ScreenRoute.ProductsScreen.FULL_ROUTE
