@@ -18,6 +18,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Divider
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -27,6 +28,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -71,18 +73,9 @@ fun OrderItemScreen(
                 val products = ordersItem.lineItems
                 val currentCode = ordersItem.currency
                 Column {
-                    Row(modifier = Modifier.fillMaxWidth().padding(10.dp),horizontalArrangement = Arrangement.SpaceBetween) {
-                        Text("Total Price")
-                        Text("${ordersItem.currency} ${ordersItem.totalPrice ?: "UnKnown"}")
-                    }
-                    Divider()
 
-                    Row(modifier = Modifier.fillMaxWidth().padding(10.dp),horizontalArrangement = Arrangement.SpaceBetween) {
-                        Text("Shipped To:")
-                        Text("${ordersItem.shippingAddress?.country ?: ""}, ${ordersItem.shippingAddress?.city ?: ""}")
-                    }
                     LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier.fillMaxWidth(),
                         verticalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
                         products?.size?.let {
@@ -96,9 +89,19 @@ fun OrderItemScreen(
                                         )
                                     }
                                 )
-                                Divider()
+                                HorizontalDivider()
                             }
                         }
+                    }
+                    Row(modifier = Modifier.fillMaxWidth().padding(10.dp),horizontalArrangement = Arrangement.SpaceBetween) {
+                        Text("Total Price")
+                        Text("${ordersItem.currency} ${ordersItem.totalPrice ?: "UnKnown"}")
+                    }
+                    HorizontalDivider()
+
+                    Row(modifier = Modifier.fillMaxWidth().padding(10.dp),horizontalArrangement = Arrangement.SpaceBetween) {
+                        Text("Shipped To:")
+                        Text("${ordersItem.shippingAddress?.country ?: ""}, ${ordersItem.shippingAddress?.city ?: ""}")
                     }
                 }
             }
@@ -125,6 +128,11 @@ private fun OrderProductItem(
         AsyncImage(
             modifier = Modifier
                 .size(150.dp)
+                .shadow(
+                    elevation = 3.dp,
+                    shape = RoundedCornerShape(12.dp),
+                    clip = true
+                )
                 .background(shape = RoundedCornerShape(12.dp), color = Color.White),
             model = product?.imgUrl,
             contentDescription = ""
