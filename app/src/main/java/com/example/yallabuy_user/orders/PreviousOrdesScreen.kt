@@ -107,7 +107,7 @@ private fun OrderItem(order: OrdersItem, onOrderClicked: (Long) -> Unit) {
         Column {
             val date = order.createdAt?.split("T")?.get(0)
             Text("Date $date", fontWeight = FontWeight.Bold)
-            Text("Total ${order.currentTotalPrice} EGP")
+            Text("Total ${order.currentTotalPrice} ${order.currency}")
         }
         IconButton(
             modifier = Modifier

@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Divider
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.Icon
@@ -32,7 +33,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
-import com.example.yallabuy_user.R
 import com.example.yallabuy_user.data.models.LineItemsItem
 import com.example.yallabuy_user.home.ProgressShow
 import com.example.yallabuy_user.ui.navigation.ScreenRoute
@@ -42,7 +42,11 @@ import org.koin.androidx.compose.koinViewModel
 private const val TAG = "OrderItemsScreen"
 
 @Composable
-fun OrderItemScreen(orderId: Long?, navController: NavController, viewModel: OrdersViewModel = koinViewModel()) {
+fun OrderItemScreen(
+    orderId: Long?,
+    navController: NavController,
+    viewModel: OrdersViewModel = koinViewModel()
+) {
 
     val uiOrderState by viewModel.orderProducts.collectAsState()
 
@@ -65,15 +69,35 @@ fun OrderItemScreen(orderId: Long?, navController: NavController, viewModel: Ord
                 val ordersItem = (uiOrderState as ApiResponse.Success).data
 
                 val products = ordersItem.lineItems
-                val currentCode = ordersItem.currentSubtotalPriceSet?.shopMoney?.currencyCode
-                LazyColumn(modifier = Modifier.fillMaxSize()) {
-                    products?.size?.let {
-                        items(it) { index ->
-                            OrderProductItem(
-                                products[index],
-                                currentCode = currentCode,
-                                onOrderClicked = {productId -> navController.navigate(ScreenRoute.ProductInfo(productId )) }
-                            )
+                val currentCode = ordersItem.currency
+                Column {
+                    Row(modifier = Modifier.fillMaxWidth().padding(10.dp),horizontalArrangement = Arrangement.SpaceBetween) {
+                        Text("Total Price")
+                        Text("${ordersItem.currency} ${ordersItem.totalPrice ?: "UnKnown"}")
+                    }
+                    Divider()
+
+                    Row(modifier = Modifier.fillMaxWidth().padding(10.dp),horizontalArrangement = Arrangement.SpaceBetween) {
+                        Text("Shipped To:")
+                        Text("${ordersItem.shippingAddress?.country ?: ""}, ${ordersItem.shippingAddress?.city ?: ""}")
+                    }
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        products?.size?.let {
+                            items(it) { index ->
+                                OrderProductItem(
+                                    products[index],
+                                    currentCode = currentCode,
+                                    onOrderClicked = { productId ->
+                                        navController.navigate(
+                                            ScreenRoute.ProductInfo(productId)
+                                        )
+                                    }
+                                )
+                                Divider()
+                            }
                         }
                     }
                 }
@@ -102,7 +126,7 @@ private fun OrderProductItem(
             modifier = Modifier
                 .size(150.dp)
                 .background(shape = RoundedCornerShape(12.dp), color = Color.White),
-            model = R.drawable.ic_app,
+            model = product?.imgUrl,
             contentDescription = ""
         )
         Spacer(Modifier.width(12.dp))
@@ -134,4 +158,5 @@ private fun OrderProductItem(
 
     }
 }
+
 
