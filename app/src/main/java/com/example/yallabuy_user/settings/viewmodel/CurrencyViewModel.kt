@@ -3,18 +3,14 @@ package com.example.yallabuy_user.settings.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.example.yallabuy_user.settings.model.remote.CurrencyPreferenceManager
+import com.example.yallabuy_user.settings.model.local.CurrencyPreferenceManager
 import com.example.yallabuy_user.settings.model.repository.ICurrencyRepository
 import com.example.yallabuy_user.utilities.ApiResponse
+import com.example.yallabuy_user.utilities.Common
+import com.example.yallabuy_user.utilities.Currency
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.text.NumberFormat
-import java.util.Locale
 
 class CurrencyViewModel(
     private val repository: ICurrencyRepository
@@ -44,7 +40,13 @@ class CurrencyViewModel(
             try {
                 repository.setPreferredCurrency(currencyCode)
                 _selectedCurrency.value = currencyCode
-
+                Common.currencyCode = when(currencyCode){
+                    "EGP" -> Currency.EGP
+                    "EUR" -> Currency.EUR
+                    "SAR" -> Currency.SAR
+                    "USD" -> Currency.USD
+                    else-> Currency.EGP
+                }
                 val rate = if (currencyCode == CurrencyPreferenceManager.DEFAULT_CURRENCY) {
                     1.0
                 } else {
@@ -58,17 +60,5 @@ class CurrencyViewModel(
                 _currencyState.value = ApiResponse.Failure(e)
             }
         }
-    }
-}
-
-class CurrencyViewModelFactory(
-    private val repository: ICurrencyRepository
-) : ViewModelProvider.Factory {
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(CurrencyViewModel::class.java)) {
-            @Suppress("UNCHECKED_CAST")
-            return CurrencyViewModel(repository) as T
-        }
-        throw IllegalArgumentException("Unknown ViewModel class")
     }
 }

@@ -1,6 +1,9 @@
 package com.example.yallabuy_user.di
 
-import com.example.yallabuy_user.cart.CartViewModel
+
+import com.example.yallabuy_user.cart.model.repo.CartRepositoryImpl
+import com.example.yallabuy_user.cart.model.repo.ICartRepository
+import com.example.yallabuy_user.cart.viewmodel.CartViewModel
 import com.example.yallabuy_user.home.HomeViewModel
 import com.example.yallabuy_user.repo.RepositoryInterface
 import com.example.yallabuy_user.data.remote.ApiService
@@ -12,13 +15,18 @@ import com.example.yallabuy_user.repo.Repository
 import com.example.yallabuy_user.products.ProductsViewModel
 import com.example.yallabuy_user.profile.ProfileViewModel
 import com.example.yallabuy_user.settings.model.remote.CurrencyConversionManager
-import com.example.yallabuy_user.settings.model.remote.CurrencyPreferenceManager
-import com.example.yallabuy_user.settings.model.remote.CurrencyPreferenceManagerImpl
+import com.example.yallabuy_user.settings.model.local.CurrencyPreferenceManager
+import com.example.yallabuy_user.settings.model.local.CurrencyPreferenceManagerImpl
 import com.example.yallabuy_user.settings.model.remote.CurrencyRemoteDataSource
 import com.example.yallabuy_user.settings.model.remote.CurrencyRemoteDataSourceImpl
 import com.example.yallabuy_user.settings.model.remote.ExchangeRateApiService
+import com.example.yallabuy_user.settings.model.remote.address.AddressManager
+import com.example.yallabuy_user.settings.model.remote.address.IAddressManager
 import com.example.yallabuy_user.settings.model.repository.CurrencyRepository
 import com.example.yallabuy_user.settings.model.repository.ICurrencyRepository
+import com.example.yallabuy_user.settings.model.repository.address.AddressRepository
+import com.example.yallabuy_user.settings.model.repository.address.IAddressRepository
+import com.example.yallabuy_user.settings.viewmodel.AddressViewModel
 import com.example.yallabuy_user.settings.viewmodel.CurrencyViewModel
 import com.example.yallabuy_user.wish.WishViewModel
 
@@ -51,6 +59,9 @@ val dataModule = module {
     factory<ApiService> {
         get<Retrofit>(named("shopifyRetrofit")).create(ApiService::class.java)
     }
+
+
+
     single<RemoteDataSourceInterface> {
         RemoteDataSource(get())
     }
@@ -58,7 +69,16 @@ val dataModule = module {
         Repository(get())
     }
 
+//    single<CartRemoteDataSource> {
+//        CartRemoteDataSource(get())
+//    }
 
+    single<ICartRepository> {
+        CartRepositoryImpl(get())
+    }
+
+
+    //currency
     single(named("currencyRetrofit")) {
         Retrofit.Builder()
             .baseUrl("https://v6.exchangerate-api.com/v6/")
@@ -84,6 +104,16 @@ val dataModule = module {
         CurrencyConversionManager(get())
     }
 
+//address
+
+    single<IAddressManager>{
+        AddressManager(get())
+    }
+
+    single<IAddressRepository>{
+        AddressRepository(get ())
+    }
+
     viewModel {
         HomeViewModel(get())
     }
@@ -94,7 +124,7 @@ val dataModule = module {
         ProductsViewModel(get(),get())
     }
     viewModel {
-        CartViewModel()
+        CartViewModel(get())
     }
     viewModel {
         ProfileViewModel()
@@ -105,6 +135,8 @@ val dataModule = module {
     viewModel {
         CurrencyViewModel(get())
     }
-
+    viewModel {
+        AddressViewModel(get())
+    }
 
 }

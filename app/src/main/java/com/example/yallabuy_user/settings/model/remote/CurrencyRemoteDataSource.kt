@@ -5,7 +5,6 @@ import retrofit2.Response
 
 
 interface CurrencyRemoteDataSource {
-         // Fetches the latest exchange rates from the API.
         suspend fun getLatestRates(apiKey: String, baseCurrency: String): Flow<ExchangeRateResponse>
 
     }

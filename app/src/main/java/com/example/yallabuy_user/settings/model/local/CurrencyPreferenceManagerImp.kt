@@ -1,13 +1,9 @@
-package com.example.yallabuy_user.settings.model.remote
+package com.example.yallabuy_user.settings.model.local
 
 import android.content.Context
-import android.content.SharedPreferences
-import androidx.core.content.edit
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.withContext
+
 class CurrencyPreferenceManagerImpl(
     private val context: Context
 ) : CurrencyPreferenceManager {

@@ -41,7 +41,6 @@ sealed class ScreenRoute(val route: String) {
 
     @Serializable
     data class ProductInfo(val productId: Long)
-
     @Serializable
     data object Settings : ScreenRoute("settings")
     @Serializable
@@ -50,4 +49,17 @@ sealed class ScreenRoute(val route: String) {
     data object ContactUs : ScreenRoute("contact_us")
     @Serializable
     data object Currency : ScreenRoute("currency")
+
+    @Serializable
+    data object Map: ScreenRoute("map")
+
+    @Serializable
+    data object Address : ScreenRoute("address")
+//@Serializable
+//data class Address(val customerId: Long) : ScreenRoute("address/{customerId}") {
+//    companion object {
+//        fun createRoute(customerId: Long) = "address/$customerId"
+//    }
+//}
+
 }

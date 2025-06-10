@@ -1,6 +1,7 @@
 package com.example.yallabuy_user.settings.model.remote
 
 import android.util.Log
+import com.example.yallabuy_user.settings.model.local.CurrencyPreferenceManager
 import com.example.yallabuy_user.settings.model.repository.ICurrencyRepository
 
 class CurrencyConversionManager(
@@ -35,7 +36,7 @@ class CurrencyConversionManager(
     }
 
     suspend fun fetchLatestRates() {
-        baseCurrency = currencyRepository.getPreferredCurrency()
+        //baseCurrency = currencyRepository.getPreferredCurrency()
 
         Log.i("TAG", "fetchLatestRates: base curr $baseCurrency ")
         try {
@@ -46,7 +47,6 @@ class CurrencyConversionManager(
             lastUpdateTime = System.currentTimeMillis()
 
         } catch (e: Exception) {
-            // Log or rethrow depending on your needs
             Log.e("TAG", "fetchLatestRates: error $e ")
         }
     }

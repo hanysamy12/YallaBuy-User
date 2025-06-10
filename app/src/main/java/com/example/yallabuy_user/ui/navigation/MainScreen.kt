@@ -33,26 +33,23 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.example.yallabuy_user.R
-import com.example.yallabuy_user.cart.CartScreen
+import com.example.yallabuy_user.cart.view.CartScreen
 import com.example.yallabuy_user.collections.CollectionsScreen
 import com.example.yallabuy_user.home.HomeScreen
 import com.example.yallabuy_user.productInfo.ProductInfoScreen
 import com.example.yallabuy_user.products.ProductsScreen
 import com.example.yallabuy_user.profile.ProfileScreen
-import com.example.yallabuy_user.settings.model.remote.CurrencyPreferenceManagerImpl
+import com.example.yallabuy_user.settings.view.AddressScreen
 import com.example.yallabuy_user.settings.view.CurrencyScreen
-import com.example.yallabuy_user.settings.viewmodel.CurrencyViewModel
-import com.example.yallabuy_user.settings.viewmodel.CurrencyViewModelFactory
+import com.example.yallabuy_user.settings.view.MapLocationScreen
 import com.example.yallabuy_user.wish.WishScreen
 import com.mariammuhammad.yallabuy.View.Settings.AboutUsScreen
 import com.mariammuhammad.yallabuy.View.Settings.ContactUsScreen
@@ -190,12 +187,24 @@ fun MainScreen() {
                 ContactUsScreen(onNavigateBack = { navController.popBackStack() })
             }
             composable(ScreenRoute.Currency.route) {
-//                val context = LocalContext.current
-//                val preferenceManager = remember { CurrencyPreferenceManagerImpl(context) }
-//                val viewModel: CurrencyViewModel = viewModel(
-//                    factory = CurrencyViewModelFactory(preferenceManager)
+
                 CurrencyScreen( //viewModel = viewModel,
                     onNavigateBack = { navController.popBackStack() })
+            }
+            composable(ScreenRoute.Address.route) {
+                AddressScreen(//viewModel = viewModel
+                    customerId = 8805732188478,
+                    onNavigateBack = { navController.popBackStack() },
+                    onNavigateToMap = {
+                        navController.navigate(ScreenRoute.Map.route)
+                    }
+                )
+            }
+
+            composable(ScreenRoute.Map.route){
+                MapLocationScreen() {
+
+                }
             }
 
             // settings screen with navigation callbacks
@@ -211,10 +220,11 @@ fun MainScreen() {
                         navController.navigate(ScreenRoute.Currency.route)
                     },
                     onNavigateToAddress = {
-
+                        navController.navigate(ScreenRoute.Address.route)
                     }
                 )
             }
+
 
             //with null
             composable(ScreenRoute.ProductsScreen.BASE_ROUTE) {

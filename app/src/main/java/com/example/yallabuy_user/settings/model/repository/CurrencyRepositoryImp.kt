@@ -1,24 +1,35 @@
 package com.example.yallabuy_user.settings.model.repository
 
-import android.util.Log
 import com.example.yallabuy_user.BuildConfig
-import com.example.yallabuy_user.settings.model.remote.CurrencyPreferenceManager
+import com.example.yallabuy_user.settings.model.local.CurrencyPreferenceManager
 import com.example.yallabuy_user.settings.model.remote.CurrencyRemoteDataSource
-import kotlinx.coroutines.Dispatchers
+import com.example.yallabuy_user.utilities.Common
+import com.example.yallabuy_user.utilities.Currency
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.withContext
-import java.util.concurrent.TimeUnit
 
 class CurrencyRepository(
     private val remoteDataSource: CurrencyRemoteDataSource,
     private val preferenceManager: CurrencyPreferenceManager,
 ) : ICurrencyRepository {
 
-    override suspend fun getPreferredCurrency(): String = preferenceManager.getPreferredCurrency()
+    override suspend fun getPreferredCurrency(): String  {
+        val currencyCode = preferenceManager.getPreferredCurrency()
+        Common.currencyCode = when(currencyCode){
+            "EGP" -> Currency.EGP
+            "EUR" -> Currency.EUR
+            "SAR" -> Currency.SAR
+            "USD" -> Currency.USD
+            else-> Currency.EGP
+        }
+        return currencyCode
+    }
 
     override suspend fun setPreferredCurrency(currencyCode: String) {
         preferenceManager.setPreferredCurrency(currencyCode)
     }
+
+  //  override val preferredCurrencyFlow: Flow<String> = preferenceManager.preferredCurrencyFlow
 
     override suspend fun getCurrencyRate(baseCurrency: String, targetCurrency: String): Double {
         val now = System.currentTimeMillis()

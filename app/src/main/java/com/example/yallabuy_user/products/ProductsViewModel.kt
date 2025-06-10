@@ -69,14 +69,18 @@ class ProductsViewModel(private val repo: RepositoryInterface,
 
 
     private suspend fun convertProductPrices(products: List<ProductsItem>): List<ProductsItem> {
+        Log.i("```TAG```", "convertProductPrices: first log")
         val convertedProducts = mutableListOf<ProductsItem>()
+        Log.d("```TAG```", "convertProductPrices: ${products.size}")
         for (product in products) {
+            Log.d("````TAG````", "product varaiant count: ${product.variants?.size}")
             val convertedVariants = product.variants?.map { variant ->
                 variant?.let {
+                    Log.d("```TAG```", "convertProductPrices: variant is not null - ${variant.id}")
                     val originalPrice = it.price?.toDoubleOrNull() ?: 0.0
                     val convertedPrice = currencyConversionManager.convertAmount(originalPrice)
-                    Log.i(TAG, "convertProductPrices: original price is $originalPrice, converted price is $convertedPrice")
-                    it.copy(price = "%.2f".format(convertedPrice)) // formatted to 2 decimal places
+                    Log.i("```TAG```", "convertProductPrices: original price is $originalPrice, converted price is $convertedPrice")
+                    it.copy(price = "%.2f".format(convertedPrice))
                 }
             }
             convertedProducts.add(product.copy(variants = convertedVariants))

@@ -1,4 +1,4 @@
-package com.example.yallabuy_user.settings.model.remote
+package com.example.yallabuy_user.settings.model.local
 
 import kotlinx.coroutines.flow.Flow
 
