@@ -45,9 +45,10 @@ private const val TAG = "ProductsScreen"
 
 @Composable
 fun ProductsScreen(
-    navController: NavController ,
+    navController: NavController,
     isFilterBarShown: Boolean = false,
-    collectionId: Long? = null,
+    vendorName: String? = null,
+    categoryID: Long? = null,
     viewModel: ProductsViewModel = koinViewModel()
 ) {
     val uiProductsState by viewModel.products.collectAsState()
@@ -60,16 +61,20 @@ fun ProductsScreen(
 
     var isPriceSet by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) {
-        viewModel.getProducts(collectionId)
 
+        categoryID?.let { viewModel.getCategoryProducts(categoryID) } ?: viewModel.getProducts(
+            vendorName
+        )
     }
-
+    Log.i(TAG, "ProductsScreen: $categoryID /// $vendorName")
 
     Box {
         Column(modifier = Modifier.padding(6.dp)) {
             OutlinedTextField(
-                value = searchQuery.value, onValueChange = { query ->
+                value = searchQuery.value,
+                onValueChange = { query ->
                     searchQuery.value = query
+                    viewModel.searchForProduct(searchQuery.value)
                     Log.i(TAG, "Search: $query")
                 },
                 modifier = Modifier
@@ -93,7 +98,7 @@ fun ProductsScreen(
                 )
             )
             if (isFilterBarShown) {
-                if (!isPriceSet) {
+                if (!isPriceSet && uiProductsState is ApiResponse.Success) {
                     val (min, max) = getMinAMxPrice(products = (uiProductsState as ApiResponse.Success).data)
                     minPrice = min
                     maxPrice = max
@@ -138,8 +143,12 @@ fun ProductsScreen(
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         items(products.size) { index ->
-                            Product(products[index] , navController)
-                            Log.i(TAG, "ProductsScreen: Product Price ${products[index].variants?.get(0)?.price}")
+                            Product(products[index], navController)
+                            Log.i(
+                                TAG,
+                                "ProductsScreen: Product Price ${products[index].variants?.get(0)?.price}"
+                            )
+                            Product(products[index], navController)
                         }
                     }
                 }

@@ -36,8 +36,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
-import com.bumptech.glide.integration.compose.GlideImage
+import coil.compose.AsyncImage
 import com.example.yallabuy_user.data.models.CustomCollectionsItem
 import com.example.yallabuy_user.data.models.ProductsItem
 import com.example.yallabuy_user.home.ProgressShow
@@ -72,12 +71,11 @@ fun CollectionsScreen(
             is ApiResponse.Success -> {
                 val categories = (uiCategoriesState as ApiResponse.Success).data
                 LaunchedEffect(Unit) {
-                    categories[0].id?.let { viewModel.getProducts(it) }
+                    categories[0].id?.let { viewModel.getCategoryProducts(it) }
 
                 }
                 CategoriesChips(categories, onChipClicked = { categoryId ->
-                    Log.i(TAG, "CollectionsScreen CID: $categoryId")
-                    coroutineScope.launch { viewModel.getProducts(categoryId) }
+                    coroutineScope.launch { categoryId?.let { viewModel.getCategoryProducts(categoryId)} }
                 })
             }
 
@@ -92,7 +90,6 @@ fun CollectionsScreen(
         when (uiProductsState) {
             is ApiResponse.Success -> {
                 val products = (uiProductsState as ApiResponse.Success).data
-                Log.i(TAG, "CollectionsScreen: Products $products")
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(2),
                     modifier = Modifier
@@ -109,7 +106,6 @@ fun CollectionsScreen(
 
             is ApiResponse.Failure -> {
                 val msg = (uiProductsState as ApiResponse.Failure).toString()
-                Log.i(TAG, "Products Failure Error $msg")
             }
 
             ApiResponse.Loading -> {
@@ -122,7 +118,7 @@ fun CollectionsScreen(
 @Composable
 private fun CategoriesChips(
     categories: List<CustomCollectionsItem>,
-    onChipClicked: (categoryId: Long) -> Unit
+    onChipClicked: (categoryId: Long?) -> Unit
 ) {
     val chipsLabels = categories.map { it.title }
 
@@ -150,7 +146,6 @@ private fun CategoriesChips(
     }
 }
 
-@OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 fun Product(product: ProductsItem, navController: NavController) {
     Card(
@@ -172,8 +167,7 @@ fun Product(product: ProductsItem, navController: NavController) {
 
         ) {
             ///Image for the first product may not changes (log the right image url )
-            Log.d(TAG, "Product: Image URL ${product.image?.src}")
-            GlideImage(
+            AsyncImage(
                 model = product.image?.src, contentDescription = product.title, modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(16.dp)),
