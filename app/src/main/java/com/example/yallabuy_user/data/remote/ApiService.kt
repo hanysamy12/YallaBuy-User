@@ -6,6 +6,7 @@ import com.example.yallabuy_user.data.models.CategoryResponse
 import com.example.yallabuy_user.data.models.ProductResponse
 import com.example.yallabuy_user.data.models.createUser.CreateUserOnShopifyResponse
 import com.example.yallabuy_user.data.models.createUser.request.CreateUSerOnShopifyRequest
+import com.example.yallabuy_user.data.models.customer.CustomerDataResponse
 import com.example.yallabuy_user.data.models.productInfo.ProductInfoResponse
 import okhttp3.Interceptor
 import okhttp3.Response
@@ -14,6 +15,7 @@ import retrofit2.http.GET
 import retrofit2.http.Headers
 import retrofit2.http.POST
 import retrofit2.http.Path
+import retrofit2.http.Query
 
 
 class AuthInterceptor() : Interceptor {
@@ -50,4 +52,9 @@ interface ApiService {
     suspend fun createUserOnShopify(
         @Body request : CreateUSerOnShopifyRequest
     ) : CreateUserOnShopifyResponse
+
+    @GET("/admin/api/2025-04/customers/search.json")
+    suspend fun getUserDataByEmail(
+        @Query("email") email : String
+    ) : CustomerDataResponse
 }

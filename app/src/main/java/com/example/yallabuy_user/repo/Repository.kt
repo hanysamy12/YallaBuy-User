@@ -7,6 +7,7 @@ import com.example.yallabuy_user.data.models.BrandResponse
 import com.example.yallabuy_user.data.models.CategoryResponse
 import com.example.yallabuy_user.data.models.ProductResponse
 import com.example.yallabuy_user.data.models.createUser.CreateUserOnShopifyResponse
+import com.example.yallabuy_user.data.models.customer.CustomerDataResponse
 import com.example.yallabuy_user.data.models.productInfo.ProductInfoResponse
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
@@ -71,6 +72,16 @@ class Repository(private val remoteDataSource: RemoteDataSourceInterface) : Repo
             val response = remoteDataSource.createUserOnShopify(email , password , userName)
             response
         }catch (e : Exception){
+            flowOf()
+        }
+    }
+
+    override suspend fun getUserDataByEmail(email: String): Flow<CustomerDataResponse> {
+        return try {
+            val customer = remoteDataSource.getUserDataByEmail(email)
+            customer
+        }catch (e : Exception){
+            Log.i("customer", "getUserDataByEmail in repo error is ${e.message} ")
             flowOf()
         }
     }

@@ -169,7 +169,7 @@ fun RegistrationScreen(
                     )
                     TextButton(
                         onClick = {
-                            navControl.navigate(ScreenRoute.Login)
+                            navControl.navigate(ScreenRoute.Login.route)
                         }
                     ) {
                         Text(
@@ -179,6 +179,7 @@ fun RegistrationScreen(
                 }
                 Spacer(Modifier.height(13.dp))
                 Button(
+
                     onClick = {
                         showProgressBar.value = true
                         registrationViewModel.validation(
@@ -220,6 +221,9 @@ fun RegistrationScreen(
                 }
             }
         }
+        if(validationError != null){
+            showProgressBar.value = false
+        }
         if (showProgressBar.value) {
             ProgressShow()
         }
@@ -255,7 +259,7 @@ fun RegistrationTextFeilds(
             },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
             modifier = Modifier.fillMaxWidth(),
-            // isError = validationError != null
+            isError = validationError?.contains("Email") ?: false
         )
         if (validationError?.contains("Email") == true) {
             Text(
@@ -273,7 +277,8 @@ fun RegistrationTextFeilds(
             leadingIcon = {
                 Icon(imageVector = Icons.Default.Person, contentDescription = "Lock Icon")
             },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth() ,
+            isError = validationError?.contains("User name") ?: false
         )
         if (validationError?.contains("User name") == true) {
             Text(
@@ -293,7 +298,8 @@ fun RegistrationTextFeilds(
             },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
             visualTransformation = PasswordVisualTransformation(),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth() ,
+            isError = validationError?.contains("Password") ?: false
         )
         if (validationError?.contains("Password") == true) {
             Text(
@@ -313,7 +319,8 @@ fun RegistrationTextFeilds(
             },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
             visualTransformation = PasswordVisualTransformation(),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth() ,
+            isError = validationError?.contains("Confirm") ?: false
         )
         if (validationError?.contains("Confirm") == true) {
             Text(

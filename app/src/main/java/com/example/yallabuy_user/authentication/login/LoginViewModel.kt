@@ -1,11 +1,14 @@
 package com.example.yallabuy_user.authentication.login
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.yallabuy_user.data.models.customer.CustomerDataResponse
 import com.example.yallabuy_user.repo.RepositoryInterface
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 
 class LoginViewModel(
@@ -20,6 +23,9 @@ class LoginViewModel(
 
     private val _loginUserError = MutableSharedFlow<String>()
     val loginUserError = _loginUserError
+
+    private val _customerData = MutableStateFlow<CustomerDataResponse?>(null)
+    val customerData = _customerData.asStateFlow()
 
     fun validation(email: String, password: String) {
         viewModelScope.launch {
@@ -43,13 +49,22 @@ class LoginViewModel(
         viewModelScope.launch {
             try {
                 val loginResponse = repo.loginUser(email, password)
-                loginResponse.collect{
-                    if(it.contains("error")){
+                loginResponse.collect {
+                    if (it.contains("error")) {
                         _loginUserError.emit(it)
                         _loginUser.emit(false)
                     }
-                    if(it.contains("Successfully")){
-                      _loginUser.emit(true)
+                    if (it.contains("Successfully")) {
+                        Log.i("customer", "loginUser email in view model $email  ")
+                        repo.getUserDataByEmail(email)
+                            .catch {
+                                Log.i("customer", "loginUser error in view model ${it.message} ")
+                            }
+                            .collect { customer ->
+                                Log.i("customer", "loginUser id is ${customer.customers[0].id} ")
+                                _customerData.emit(customer)
+                            }
+                        _loginUser.emit(true)
                     }
                 }
             } catch (e: Exception) {

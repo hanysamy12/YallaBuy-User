@@ -1,5 +1,7 @@
 package com.example.yallabuy_user.authentication.login
 
+import android.app.Activity
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -39,6 +41,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -73,6 +76,8 @@ fun LoginScreen(
     val loginUserError = loginViewModel.loginUserError
     val showErrorDialog = remember { mutableStateOf(false) }
     var loginUserErrorInText = remember { mutableStateOf("") }
+    val customerData = loginViewModel.customerData.collectAsState().value
+    val context = LocalContext.current
 
     val emblemaoneregilarFont = FontFamily(Font(R.font.emblemaoneregular))
     val sigmarRegularFont = FontFamily(Font(R.font.sigmarregular))
@@ -137,7 +142,7 @@ fun LoginScreen(
                     )
                     TextButton(
                         onClick = {
-                            navController.navigate(ScreenRoute.Registration)
+                            navController.navigate(ScreenRoute.Registration.route)
                         }
                     ) {
                         Text(
@@ -181,7 +186,11 @@ fun LoginScreen(
             }
         }
         if (loginUser) {
-            navController.navigate(ScreenRoute.Home.route)
+            Log.i("customer", "LoginScreen id = ${customerData?.customers?.get(0)?.id} ")
+                if (customerData != null) {
+                    CustomerIdPreferences.saveCustomerID(context, customerData.customers[0].id)
+                    navController.navigate(ScreenRoute.Home.route)
+                }
         }
         if (showErrorDialog.value) {
             LoginAlert(showErrorDialog, onConfirmation = {
@@ -212,7 +221,7 @@ fun LoginTextFeilds(
             },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
             modifier = Modifier.fillMaxWidth(),
-            // isError = validationError != null
+             isError = validationError?.contains("Email") ?: false
         )
         if (validationError?.contains("Email") == true) {
             Text(
@@ -232,7 +241,8 @@ fun LoginTextFeilds(
             },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
             visualTransformation = PasswordVisualTransformation(),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth() ,
+            isError = validationError?.contains("Password") ?: false
         )
         if (validationError?.contains("Password") == true) {
             Text(

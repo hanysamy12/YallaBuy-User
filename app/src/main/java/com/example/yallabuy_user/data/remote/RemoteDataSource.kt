@@ -7,6 +7,7 @@ import com.example.yallabuy_user.data.models.ProductResponse
 import com.example.yallabuy_user.data.models.createUser.CreateUserOnShopifyResponse
 import com.example.yallabuy_user.data.models.createUser.request.CreateUSerOnShopifyRequest
 import com.example.yallabuy_user.data.models.createUser.request.CustomerRequest
+import com.example.yallabuy_user.data.models.customer.CustomerDataResponse
 import com.example.yallabuy_user.data.models.productInfo.ProductInfoResponse
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
@@ -85,6 +86,16 @@ class RemoteDataSource (
                 val errorBody = e.response()?.errorBody()?.string()
                 Log.d("ShopifyError", "Error details: $errorBody")
             }
+            flowOf()
+        }
+    }
+
+    override suspend fun getUserDataByEmail(email: String): Flow<CustomerDataResponse> {
+        return try {
+            val customer = service.getUserDataByEmail(email)
+            flowOf(customer)
+        }catch (e : Exception){
+            Log.i("customer", "getUserDataByEmail in remote error is ${e.message} ")
             flowOf()
         }
     }
