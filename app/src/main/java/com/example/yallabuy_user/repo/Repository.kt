@@ -2,13 +2,15 @@ package com.example.yallabuy_user.repo
 
 
 import android.util.Log
-import com.example.yallabuy_user.data.remote.RemoteDataSourceInterface
 import com.example.yallabuy_user.data.models.BrandResponse
 import com.example.yallabuy_user.data.models.CategoryResponse
+import com.example.yallabuy_user.data.models.OrderDetailsResponse
+import com.example.yallabuy_user.data.models.OrdersResponse
 import com.example.yallabuy_user.data.models.ProductResponse
 import com.example.yallabuy_user.data.models.createUser.CreateUserOnShopifyResponse
 import com.example.yallabuy_user.data.models.customer.CustomerDataResponse
 import com.example.yallabuy_user.data.models.productInfo.ProductInfoResponse
+import com.example.yallabuy_user.data.remote.RemoteDataSourceInterface
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import retrofit2.HttpException
@@ -42,6 +44,13 @@ class Repository(private val remoteDataSource: RemoteDataSourceInterface) : Repo
             flowOf()
         }
     }
+    override suspend fun getPreviousOrders(userID: Long): Flow<OrdersResponse> {
+        return remoteDataSource.getPreviousOrders(userID)
+    }
+
+    override suspend fun getOrderById(orderID: Long): Flow<OrderDetailsResponse> {
+        return remoteDataSource.getOrderById(orderID)
+
 
     override suspend fun createUserAccount(email: String, password: String): Flow<String> {
         return try {

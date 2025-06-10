@@ -51,6 +51,8 @@ import com.example.yallabuy_user.authentication.registration.RegistrationScreen
 import com.example.yallabuy_user.cart.CartScreen
 import com.example.yallabuy_user.collections.CollectionsScreen
 import com.example.yallabuy_user.home.HomeScreen
+import com.example.yallabuy_user.orders.OrderItemScreen
+import com.example.yallabuy_user.orders.PreviousOrdersScreen
 import com.example.yallabuy_user.productInfo.ProductInfoScreen
 import com.example.yallabuy_user.products.ProductsScreen
 import com.example.yallabuy_user.profile.ProfileScreen
@@ -93,7 +95,7 @@ fun MainScreen() {
             currentRoute == ScreenRoute.Home.route -> CenterAlignedTopAppBar(
                 title = { Text("Home") },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = Color(0xFFFFC107)
+                    containerColor = Color(0xFF3B9A94)
                 )
             )
 
@@ -108,7 +110,7 @@ fun MainScreen() {
             currentRoute == ScreenRoute.Collections.route -> CenterAlignedTopAppBar(
                 title = { Text("Collections") },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = Color(0xFFFFC107)
+                    containerColor = Color(0xFF3B9A94)
                 )
             )
 
@@ -144,6 +146,20 @@ fun MainScreen() {
                     }
                 )
             }
+
+            currentRoute == ScreenRoute.PreviousOrders.route -> CenterAlignedTopAppBar(
+                title = { Text("Previous Orders") },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = Color(0xFFFFC107)
+                )
+            )
+            ////change order ID !!!
+            currentRoute == ScreenRoute.PreviousOrderDetails(22).route -> CenterAlignedTopAppBar(
+                title = { Text("Order Details") },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = Color(0xFFFFC107)
+                )
+            )
 
         }
 
@@ -216,11 +232,18 @@ fun MainScreen() {
                     isFilterBarShown = isShowFilterBarProductsScreen,
                     vendorName = vendorName,
                     categoryID = categoryID
-                    )
+                )
             }
             composable<ScreenRoute.ProductInfo> {
                 val args = it.toRoute<ScreenRoute.ProductInfo>()
                 ProductInfoScreen(args.productId)
+            }
+            composable(ScreenRoute.PreviousOrders.route) {
+                PreviousOrdersScreen(navController)
+            }
+            composable(route = ScreenRoute.PreviousOrderDetails.FULL_ROUTE) { navBackStackEntry ->
+                val orderId = navBackStackEntry.arguments?.getString("orderId")?.toLongOrNull()
+                OrderItemScreen(orderId, navController)
             }
         }
     }

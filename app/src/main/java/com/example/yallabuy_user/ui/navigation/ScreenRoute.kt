@@ -40,7 +40,21 @@ sealed class ScreenRoute(val route: String) {
     }
 
     @Serializable
+    data object PreviousOrders : ScreenRoute("previous_orders")
 
+    @Serializable
+    data class PreviousOrderDetails(val orderId: Long?) :
+        ScreenRoute(route = "previous_orders/$orderId") {
+        companion object {
+            const val BASE_ROUTE = "previous_orders"
+            const val FULL_ROUTE = "previous_orders/{orderId}"
+            fun createRoute(orderId: Long?): String {
+                return if (orderId != null) "$BASE_ROUTE/$orderId" else BASE_ROUTE
+            }
+        }
+    }
+
+    @Serializable
     data class ProductInfo(val productId : Long) : ScreenRoute("productInfo")
     @Serializable
     data object Registration : ScreenRoute("Registration")

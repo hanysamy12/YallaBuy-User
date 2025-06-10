@@ -3,6 +3,8 @@ package com.example.yallabuy_user.data.remote
 import android.util.Log
 import com.example.yallabuy_user.data.models.BrandResponse
 import com.example.yallabuy_user.data.models.CategoryResponse
+import com.example.yallabuy_user.data.models.OrderDetailsResponse
+import com.example.yallabuy_user.data.models.OrdersResponse
 import com.example.yallabuy_user.data.models.ProductResponse
 import com.example.yallabuy_user.data.models.createUser.CreateUserOnShopifyResponse
 import com.example.yallabuy_user.data.models.createUser.request.CreateUSerOnShopifyRequest
@@ -50,6 +52,15 @@ class RemoteDataSource (
             flowOf()
         }
     }
+
+    override suspend fun getPreviousOrders(userID: Long): Flow<OrdersResponse> {
+        val orders = service.getPreviousOrders(userID)
+        return flowOf(orders)
+    }
+    override suspend fun getOrderById(orderID: Long): Flow<OrderDetailsResponse> {
+        val order = service.getOrderById(orderID)
+        return flowOf(order)
+        
     override suspend fun createUserAccount(email: String, password: String): Flow<String> {
         return try {
             val createAccountResponse = fireBaseService.createUserAccount(email , password)
@@ -98,5 +109,6 @@ class RemoteDataSource (
             Log.i("customer", "getUserDataByEmail in remote error is ${e.message} ")
             flowOf()
         }
+
     }
 }

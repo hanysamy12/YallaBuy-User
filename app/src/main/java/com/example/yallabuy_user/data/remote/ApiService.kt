@@ -3,6 +3,8 @@ package com.example.yallabuy_user.data.remote
 import com.example.yallabuy_user.BuildConfig
 import com.example.yallabuy_user.data.models.BrandResponse
 import com.example.yallabuy_user.data.models.CategoryResponse
+import com.example.yallabuy_user.data.models.OrderDetailsResponse
+import com.example.yallabuy_user.data.models.OrdersResponse
 import com.example.yallabuy_user.data.models.ProductResponse
 import com.example.yallabuy_user.data.models.createUser.CreateUserOnShopifyResponse
 import com.example.yallabuy_user.data.models.createUser.request.CreateUSerOnShopifyRequest
@@ -44,6 +46,15 @@ interface ApiService {
 
     @GET("products/{product_id}.json")
     suspend fun getProductById(
+        @Path("product_id") productId: Long
+    ): ProductInfoResponse
+
+    @GET("customers/{userID}/orders.json")
+    suspend fun getPreviousOrders(@Path("userID") userID: Long): OrdersResponse
+
+    @GET("orders/{orderID}.json")
+    suspend fun getOrderById(@Path("orderID") orderID: Long): OrderDetailsResponse
+
         @Path("product_id") productId : Long
     ) : ProductInfoResponse
 

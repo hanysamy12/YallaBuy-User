@@ -4,6 +4,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavController
 import com.example.yallabuy_user.home.HomeViewModel
+import com.example.yallabuy_user.orders.PreviousOrdersScreen
 import org.koin.androidx.compose.koinViewModel
 
 
@@ -11,4 +12,5 @@ import org.koin.androidx.compose.koinViewModel
 fun ProfileScreen(navController: NavController, homeViewModel: HomeViewModel = koinViewModel()) {
     Text("Profile")
 
+    PreviousOrdersScreen(navController = navController)
 }
