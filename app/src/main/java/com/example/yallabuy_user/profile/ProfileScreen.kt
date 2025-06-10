@@ -42,6 +42,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.yallabuy_user.R
 import com.example.yallabuy_user.home.HomeViewModel
+import com.example.yallabuy_user.orders.PreviousOrdersScreen
 import com.example.yallabuy_user.settings.model.local.SettingsItem
 import com.example.yallabuy_user.ui.navigation.ScreenRoute
 import com.mariammuhammad.yallabuy.View.Settings.SettingsListItem
@@ -115,8 +116,6 @@ fun ProfileScreen(
                     }
                 )
             )
-
-            Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }
