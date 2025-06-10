@@ -32,10 +32,7 @@ data class CurrentTotalPriceSet(
 	val shopMoney: ShopMoney? = null,
 	val presentmentMoney: PresentmentMoney? = null
 )
-data class TotalPriceSet(
-	val shopMoney: ShopMoney? = null,
-	val presentmentMoney: PresentmentMoney? = null
-)
+
 data class PresentmentMoney(
 	val amount: String? = null,
 	val currencyCode: String? = null
