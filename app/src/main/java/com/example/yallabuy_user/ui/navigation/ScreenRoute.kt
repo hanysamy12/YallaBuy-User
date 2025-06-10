@@ -40,5 +40,10 @@ sealed class ScreenRoute(val route: String) {
     }
 
     @Serializable
-    data class ProductInfo(val productId: Long)
+
+    data class ProductInfo(val productId : Long) : ScreenRoute("productInfo")
+    @Serializable
+    data object Registration : ScreenRoute("Registration")
+    @Serializable
+    data object Login : ScreenRoute("Login")
 }

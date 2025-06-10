@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     id("com.google.devtools.ksp")
     kotlin("plugin.serialization") version "2.1.10"
+    alias(libs.plugins.google.gms.google.services)
 
 }
 
@@ -71,6 +72,10 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation(libs.firebase.auth)
+    implementation(libs.androidx.credentials)
+    implementation(libs.androidx.credentials.play.services.auth)
+    implementation(libs.googleid)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -117,6 +122,9 @@ dependencies {
 
     //Async image
     implementation("io.coil-kt:coil-compose:2.4.0")
+
+    //json
+    implementation ("com.airbnb.android:lottie-compose:6.1.0")
 
 
 }
