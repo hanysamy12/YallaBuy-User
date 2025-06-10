@@ -60,7 +60,7 @@ class RemoteDataSource (
     override suspend fun getOrderById(orderID: Long): Flow<OrderDetailsResponse> {
         val order = service.getOrderById(orderID)
         return flowOf(order)
-        
+    }
     override suspend fun createUserAccount(email: String, password: String): Flow<String> {
         return try {
             val createAccountResponse = fireBaseService.createUserAccount(email , password)
@@ -109,6 +109,6 @@ class RemoteDataSource (
             Log.i("customer", "getUserDataByEmail in remote error is ${e.message} ")
             flowOf()
         }
-
     }
+
 }

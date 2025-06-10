@@ -55,9 +55,6 @@ interface ApiService {
     @GET("orders/{orderID}.json")
     suspend fun getOrderById(@Path("orderID") orderID: Long): OrderDetailsResponse
 
-        @Path("product_id") productId : Long
-    ) : ProductInfoResponse
-
     @Headers("Accept: application/json")
     @POST("customers.json?send_email_invite=true")
     suspend fun createUserOnShopify(

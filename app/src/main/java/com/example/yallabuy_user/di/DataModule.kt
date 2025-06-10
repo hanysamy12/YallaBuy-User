@@ -74,6 +74,7 @@ val dataModule = module {
     viewModel {
         OrdersViewModel(get())
     }
+    viewModel {
         RegistrationViewModel(get())
     }
     viewModel {
