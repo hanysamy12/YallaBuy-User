@@ -24,7 +24,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
@@ -52,11 +54,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.yallabuy_user.R
+import com.example.yallabuy_user.authentication.login.CustomerIdPreferences
 import com.example.yallabuy_user.data.models.cart.Customer
 import com.example.yallabuy_user.data.models.cart.DraftOrder
 import com.example.yallabuy_user.data.models.cart.DraftOrderBody
@@ -85,15 +89,28 @@ fun ProductInfoScreen(productId : Long ,
             Log.i("TAG", "getProductInfoById loading ")
         }
         is ApiResponse.Success -> {
-            Column {
-                ProductImage(productInfo.data)
-                Spacer(Modifier.height(5.dp))
-               // ProductDetail(productInfo.data, onAddToCartClick ={cartViewModel.addProductToCart()} )
-
+                Column(modifier = Modifier.fillMaxSize()) {
+                    ProductImage(productInfo.data)
+                    Column(
+                        modifier = Modifier
+                            .weight(1f)
+                            .verticalScroll(rememberScrollState())
+                    ) {
+                        Spacer(Modifier.height(5.dp))
+                        ProductDetail(
+                            productInfo.data,
+                            onAddToCartClick = { draftOrder ->
+                                cartViewModel.addToCart(draftOrder)
+                            }
+                        )
+                    }
+                }
             }
         }
     }
-}
+
+
+// , onAddToCartClick ={cartViewModel.addProductToCart()} )
 
 
 @Composable
@@ -155,7 +172,9 @@ fun ProductImage(data: ProductInfoResponse) {
 }
 
 @Composable
-fun ProductDetail(data: ProductInfoResponse, onAddToCartClick:(DraftOrderBody)-> Unit) {
+fun ProductDetail(data: ProductInfoResponse,
+                  onAddToCartClick:(DraftOrderBody)-> Unit
+) {
 
     var productCounter by  remember { mutableLongStateOf(1L) }
 
@@ -174,7 +193,7 @@ fun ProductDetail(data: ProductInfoResponse, onAddToCartClick:(DraftOrderBody)->
             color = Color.Gray
         )
         Text(
-            data?.product?.body_html ?: "No Description Available",
+            data.product.body_html ?: "No Description Available",
             color = Color.Black,
             modifier = Modifier.padding(5.dp)
         )
@@ -211,15 +230,11 @@ fun ProductDetail(data: ProductInfoResponse, onAddToCartClick:(DraftOrderBody)->
                                             productID = variant.product_id,
                                             title = data.product.title,
                                             quantity = productCounter,
-                                            name = variant.title,
                                             price = variant.price,
                                             properties = listOf(
                                                 Property("Color", selectedColor),
                                                 Property("Size", selectedSize),
-                                                Property(
-                                                    "Quantity_in_Stock",
-                                                    variant.inventory_quantity.toString()
-                                                ),
+                                                Property("Quantity_in_Stock", variant.inventory_quantity.toString()),
                                                 Property("Image", data.product.image.src),
                                                 Property("SavedAt", "Cart")
                                             )
@@ -227,8 +242,12 @@ fun ProductDetail(data: ProductInfoResponse, onAddToCartClick:(DraftOrderBody)->
                                     ),
                                     totalPrice = (variant.price.toDoubleOrNull()
                                         ?: 0.0 * productCounter).toString(),
+
+                                   // val context = LocalContext.current
+
+                                       // customer = Customer( CustomerIdPreferences.getData(LocalContext.current)
                                     customer = Customer(
-                                        id = 8805732188478
+                                    id = 8805732188478
                                     )
                                 )
                             )
@@ -239,7 +258,6 @@ fun ProductDetail(data: ProductInfoResponse, onAddToCartClick:(DraftOrderBody)->
                         }
                     }
                 },
-
 
                 modifier = Modifier
                     .fillMaxWidth()

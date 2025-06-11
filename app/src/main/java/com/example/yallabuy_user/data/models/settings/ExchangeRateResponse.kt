@@ -1,4 +1,4 @@
-package com.example.yallabuy_user.settings.model.remote
+package com.example.yallabuy_user.data.models.settings
 
 
 import com.google.gson.annotations.SerializedName

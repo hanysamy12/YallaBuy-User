@@ -1,7 +1,7 @@
 package com.mariammuhammad.yallabuy.ViewModel.Settings
 
 import androidx.lifecycle.ViewModel
-import com.example.yallabuy_user.settings.model.local.ContactUs
+import com.example.yallabuy_user.data.models.settings.ContactUs
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow

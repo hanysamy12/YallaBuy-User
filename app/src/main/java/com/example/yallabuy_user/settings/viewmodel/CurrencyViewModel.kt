@@ -1,10 +1,9 @@
 package com.example.yallabuy_user.settings.viewmodel
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.example.yallabuy_user.settings.model.local.CurrencyPreferenceManager
-import com.example.yallabuy_user.settings.model.repository.ICurrencyRepository
+import com.example.yallabuy_user.data.local.CurrencyPreferenceManager
+import com.example.yallabuy_user.repo.ICurrencyRepository
 import com.example.yallabuy_user.utilities.ApiResponse
 import com.example.yallabuy_user.utilities.Common
 import com.example.yallabuy_user.utilities.Currency

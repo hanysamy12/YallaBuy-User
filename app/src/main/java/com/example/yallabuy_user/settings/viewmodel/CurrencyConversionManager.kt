@@ -1,8 +1,8 @@
-package com.example.yallabuy_user.settings.model.remote
+package com.example.yallabuy_user.settings.viewmodel
 
 import android.util.Log
-import com.example.yallabuy_user.settings.model.local.CurrencyPreferenceManager
-import com.example.yallabuy_user.settings.model.repository.ICurrencyRepository
+import com.example.yallabuy_user.data.local.CurrencyPreferenceManager
+import com.example.yallabuy_user.repo.ICurrencyRepository
 
 class CurrencyConversionManager(
     private val currencyRepository: ICurrencyRepository

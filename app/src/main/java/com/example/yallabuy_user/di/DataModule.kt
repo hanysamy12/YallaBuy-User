@@ -2,9 +2,6 @@ package com.example.yallabuy_user.di
 
 import com.example.yallabuy_user.authentication.login.LoginViewModel
 import com.example.yallabuy_user.authentication.registration.RegistrationViewModel
-import com.example.yallabuy_user.cart.CartViewModel
-import com.example.yallabuy_user.cart.model.repo.CartRepositoryImpl
-import com.example.yallabuy_user.cart.model.repo.ICartRepository
 import com.example.yallabuy_user.cart.viewmodel.CartViewModel
 import com.example.yallabuy_user.home.HomeViewModel
 import com.example.yallabuy_user.repo.RepositoryInterface
@@ -18,18 +15,14 @@ import com.example.yallabuy_user.productInfo.ProductInfoViewModel
 import com.example.yallabuy_user.repo.Repository
 import com.example.yallabuy_user.products.ProductsViewModel
 import com.example.yallabuy_user.profile.ProfileViewModel
-import com.example.yallabuy_user.settings.model.remote.CurrencyConversionManager
-import com.example.yallabuy_user.settings.model.local.CurrencyPreferenceManager
-import com.example.yallabuy_user.settings.model.local.CurrencyPreferenceManagerImpl
-import com.example.yallabuy_user.settings.model.remote.CurrencyRemoteDataSource
-import com.example.yallabuy_user.settings.model.remote.CurrencyRemoteDataSourceImpl
-import com.example.yallabuy_user.settings.model.remote.ExchangeRateApiService
-import com.example.yallabuy_user.settings.model.remote.address.AddressManager
-import com.example.yallabuy_user.settings.model.remote.address.IAddressManager
-import com.example.yallabuy_user.settings.model.repository.CurrencyRepository
-import com.example.yallabuy_user.settings.model.repository.ICurrencyRepository
-import com.example.yallabuy_user.settings.model.repository.address.AddressRepository
-import com.example.yallabuy_user.settings.model.repository.address.IAddressRepository
+import com.example.yallabuy_user.settings.viewmodel.CurrencyConversionManager
+import com.example.yallabuy_user.data.local.CurrencyPreferenceManager
+import com.example.yallabuy_user.data.local.CurrencyPreferenceManagerImpl
+import com.example.yallabuy_user.data.remote.CurrencyRemoteDataSource
+import com.example.yallabuy_user.data.remote.CurrencyRemoteDataSourceImpl
+import com.example.yallabuy_user.data.remote.ExchangeRateApiService
+import com.example.yallabuy_user.repo.CurrencyRepository
+import com.example.yallabuy_user.repo.ICurrencyRepository
 import com.example.yallabuy_user.settings.viewmodel.AddressViewModel
 import com.example.yallabuy_user.settings.viewmodel.CurrencyViewModel
 import com.example.yallabuy_user.wish.WishViewModel
@@ -39,7 +32,6 @@ import okhttp3.OkHttpClient
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.viewModel
 import org.koin.core.qualifier.named
-import org.koin.core.scope.get
 import org.koin.dsl.module
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -75,15 +67,6 @@ val dataModule = module {
         Repository(get())
     }
 
-//    single<CartRemoteDataSource> {
-//        CartRemoteDataSource(get())
-//    }
-
-    single<ICartRepository> {
-        CartRepositoryImpl(get())
-    }
-
-
     //currency
     single(named("currencyRetrofit")) {
         Retrofit.Builder()
@@ -110,15 +93,7 @@ val dataModule = module {
         CurrencyConversionManager(get())
     }
 
-//address
 
-    single<IAddressManager>{
-        AddressManager(get())
-    }
-
-    single<IAddressRepository>{
-        AddressRepository(get ())
-    }
 
     viewModel {
         HomeViewModel(get())
@@ -144,10 +119,20 @@ val dataModule = module {
     viewModel {
         RegistrationViewModel(get())
     }
+//    viewModel {
+//        LoginViewModel(get())
+//        CurrencyViewModel(get())
+//    }
     viewModel {
         LoginViewModel(get())
+    }
+
+    viewModel {
         CurrencyViewModel(get())
     }
+
+
+
     viewModel {
         AddressViewModel(get())
     }

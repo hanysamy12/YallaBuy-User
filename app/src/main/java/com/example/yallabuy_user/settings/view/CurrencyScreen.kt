@@ -19,7 +19,6 @@ import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -34,19 +33,17 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.yallabuy_user.R
-import com.example.yallabuy_user.settings.model.remote.CurrencyPreferenceManager
 import com.example.yallabuy_user.settings.viewmodel.CurrencyViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import androidx.compose.ui.unit.dp
-import com.example.yallabuy_user.R
-import com.example.yallabuy_user.settings.viewmodel.CurrencyViewModel
 import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import org.koin.androidx.compose.koinViewModel
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -171,38 +168,38 @@ fun CurrencyPreferenceDropdown(
         }
     }
 }
-
-@SuppressLint("ViewModelConstructorInComposable")
-@Preview(showBackground = true)
-@Composable
-fun CurrencyPreferenceSettingPreview() {
-    // Dummy ViewModel for preview
-    class PreviewViewModel : CurrencyViewModel(object : CurrencyPreferenceManager {
-
-        private val flow = MutableStateFlow("EGP")
-        override suspend fun getPreferredCurrency(): String = flow.value
-        override suspend fun setPreferredCurrency(currencyCode: String) { flow.value = currencyCode }
-        override val preferredCurrencyFlow: Flow<String> = flow
-    })
-
-    MaterialTheme {
-        CurrencyScreen(viewModel = PreviewViewModel())
-    }
-}
-
-@SuppressLint("ViewModelConstructorInComposable")
-@Preview(showBackground = true)
-@Composable
-fun CurrencyPreferenceSettingUSDPreview() {
-    // dummy ViewModel for preview
-    class PreviewViewModel : CurrencyViewModel(object : CurrencyPreferenceManager {
-        private val flow = MutableStateFlow("USD")
-        override suspend fun getPreferredCurrency(): String = flow.value
-        override suspend fun setPreferredCurrency(currencyCode: String) { flow.value = currencyCode }
-        override val preferredCurrencyFlow: Flow<String> = flow
-    })
-
-    MaterialTheme {
-        CurrencyScreen(viewModel = PreviewViewModel())
-    }
-}
+//
+//@SuppressLint("ViewModelConstructorInComposable")
+//@Preview(showBackground = true)
+//@Composable
+//fun CurrencyPreferenceSettingPreview() {
+//    // Dummy ViewModel for preview
+//    class PreviewViewModel : CurrencyViewModel(object : CurrencyPreferenceManager {
+//
+//        private val flow = MutableStateFlow("EGP")
+//        override suspend fun getPreferredCurrency(): String = flow.value
+//        override suspend fun setPreferredCurrency(currencyCode: String) { flow.value = currencyCode }
+//        override val preferredCurrencyFlow: Flow<String> = flow
+//    })
+//
+//    MaterialTheme {
+//        CurrencyScreen(viewModel = PreviewViewModel())
+//    }
+//}
+//
+//@SuppressLint("ViewModelConstructorInComposable")
+//@Preview(showBackground = true)
+//@Composable
+//fun CurrencyPreferenceSettingUSDPreview() {
+//    // dummy ViewModel for preview
+//    class PreviewViewModel : CurrencyViewModel(object : CurrencyPreferenceManager {
+//        private val flow = MutableStateFlow("USD")
+//        override suspend fun getPreferredCurrency(): String = flow.value
+//        override suspend fun setPreferredCurrency(currencyCode: String) { flow.value = currencyCode }
+//        override val preferredCurrencyFlow: Flow<String> = flow
+//    })
+//
+//    MaterialTheme {
+//        CurrencyScreen(viewModel = PreviewViewModel())
+//    }
+//}

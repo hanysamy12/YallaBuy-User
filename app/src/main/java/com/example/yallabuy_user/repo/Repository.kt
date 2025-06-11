@@ -7,9 +7,13 @@ import com.example.yallabuy_user.data.models.CategoryResponse
 import com.example.yallabuy_user.data.models.OrderDetailsResponse
 import com.example.yallabuy_user.data.models.OrdersResponse
 import com.example.yallabuy_user.data.models.ProductResponse
+import com.example.yallabuy_user.data.models.cart.DraftOrderBody
 import com.example.yallabuy_user.data.models.createUser.CreateUserOnShopifyResponse
 import com.example.yallabuy_user.data.models.customer.CustomerDataResponse
 import com.example.yallabuy_user.data.models.productInfo.ProductInfoResponse
+import com.example.yallabuy_user.data.models.settings.AddressBody
+import com.example.yallabuy_user.data.models.settings.AddressesResponse
+import com.example.yallabuy_user.data.models.settings.NewAddressResponse
 import com.example.yallabuy_user.data.remote.RemoteDataSourceInterface
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
@@ -91,6 +95,111 @@ class Repository(private val remoteDataSource: RemoteDataSourceInterface) : Repo
             customer
         }catch (e : Exception){
             Log.i("customer", "getUserDataByEmail in repo error is ${e.message} ")
+            flowOf()
+        }
+    }
+
+    override suspend fun getCustomerAddressById(
+        customerId: Long,
+        addressId: Long
+    ): Flow<NewAddressResponse> {
+        return try {
+            remoteDataSource.getCustomerAddressById(customerId, addressId)
+        } catch (e: Exception) {
+            Log.e("Repository", "getCustomerAddressById error: ${e.message}", e)
+            flowOf()
+        }
+    }
+
+    override suspend fun getAddresses(customerId: Long): Flow<AddressesResponse> {
+        return try {
+            remoteDataSource.getAddresses(customerId)
+        } catch (e: Exception) {
+            Log.e("Repository", "getAddresses error: ${e.message}", e)
+            flowOf()
+        }
+    }
+
+    override suspend fun createCustomerAddress(
+        customerId: Long,
+        newAddressBody: AddressBody
+    ): Flow<NewAddressResponse> {
+        return try {
+            remoteDataSource.createCustomerAddress(customerId, newAddressBody)
+        } catch (e: Exception) {
+            Log.e("Repository", "createCustomerAddress error: ${e.message}", e)
+            flowOf()
+        }
+    }
+
+    override suspend fun updateCustomerAddress(
+        customerId: Long,
+        addressId: Long,
+        updatedAddressBody: AddressBody
+    ): Flow<NewAddressResponse> {
+        return try {
+            remoteDataSource.updateCustomerAddress(customerId, addressId, updatedAddressBody)
+        } catch (e: Exception) {
+            Log.e("Repository", "updateCustomerAddress error: ${e.message}", e)
+            flowOf()
+        }
+    }
+
+    override suspend fun deleteCustomerAddress(customerId: Long, addressId: Long) {
+        try {
+            remoteDataSource.deleteCustomerAddress(customerId, addressId)
+        } catch (e: Exception) {
+            Log.e("Repository", "deleteCustomerAddress error: ${e.message}", e)
+        }
+    }
+
+
+    //cart
+    override suspend fun createDraftOrder(draftOrderBody: DraftOrderBody): Flow<DraftOrderBody> {
+        return try {
+            remoteDataSource.createDraftOrder(draftOrderBody)
+        } catch (e: HttpException) {
+            Log.i("CartRepo", "createDraftOrder http error: ${e.message}")
+
+            flowOf()
+        } catch (e: NullPointerException) {
+            Log.i("CartRepo", "createDraftOrder null error: ${e.message}")
+            flowOf()
+        }
+    }
+
+    override suspend fun getDraftOrder(id: Long): Flow<DraftOrderBody> {
+        return try {
+            remoteDataSource.getDraftOrder(id)
+        } catch (e: HttpException) {
+            Log.i("CartRepo", "getDraftOrder http error: ${e.message}")
+            flowOf()
+        } catch (e: NullPointerException) {
+            Log.i("CartRepo", "getDraftOrder null error: ${e.message}")
+            flowOf()
+        }
+    }
+
+    override suspend fun updateDraftOrder(id: Long, draftOrderBody: DraftOrderBody): Flow<DraftOrderBody> {
+        return try {
+            remoteDataSource.updateDraftOrder(id, draftOrderBody)
+        } catch (e: HttpException) {
+            Log.i("CartRepo", "updateDraftOrder http error: ${e.message}")
+            flowOf()
+        } catch (e: NullPointerException) {
+            Log.i("CartRepo", "updateDraftOrder null error: ${e.message}")
+            flowOf()
+        }
+    }
+
+    override suspend fun deleteDraftOrder(id: Long): Flow<Unit> {
+        return try {
+            remoteDataSource.deleteDraftOrder(id)
+        } catch (e: HttpException) {
+            Log.i("CartRepo", "deleteDraftOrder http error: ${e.message}")
+            flowOf()
+        } catch (e: NullPointerException) {
+            Log.i("CartRepo", "deleteDraftOrder null error: ${e.message}")
             flowOf()
         }
     }

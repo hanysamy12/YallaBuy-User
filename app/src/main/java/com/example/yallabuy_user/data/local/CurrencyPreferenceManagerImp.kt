@@ -1,4 +1,4 @@
-package com.example.yallabuy_user.settings.model.local
+package com.example.yallabuy_user.data.local
 
 import android.content.Context
 import kotlinx.coroutines.flow.Flow
@@ -13,7 +13,10 @@ class CurrencyPreferenceManagerImpl(
     private val rateKey = "currency_rate"
     private val timeKey = "last_update_time"
 
-    private val currencyFlow = MutableStateFlow(prefs.getString(currencyKey, CurrencyPreferenceManager.DEFAULT_CURRENCY) ?: CurrencyPreferenceManager.DEFAULT_CURRENCY)
+    private val currencyFlow = MutableStateFlow(prefs.getString(currencyKey,
+        CurrencyPreferenceManager.DEFAULT_CURRENCY
+    ) ?: CurrencyPreferenceManager.DEFAULT_CURRENCY
+    )
     override val preferredCurrencyFlow: Flow<String> = currencyFlow
 
     override suspend fun setPreferredCurrency(currencyCode: String) {
@@ -22,7 +25,9 @@ class CurrencyPreferenceManagerImpl(
     }
 
     override suspend fun getPreferredCurrency(): String {
-        return prefs.getString(currencyKey, CurrencyPreferenceManager.DEFAULT_CURRENCY) ?: CurrencyPreferenceManager.DEFAULT_CURRENCY
+        return prefs.getString(currencyKey,
+            CurrencyPreferenceManager.DEFAULT_CURRENCY
+        ) ?: CurrencyPreferenceManager.DEFAULT_CURRENCY
     }
 
     override suspend fun setCurrencyRate(rate: Double) {

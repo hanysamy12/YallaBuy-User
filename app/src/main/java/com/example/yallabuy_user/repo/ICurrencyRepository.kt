@@ -1,6 +1,4 @@
-package com.example.yallabuy_user.settings.model.repository
-
-import kotlinx.coroutines.flow.Flow
+package com.example.yallabuy_user.repo
 
 interface ICurrencyRepository {
 

@@ -48,7 +48,6 @@ import com.example.yallabuy_user.R
 import com.example.yallabuy_user.authentication.login.CustomerIdPreferences
 import com.example.yallabuy_user.authentication.login.LoginScreen
 import com.example.yallabuy_user.authentication.registration.RegistrationScreen
-import com.example.yallabuy_user.cart.CartScreen
 import com.example.yallabuy_user.cart.view.CartScreen
 import com.example.yallabuy_user.collections.CollectionsScreen
 import com.example.yallabuy_user.home.HomeScreen
@@ -64,6 +63,7 @@ import com.example.yallabuy_user.wish.WishScreen
 import com.mariammuhammad.yallabuy.View.Settings.AboutUsScreen
 import com.mariammuhammad.yallabuy.View.Settings.ContactUsScreen
 import com.mariammuhammad.yallabuy.View.Settings.SettingsScreen
+import com.example.yallabuy_user.ui.navigation.ScreenRoute
 
 
 private const val TAG = "MainScreen"
@@ -218,7 +218,10 @@ fun MainScreen() {
             composable(route = ScreenRoute.Profile.route) {
                 ProfileScreen(navController)
             }
-            // screens navigated from Settings
+
+            composable(ScreenRoute.Settings.route){
+                SettingsScreen(navController)
+            }
             composable(ScreenRoute.AboutUs.route) {
                 AboutUsScreen(onNavigateBack = { navController.popBackStack() })
             }
@@ -226,8 +229,7 @@ fun MainScreen() {
                 ContactUsScreen(onNavigateBack = { navController.popBackStack() })
             }
             composable(ScreenRoute.Currency.route) {
-
-                CurrencyScreen( //viewModel = viewModel,
+                CurrencyScreen(
                     onNavigateBack = { navController.popBackStack() })
             }
             composable(ScreenRoute.Address.route) {
@@ -245,24 +247,6 @@ fun MainScreen() {
 
                 }
             }
-
-            composable(ScreenRoute.Settings.route) {
-                SettingsScreen(
-                    onNavigateToAboutUs = {
-                        navController.navigate(ScreenRoute.AboutUs.route)
-                    },
-                    onNavigateToContactUs = {
-                        navController.navigate(ScreenRoute.ContactUs.route)
-                    },
-                    onNavigateToCurrency = {
-                        navController.navigate(ScreenRoute.Currency.route)
-                    },
-                    onNavigateToAddress = {
-                        navController.navigate(ScreenRoute.Address.route)
-                    }
-                )
-            }
-
 
             //with null
             composable(ScreenRoute.ProductsScreen.BASE_ROUTE) {

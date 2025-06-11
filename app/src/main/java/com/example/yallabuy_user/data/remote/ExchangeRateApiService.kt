@@ -1,7 +1,6 @@
-package com.example.yallabuy_user.settings.model.remote
+package com.example.yallabuy_user.data.remote
 
-import com.example.yallabuy_user.utilities.ApiResponse
-import retrofit2.Response
+import com.example.yallabuy_user.data.models.settings.ExchangeRateResponse
 import retrofit2.http.GET
 import retrofit2.http.Path
 

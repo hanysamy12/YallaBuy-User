@@ -1,8 +1,8 @@
-package com.example.yallabuy_user.settings.model.remote
+package com.example.yallabuy_user.data.remote
 
+import com.example.yallabuy_user.data.models.settings.ExchangeRateResponse
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import retrofit2.Response
 
 class CurrencyRemoteDataSourceImpl constructor(
     private val apiService: ExchangeRateApiService

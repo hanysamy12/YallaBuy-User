@@ -2,14 +2,12 @@ package com.example.yallabuy_user.products
 
 import android.util.Log
 
-import androidx.compose.ui.text.toLowerCase
-import androidx.compose.ui.text.toUpperCase
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.yallabuy_user.data.models.CustomCollectionsItem
 import com.example.yallabuy_user.data.models.ProductsItem
 import com.example.yallabuy_user.repo.RepositoryInterface
-import com.example.yallabuy_user.settings.model.remote.CurrencyConversionManager
+import com.example.yallabuy_user.settings.viewmodel.CurrencyConversionManager
 import com.example.yallabuy_user.utilities.ApiResponse
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

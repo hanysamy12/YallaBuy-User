@@ -44,7 +44,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.yallabuy_user.R
-import com.example.yallabuy_user.settings.model.local.ContactUs
+import com.example.yallabuy_user.data.models.settings.ContactUs
 import com.mariammuhammad.yallabuy.ViewModel.Settings.ContactUsViewModel
 
 
