@@ -71,6 +71,7 @@ import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.yallabuy_user.R
 import com.example.yallabuy_user.authentication.login.CustomerIdPreferences
+import com.example.yallabuy_user.wish.WishListIdPref
 import kotlinx.coroutines.flow.collect
 
 
@@ -80,6 +81,7 @@ fun ProductInfoScreen(
     productInfoViewModel: ProductInfoViewModel = koinViewModel()
 ) {
 
+    WishListIdPref.saveWishListID(LocalContext.current ,1208624218430)
     val productInfo = productInfoViewModel.productInfo.collectAsState().value
     LaunchedEffect(Unit) {
         productInfoViewModel.getProductInfoById(productId)
@@ -431,11 +433,14 @@ fun HeartInCircle(
     val context = LocalContext.current
     val isAlreadySaved = productInfoViewModel.productIsAlreadySaved
     val showErrorDialog = remember { mutableStateOf(false) }
+    val isFirstProductInWishList = productInfoViewModel.isFirstProductInWishList.collectAsState().value
+
     LaunchedEffect(isAlreadySaved) {
         isAlreadySaved.collect{
             showErrorDialog.value = it
         }
     }
+
     Box(
         modifier = modifier
             .size(32.dp)
@@ -467,6 +472,9 @@ fun HeartInCircle(
                 showErrorDialog.value = false
             }
         )
+    }
+    if(isFirstProductInWishList){
+        WishListIdPref.saveWishListID(LocalContext.current , productInfoViewModel.getWishListDraftOrderId())
     }
 }
 @Composable

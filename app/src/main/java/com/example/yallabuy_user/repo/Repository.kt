@@ -134,6 +134,7 @@ class Repository(private val remoteDataSource: RemoteDataSourceInterface) : Repo
     override suspend fun getWishListDraftById(wishListDraftOrderId: Long): Flow<WishListDraftOrderResponse> {
         return try {
             val wishLestDraftOrderResponse = remoteDataSource.getWishListDraftById(wishListDraftOrderId)
+            Log.i("wishList", "getWishListDraftById:  in repo success ")
             wishLestDraftOrderResponse
         }catch (e : Exception){
             Log.i("wishList", "getWishListDraftById:  in repo error is ${e.message} ")
@@ -144,6 +145,7 @@ class Repository(private val remoteDataSource: RemoteDataSourceInterface) : Repo
     override suspend fun updateDraftOrder(draftOrderId: Long , wishListDraftOrderRequest: WishListDraftOrderRequest): Flow<WishListDraftOrderResponse> {
         return try {
             val wishLestDraftOrderResponse = remoteDataSource.updateDraftOrder(draftOrderId , wishListDraftOrderRequest)
+            Log.i("wishList", "updateDraftOrder in repo success ")
             wishLestDraftOrderResponse
         }catch (e : Exception){
             Log.i("wishList", "updateDraftOrder in repo error is ${e.message} ")

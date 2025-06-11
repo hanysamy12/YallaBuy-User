@@ -11,6 +11,7 @@ data class DraftOrderLineItem(
     val title: String? = null,
     val price: String? = null,
     val variant_id: Long? = null,
+    val product_id: Long? = null,
     val quantity: Int,
     val properties: List<LineItemProperty>? = null
 )
