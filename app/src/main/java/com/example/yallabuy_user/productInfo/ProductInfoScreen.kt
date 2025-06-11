@@ -46,8 +46,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableDoubleStateOf
@@ -76,25 +74,24 @@ import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.yallabuy_user.R
 import com.example.yallabuy_user.authentication.login.CustomerIdPreferences
 import com.example.yallabuy_user.wish.WishListIdPref
-import kotlinx.coroutines.flow.collect
 
 import com.example.yallabuy_user.cart.viewmodel.CartViewModel
+import com.example.yallabuy_user.data.models.ProductImage
 import com.example.yallabuy_user.data.models.cart.Customer
 import com.example.yallabuy_user.data.models.cart.DraftOrder
 import com.example.yallabuy_user.data.models.cart.DraftOrderBody
 import com.example.yallabuy_user.data.models.cart.LineItem
 import com.example.yallabuy_user.data.models.cart.Property
-import com.example.yallabuy_user.data.models.productInfo.ProductInfoResponse
-import org.koin.androidx.compose.koinViewModel
 
 
 @Composable
-fun ProductInfoScreen(productId : Long ,
-                      productInfoViewModel: ProductInfoViewModel = koinViewModel(),
-                      cartViewModel: CartViewModel = koinViewModel()
-                     ){
+fun ProductInfoScreen(
+    productId: Long,
+    productInfoViewModel: ProductInfoViewModel = koinViewModel(),
+    cartViewModel: CartViewModel = koinViewModel()
+) {
 
-    WishListIdPref.saveWishListID(LocalContext.current ,1208624218430)
+    WishListIdPref.saveWishListID(LocalContext.current, 1208624218430)
     val productInfo = productInfoViewModel.productInfo.collectAsState().value
 
     LaunchedEffect(productId) {
@@ -112,12 +109,12 @@ fun ProductInfoScreen(productId : Long ,
 
         is ApiResponse.Success -> {
             Column {
-                ProductImage(productInfo.data , productInfoViewModel)
+                ProductImage(productInfo.data, productInfoViewModel)
                 Spacer(Modifier.height(5.dp))
-                ProductDetail(productInfo.data)
+               // ProductDetail(productInfo.data)
 
                 Column(modifier = Modifier.fillMaxSize()) {
-                    ProductImage(productInfo.data)
+                 //   ProductImage(productInfo.data)
                     Column(
                         modifier = Modifier
                             .weight(1f)
@@ -135,540 +132,565 @@ fun ProductInfoScreen(productId : Long ,
             }
         }
     }
+}
 
 
 // , onAddToCartClick ={cartViewModel.addProductToCart()} )
 
 
-@Composable
-fun ProductImage(data: ProductInfoResponse, productInfoViewModel: ProductInfoViewModel) {
-    val images = data?.product?.images ?: emptyList()
-    val pagerState = rememberPagerState()
+    @Composable
+    fun ProductImage(data: ProductInfoResponse, productInfoViewModel: ProductInfoViewModel) {
+        val images = data?.product?.images ?: emptyList()
+        val pagerState = rememberPagerState()
 
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 8.dp, vertical = 15.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Card(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(250.dp),
-            shape = RoundedCornerShape(16.dp),
-            elevation = CardDefaults.cardElevation(8.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.White)
+                .padding(horizontal = 8.dp, vertical = 15.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Box(modifier = Modifier.fillMaxSize()) {
-                HorizontalPager(
-                    count = images.size,
-                    state = pagerState,
-                    modifier = Modifier.fillMaxSize()
-                ) { page ->
-                    AsyncImage(
-                        model = images[page].src,
-                        contentDescription = "Product Image",
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(250.dp),
+                shape = RoundedCornerShape(16.dp),
+                elevation = CardDefaults.cardElevation(8.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.White)
+            ) {
+                Box(modifier = Modifier.fillMaxSize()) {
+                    HorizontalPager(
+                        count = images.size,
+                        state = pagerState,
+                        modifier = Modifier.fillMaxSize()
+                    ) { page ->
+                        AsyncImage(
+                            model = images[page].src,
+                            contentDescription = "Product Image",
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .clip(RoundedCornerShape(16.dp)),
+                            contentScale = ContentScale.Fit,
+                            placeholder = painterResource(id = R.drawable.broken_image),
+                            error = painterResource(id = R.drawable.broken_image)
+                        )
+                    }
+
+                    HeartInCircle(
                         modifier = Modifier
-                            .fillMaxSize()
-                            .clip(RoundedCornerShape(16.dp)),
-                        contentScale = ContentScale.Fit,
-                        placeholder = painterResource(id = R.drawable.broken_image),
-                        error = painterResource(id = R.drawable.broken_image)
+                            .align(Alignment.TopEnd)
+                            .padding(8.dp),
+                        productInfoViewModel,
+                        data
                     )
                 }
-
-                HeartInCircle(
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .padding(8.dp) ,
-                    productInfoViewModel ,
-                    data
-                )
             }
-        }
 
-        Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
-        HorizontalPagerIndicator(
-            pagerState = pagerState,
-            activeColor = Color.Black,
-            inactiveColor = Color.LightGray,
-            modifier = Modifier
-                .align(Alignment.CenterHorizontally)
-                .padding(top = 4.dp)
-        )
-    }
-}
-
-@Composable
-fun ProductDetail(data: ProductInfoResponse,
-                  onAddToCartClick:(DraftOrderBody)-> Unit
-) {
-
-
-    var productCounter by  remember { mutableLongStateOf(1L) }
-
-    var selectedSize by remember { mutableStateOf("") }
-    var selectedColor by remember { mutableStateOf("") }
-    var showMissingSelectionDialog by remember { mutableStateOf(false) }
-    Column {
-        Text(
-            data?.product?.title ?: "No Title Available",
-            fontSize = 20.sp, fontWeight = FontWeight.Bold,
-            color = Color.Black,
-            modifier = Modifier.padding(5.dp)
-        )
-        Text(
-            "Description", Modifier.padding(5.dp), fontSize = 20.sp, fontWeight = FontWeight.Bold,
-            color = Color.Gray
-        )
-        Text(
-            data.product.body_html ?: "No Description Available",
-            color = Color.Black,
-            modifier = Modifier.padding(5.dp)
-        )
-
-        SizesDropDownMenu(data) { selectedSize = it }
-        Spacer(modifier = Modifier.height(3.dp))
-        ColorDropDownMenu(data) { selectedColor = it }
-
-        Price(data, count = productCounter)
-
-        Row {
-            QuantitySelectorCard(
-                productCounter = productCounter,
-                onIncrease = { productCounter += 1 },
-                onDecrease = { if (productCounter > 1) productCounter -= 1 }
-            )
-            Button(
-                onClick = {
-
-                    if (selectedSize.isEmpty() || selectedColor.isEmpty()) {
-                        showMissingSelectionDialog = true
-                    } else {
-                        val selectedVariant = data.product.variants.find {
-                            it.option1 == selectedSize && it.option2 == selectedColor
-                        }
-                        selectedVariant?.let { variant ->
-                            val draftOrderObject = DraftOrderBody(
-                                draftOrder = DraftOrder(
-                                    Id = 0L,
-                                    note = "Added from Product Details",
-                                    lineItems = mutableListOf(
-                                        LineItem(
-                                            variantID = variant.id,
-                                            productID = variant.product_id,
-                                            title = data.product.title,
-                                            quantity = productCounter,
-                                            price = variant.price,
-                                            properties = listOf(
-                                                Property("Color", selectedColor),
-                                                Property("Size", selectedSize),
-                                                Property("Quantity_in_Stock", variant.inventory_quantity.toString()),
-                                                Property("Image", data.product.image.src),
-                                                Property("SavedAt", "Cart")
-                                            )
-                                        )
-                                    ),
-                                    totalPrice = (variant.price.toDoubleOrNull()
-                                        ?: 0.0 * productCounter).toString(),
-
-                                   // val context = LocalContext.current
-
-                                       // customer = Customer( CustomerIdPreferences.getData(LocalContext.current)
-                                    customer = Customer(
-                                    id = 8805732188478
-                                    )
-                                )
-                            )
-                            //send viewModel to draftorder object
-                            //you can try to do it using lambda
-
-                            onAddToCartClick(draftOrderObject)
-                        }
-                    }
-                },
-
+            HorizontalPagerIndicator(
+                pagerState = pagerState,
+                activeColor = Color.Black,
+                inactiveColor = Color.LightGray,
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .height(80.dp)
-                    .padding(horizontal = 5.dp, vertical = 10.dp),
-                shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.Black,
-                    contentColor = Color.White
-                )
-            ) {
-                Text("Add To Cart", fontSize = 20.sp)
-            }
-        }
-        if (showMissingSelectionDialog) {
-            AlertDialog(
-                onDismissRequest = { showMissingSelectionDialog = false },
-                title = { Text("Selection Required") },
-                text = { Text("Please select both size and color before adding to cart") },
-                confirmButton = {
-                    Button(
-                        onClick = { showMissingSelectionDialog = false },
-                        colors = ButtonDefaults.buttonColors(containerColor = Color.Black)
-                    ) {
-                        Text("OK", color = Color.White)
-                    }
-                }
+                    .align(Alignment.CenterHorizontally)
+                    .padding(top = 4.dp)
             )
         }
     }
-}
 
-@Composable
-fun QuantitySelectorCard(
-    productCounter: Long,
-    onIncrease: () -> Unit,
-    onDecrease: () -> Unit
-) {
-    Card(
-        shape = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.cardElevation(6.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
-        modifier = Modifier
-            .padding(8.dp)
-            .wrapContentSize()
+    @Composable
+    fun ProductDetail(
+        data: ProductInfoResponse,
+        onAddToCartClick: (DraftOrderBody) -> Unit
     ) {
-        Row(
-            modifier = Modifier
-                .padding(horizontal = 12.dp, vertical = 8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center
-        ) {
-            IconButton(
-                onClick = onDecrease,
-                enabled = productCounter > 1
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Delete,
-                    contentDescription = "Decrease",
-                    tint = Color.Black
-                )
-            }
 
+
+        var productCounter by remember { mutableLongStateOf(1L) }
+
+        var selectedSize by remember { mutableStateOf("") }
+        var selectedColor by remember { mutableStateOf("") }
+        var showMissingSelectionDialog by remember { mutableStateOf(false) }
+        Column {
             Text(
-                text = productCounter.toString(),
-                modifier = Modifier.padding(horizontal = 16.dp),
-                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                data?.product?.title ?: "No Title Available",
+                fontSize = 20.sp, fontWeight = FontWeight.Bold,
+                color = Color.Black,
+                modifier = Modifier.padding(5.dp)
+            )
+            Text(
+                "Description",
+                Modifier.padding(5.dp),
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.Gray
+            )
+            Text(
+                data.product.body_html ?: "No Description Available",
+                color = Color.Black,
+                modifier = Modifier.padding(5.dp)
             )
 
-            IconButton(onClick = onIncrease) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = "Increase",
-                    tint = Color.Black
+            SizesDropDownMenu(data) { selectedSize = it }
+            Spacer(modifier = Modifier.height(3.dp))
+            ColorDropDownMenu(data) { selectedColor = it }
+
+            Price(data, count = productCounter)
+
+            Row {
+                QuantitySelectorCard(
+                    productCounter = productCounter,
+                    onIncrease = { productCounter += 1 },
+                    onDecrease = { if (productCounter > 1) productCounter -= 1 }
                 )
-            }
-        }
-    }
-}
-
-@Composable
-fun SizesDropDownMenu(data: ProductInfoResponse,
-                      onSizeSelected: (String) -> Unit
-) {
-    val isDropDownSelected = remember { mutableStateOf(false) }
-    val itemSelectedIndex = remember { mutableIntStateOf(0) }
-
-    val variants = data.product.variants
-    val selectedSize = variants.getOrNull(itemSelectedIndex.intValue)?.option1 ?: "No Sizes Available"
-
-    LaunchedEffect(Unit) {
-        onSizeSelected(selectedSize)
-    }
-
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp)
-    ) {
-        Text(
-            text = "Select Size",
-            style = MaterialTheme.typography.labelLarge,
-            color = Color.Gray,
-            modifier = Modifier.padding(bottom = 4.dp)
-        )
-        Box {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(Color.White)
-                    .border(1.dp, Color.LightGray, RoundedCornerShape(12.dp))
-                    .clickable { isDropDownSelected.value = true }
-                    .padding(horizontal = 16.dp, vertical = 12.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = selectedSize,
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = Color.Black
-                )
-                Icon(
-                    imageVector = Icons.Filled.KeyboardArrowDown,
-                    contentDescription = "Dropdown Arrow",
-                    tint = Color.Black
-                )
-            }
-
-            DropdownMenu(
-                expanded = isDropDownSelected.value,
-                onDismissRequest = { isDropDownSelected.value = false },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(Color.White)
-                    .clip(RoundedCornerShape(12.dp))
-            ) {
-                variants.forEachIndexed { index, variant ->
-                    DropdownMenuItem(
-                        text = {
-                            Text(
-                                text = variant.option1,
-                                style = MaterialTheme.typography.bodyMedium
-                            )
-                        },
-                        onClick = {
-                            Log.i("TAG", "SizesDropDownMenu: ${variant.option1}")
-                            itemSelectedIndex.intValue = index
-                            onSizeSelected(variant.option1)
-                            isDropDownSelected.value = false
-
-                        }
-                    )
-                }
-            }
-        }
-    }
-
-}
-
-@Composable
-fun ColorDropDownMenu(data: ProductInfoResponse,
-                      onColorSelected: (String) -> Unit) {
-
-    val isDropDownSelected = remember { mutableStateOf(false) }
-    val itemSelectedIndex = remember { mutableIntStateOf(0) }
-
-   // val variants = data?.product?.variants ?: emptyList() //I edited that
-
-    val variants = data.product.variants
-    val selectedColor = variants.getOrNull(itemSelectedIndex.intValue)?.option2 ?: "No Colors Available"
-
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp)
-    ) {
-        Text(
-            text = "Select Color",
-            style = MaterialTheme.typography.labelLarge,
-            color = Color.Gray,
-            modifier = Modifier.padding(bottom = 4.dp)
-        )
-        Box {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(Color.White)
-                    .border(1.dp, Color.LightGray, RoundedCornerShape(12.dp))
-                    .clickable { isDropDownSelected.value = true }
-                    .padding(horizontal = 16.dp, vertical = 12.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = selectedColor,
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = Color.Black
-                )
-                Icon(
-                    imageVector = Icons.Filled.KeyboardArrowDown,
-                    contentDescription = "Dropdown Arrow",
-                    tint = Color.Black
-                )
-            }
-
-            DropdownMenu(
-                expanded = isDropDownSelected.value,
-                onDismissRequest = { isDropDownSelected.value = false },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(Color.White)
-                    .clip(RoundedCornerShape(12.dp))
-            ) {
-                variants.forEachIndexed { index, variant ->
-                    DropdownMenuItem(
-                        text = {
-                            Text(
-                                text = variant.option2,
-                                style = MaterialTheme.typography.bodyMedium
-                            )
-                        },
-                        onClick = {
-                            Log.i("TAG", "ColorDropDownMenu: ${variant.option2}")
-                            itemSelectedIndex.intValue = index
-                            onColorSelected(variant.option2)
-                            isDropDownSelected.value = false
-                        }
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun Price(data: ProductInfoResponse, count: Long) {
-    var priceInBound = remember { mutableDoubleStateOf(0.0) }
-    priceInBound.doubleValue =
-        ((data?.product?.variants?.get(0)?.price?.toDoubleOrNull() ?: 0.0) * 50) * count
-    Text(
-        text = "  Total Price :  ${priceInBound.doubleValue}  EGP",
-        modifier = Modifier.padding(10.dp),
-        fontSize = 15.sp,
-        fontWeight = FontWeight.Bold
-    )
-}
-
-@Composable
-fun HeartInCircle(
-    modifier: Modifier = Modifier,
-    productInfoViewModel: ProductInfoViewModel,
-    data: ProductInfoResponse
-) {
-    val isHeartClicked = remember { mutableStateOf(false) }
-    var icon = remember { Icons.Outlined.FavoriteBorder }
-    val context = LocalContext.current
-    val isAlreadySaved = productInfoViewModel.productIsAlreadySaved
-    val showErrorDialog = remember { mutableStateOf(false) }
-    val isFirstProductInWishList = productInfoViewModel.isFirstProductInWishList.collectAsState().value
-
-    LaunchedEffect(isAlreadySaved) {
-        isAlreadySaved.collect{
-            showErrorDialog.value = it
-        }
-    }
-
-    Box(
-        modifier = modifier
-            .size(32.dp)
-            .border(BorderStroke(1.dp, Color.Black), shape = CircleShape)
-            .background(Color.White, shape = CircleShape)
-            .clickable {
-                isHeartClicked.value = true
-                productInfoViewModel.getCustomerById(CustomerIdPreferences.getData(context) , data)
-            },
-        contentAlignment = Alignment.Center
-
-    ) {
-        if (isHeartClicked.value && !showErrorDialog.value) {
-            icon = Icons.Default.Favorite
-        }
-        Icon(
-            imageVector = icon,
-            contentDescription = "Heart Icon",
-            modifier = Modifier.size(18.dp)
-        )
-    }
-
-    if(showErrorDialog.value){
-        WishListAlert(
-            onConfirmation = {
-                showErrorDialog.value = false
-            } ,
-            onDismissRequest = {
-                showErrorDialog.value = false
-            }
-        )
-    }
-    if(isFirstProductInWishList){
-        WishListIdPref.saveWishListID(LocalContext.current , productInfoViewModel.getWishListDraftOrderId())
-    }
-}
-@Composable
-fun WishListAlert(
-    onConfirmation: () -> Unit,
-    onDismissRequest: () -> Unit,
-) {
-
-    val failComposition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.failanimation))
-    val failProgress by animateLottieCompositionAsState(
-        composition = failComposition,
-        iterations = LottieConstants.IterateForever
-    )
-
-    val icon: @Composable () -> Unit = {
-        LottieAnimation(
-            composition = failComposition,
-            progress = { failProgress },
-            modifier = Modifier.size(100.dp)
-        )
-    }
-
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .fillMaxHeight()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        // Alert Dialog Box
-        AlertDialog(
-            // set dismiss request
-            onDismissRequest = {
-                onDismissRequest()
-            },
-            // configure confirm button
-            confirmButton = {
                 Button(
                     onClick = {
-                        onConfirmation()
-                    }, colors = ButtonDefaults.buttonColors(
+
+                        if (selectedSize.isEmpty() || selectedColor.isEmpty()) {
+                            showMissingSelectionDialog = true
+                        } else {
+                            val selectedVariant = data.product.variants.find {
+                                it.option1 == selectedSize && it.option2 == selectedColor
+                            }
+                            selectedVariant?.let { variant ->
+                                val draftOrderObject = DraftOrderBody(
+                                    draftOrder = DraftOrder(
+                                        Id = 0L,
+                                        note = "Added from Product Details",
+                                        lineItems = mutableListOf(
+                                            LineItem(
+                                                variantID = variant.id,
+                                                productID = variant.product_id,
+                                                title = data.product.title,
+                                                quantity = productCounter,
+                                                price = variant.price,
+                                                properties = listOf(
+                                                    Property("Color", selectedColor),
+                                                    Property("Size", selectedSize),
+                                                    Property(
+                                                        "Quantity_in_Stock",
+                                                        variant.inventory_quantity.toString()
+                                                    ),
+                                                    Property("Image", data.product.image.src),
+                                                    Property("SavedAt", "Cart")
+                                                )
+                                            )
+                                        ),
+                                        totalPrice = (variant.price.toDoubleOrNull()
+                                            ?: 0.0 * productCounter).toString(),
+
+                                        // val context = LocalContext.current
+
+                                        // customer = Customer( CustomerIdPreferences.getData(LocalContext.current)
+                                        customer = Customer(
+                                            id = 8805732188478
+                                        )
+                                    )
+                                )
+                                //send viewModel to draftorder object
+                                //you can try to do it using lambda
+
+                                onAddToCartClick(draftOrderObject)
+                            }
+                        }
+                    },
+
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(80.dp)
+                        .padding(horizontal = 5.dp, vertical = 10.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(
                         containerColor = Color.Black,
                         contentColor = Color.White
                     )
                 ) {
-                    Text("Confirm")
+                    Text("Add To Cart", fontSize = 20.sp)
                 }
-            },
-            // set icon
-            icon = icon,
-            // set title text
-            title = {
-                Text(text = "Enable to save Product ", color = Color.Black)
-            },
-            // set description text
-            text = {
-                Text(text = "The product you are trying to add to wishList is already in wishList", color = Color.DarkGray)
-            },
-            // set padding for contents inside the box
-            modifier = Modifier.padding(16.dp),
-            // define box shape
-            shape = RoundedCornerShape(16.dp),
-            // set box background color
-            containerColor = Color.White,
-            // set icon color
-            iconContentColor = Color.Red,
-            // set title text color
-            titleContentColor = Color.Black,
-            // set text color
-            textContentColor = Color.DarkGray,
-            // set elevation
-            tonalElevation = 8.dp,
-            // set properties
-            properties = DialogProperties(
-                dismissOnBackPress = true,
-                dismissOnClickOutside = false
+            }
+            if (showMissingSelectionDialog) {
+                AlertDialog(
+                    onDismissRequest = { showMissingSelectionDialog = false },
+                    title = { Text("Selection Required") },
+                    text = { Text("Please select both size and color before adding to cart") },
+                    confirmButton = {
+                        Button(
+                            onClick = { showMissingSelectionDialog = false },
+                            colors = ButtonDefaults.buttonColors(containerColor = Color.Black)
+                        ) {
+                            Text("OK", color = Color.White)
+                        }
+                    }
+                )
+            }
+        }
+    }
+
+    @Composable
+    fun QuantitySelectorCard(
+        productCounter: Long,
+        onIncrease: () -> Unit,
+        onDecrease: () -> Unit
+    ) {
+        Card(
+            shape = RoundedCornerShape(12.dp),
+            elevation = CardDefaults.cardElevation(6.dp),
+            colors = CardDefaults.cardColors(containerColor = Color.White),
+            modifier = Modifier
+                .padding(8.dp)
+                .wrapContentSize()
+        ) {
+            Row(
+                modifier = Modifier
+                    .padding(horizontal = 12.dp, vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                IconButton(
+                    onClick = onDecrease,
+                    enabled = productCounter > 1
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = "Decrease",
+                        tint = Color.Black
+                    )
+                }
+
+                Text(
+                    text = productCounter.toString(),
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                )
+
+                IconButton(onClick = onIncrease) {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = "Increase",
+                        tint = Color.Black
+                    )
+                }
+            }
+        }
+    }
+
+    @Composable
+    fun SizesDropDownMenu(
+        data: ProductInfoResponse,
+        onSizeSelected: (String) -> Unit
+    ) {
+        val isDropDownSelected = remember { mutableStateOf(false) }
+        val itemSelectedIndex = remember { mutableIntStateOf(0) }
+
+        val variants = data.product.variants
+        val selectedSize =
+            variants.getOrNull(itemSelectedIndex.intValue)?.option1 ?: "No Sizes Available"
+
+        LaunchedEffect(Unit) {
+            onSizeSelected(selectedSize)
+        }
+
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp)
+        ) {
+            Text(
+                text = "Select Size",
+                style = MaterialTheme.typography.labelLarge,
+                color = Color.Gray,
+                modifier = Modifier.padding(bottom = 4.dp)
             )
+            Box {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(Color.White)
+                        .border(1.dp, Color.LightGray, RoundedCornerShape(12.dp))
+                        .clickable { isDropDownSelected.value = true }
+                        .padding(horizontal = 16.dp, vertical = 12.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = selectedSize,
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = Color.Black
+                    )
+                    Icon(
+                        imageVector = Icons.Filled.KeyboardArrowDown,
+                        contentDescription = "Dropdown Arrow",
+                        tint = Color.Black
+                    )
+                }
+
+                DropdownMenu(
+                    expanded = isDropDownSelected.value,
+                    onDismissRequest = { isDropDownSelected.value = false },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(Color.White)
+                        .clip(RoundedCornerShape(12.dp))
+                ) {
+                    variants.forEachIndexed { index, variant ->
+                        DropdownMenuItem(
+                            text = {
+                                Text(
+                                    text = variant.option1,
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+                            },
+                            onClick = {
+                                Log.i("TAG", "SizesDropDownMenu: ${variant.option1}")
+                                itemSelectedIndex.intValue = index
+                                onSizeSelected(variant.option1)
+                                isDropDownSelected.value = false
+
+                            }
+                        )
+                    }
+                }
+            }
+        }
+
+    }
+
+    @Composable
+    fun ColorDropDownMenu(
+        data: ProductInfoResponse,
+        onColorSelected: (String) -> Unit
+    ) {
+
+        val isDropDownSelected = remember { mutableStateOf(false) }
+        val itemSelectedIndex = remember { mutableIntStateOf(0) }
+
+        // val variants = data?.product?.variants ?: emptyList() //I edited that
+
+        val variants = data.product.variants
+        val selectedColor =
+            variants.getOrNull(itemSelectedIndex.intValue)?.option2 ?: "No Colors Available"
+
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp)
+        ) {
+            Text(
+                text = "Select Color",
+                style = MaterialTheme.typography.labelLarge,
+                color = Color.Gray,
+                modifier = Modifier.padding(bottom = 4.dp)
+            )
+            Box {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(Color.White)
+                        .border(1.dp, Color.LightGray, RoundedCornerShape(12.dp))
+                        .clickable { isDropDownSelected.value = true }
+                        .padding(horizontal = 16.dp, vertical = 12.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = selectedColor,
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = Color.Black
+                    )
+                    Icon(
+                        imageVector = Icons.Filled.KeyboardArrowDown,
+                        contentDescription = "Dropdown Arrow",
+                        tint = Color.Black
+                    )
+                }
+
+                DropdownMenu(
+                    expanded = isDropDownSelected.value,
+                    onDismissRequest = { isDropDownSelected.value = false },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(Color.White)
+                        .clip(RoundedCornerShape(12.dp))
+                ) {
+                    variants.forEachIndexed { index, variant ->
+                        DropdownMenuItem(
+                            text = {
+                                Text(
+                                    text = variant.option2,
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+                            },
+                            onClick = {
+                                Log.i("TAG", "ColorDropDownMenu: ${variant.option2}")
+                                itemSelectedIndex.intValue = index
+                                onColorSelected(variant.option2)
+                                isDropDownSelected.value = false
+                            }
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    @Composable
+    fun Price(data: ProductInfoResponse, count: Long) {
+        var priceInBound = remember { mutableDoubleStateOf(0.0) }
+        priceInBound.doubleValue =
+            ((data?.product?.variants?.get(0)?.price?.toDoubleOrNull() ?: 0.0) * 50) * count
+        Text(
+            text = "  Total Price :  ${priceInBound.doubleValue}  EGP",
+            modifier = Modifier.padding(10.dp),
+            fontSize = 15.sp,
+            fontWeight = FontWeight.Bold
         )
     }
-}
+
+    @Composable
+    fun HeartInCircle(
+        modifier: Modifier = Modifier,
+        productInfoViewModel: ProductInfoViewModel,
+        data: ProductInfoResponse
+    ) {
+        val isHeartClicked = remember { mutableStateOf(false) }
+        var icon = remember { Icons.Outlined.FavoriteBorder }
+        val context = LocalContext.current
+        val isAlreadySaved = productInfoViewModel.productIsAlreadySaved
+        val showErrorDialog = remember { mutableStateOf(false) }
+        val isFirstProductInWishList =
+            productInfoViewModel.isFirstProductInWishList.collectAsState().value
+
+        LaunchedEffect(isAlreadySaved) {
+            isAlreadySaved.collect {
+                showErrorDialog.value = it
+            }
+        }
+
+        Box(
+            modifier = modifier
+                .size(32.dp)
+                .border(BorderStroke(1.dp, Color.Black), shape = CircleShape)
+                .background(Color.White, shape = CircleShape)
+                .clickable {
+                    isHeartClicked.value = true
+                    productInfoViewModel.getCustomerById(
+                        CustomerIdPreferences.getData(context),
+                        data
+                    )
+                },
+            contentAlignment = Alignment.Center
+
+        ) {
+            if (isHeartClicked.value && !showErrorDialog.value) {
+                icon = Icons.Default.Favorite
+            }
+            Icon(
+                imageVector = icon,
+                contentDescription = "Heart Icon",
+                modifier = Modifier.size(18.dp)
+            )
+        }
+
+        if (showErrorDialog.value) {
+            WishListAlert(
+                onConfirmation = {
+                    showErrorDialog.value = false
+                },
+                onDismissRequest = {
+                    showErrorDialog.value = false
+                }
+            )
+        }
+        if (isFirstProductInWishList) {
+            WishListIdPref.saveWishListID(
+                LocalContext.current,
+                productInfoViewModel.getWishListDraftOrderId()
+            )
+        }
+    }
+
+    @Composable
+    fun WishListAlert(
+        onConfirmation: () -> Unit,
+        onDismissRequest: () -> Unit,
+    ) {
+
+        val failComposition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.failanimation))
+        val failProgress by animateLottieCompositionAsState(
+            composition = failComposition,
+            iterations = LottieConstants.IterateForever
+        )
+
+        val icon: @Composable () -> Unit = {
+            LottieAnimation(
+                composition = failComposition,
+                progress = { failProgress },
+                modifier = Modifier.size(100.dp)
+            )
+        }
+
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            // Alert Dialog Box
+            AlertDialog(
+                // set dismiss request
+                onDismissRequest = {
+                    onDismissRequest()
+                },
+                // configure confirm button
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            onConfirmation()
+                        }, colors = ButtonDefaults.buttonColors(
+                            containerColor = Color.Black,
+                            contentColor = Color.White
+                        )
+                    ) {
+                        Text("Confirm")
+                    }
+                },
+                // set icon
+                icon = icon,
+                // set title text
+                title = {
+                    Text(text = "Enable to save Product ", color = Color.Black)
+                },
+                // set description text
+                text = {
+                    Text(
+                        text = "The product you are trying to add to wishList is already in wishList",
+                        color = Color.DarkGray
+                    )
+                },
+                // set padding for contents inside the box
+                modifier = Modifier.padding(16.dp),
+                // define box shape
+                shape = RoundedCornerShape(16.dp),
+                // set box background color
+                containerColor = Color.White,
+                // set icon color
+                iconContentColor = Color.Red,
+                // set title text color
+                titleContentColor = Color.Black,
+                // set text color
+                textContentColor = Color.DarkGray,
+                // set elevation
+                tonalElevation = 8.dp,
+                // set properties
+                properties = DialogProperties(
+                    dismissOnBackPress = true,
+                    dismissOnClickOutside = false
+                )
+            )
+        }
+    }
+
 

@@ -109,6 +109,7 @@ class Repository(private val remoteDataSource: RemoteDataSourceInterface) : Repo
             customer
         }catch (e : Exception){
             Log.i("customer", "getUserById in repo error is ${e.message} ")
+            flowOf()
         }
     }
     override suspend fun getCustomerAddressById(
@@ -129,6 +130,7 @@ class Repository(private val remoteDataSource: RemoteDataSourceInterface) : Repo
             wishListDraftOrderResponse
         }catch (e : Exception){
             Log.i("wishList", "creteWishListDraftOrder in repo error is ${e.message} ")
+            flowOf()
         }
     }
     override suspend fun getAddresses(customerId: Long): Flow<AddressesResponse> {
@@ -161,6 +163,7 @@ class Repository(private val remoteDataSource: RemoteDataSourceInterface) : Repo
             updatedCustomerResponse
         }catch (e : Exception){
             Log.i("wishList", "updateNoteInCustomer in remote error is ${e.message} ")
+            flowOf()
         }
     }
     override suspend fun updateCustomerAddress(
@@ -206,6 +209,7 @@ class Repository(private val remoteDataSource: RemoteDataSourceInterface) : Repo
             wishLestDraftOrderResponse
         }catch (e : Exception){
             Log.i("wishList", "getWishListDraftById:  in repo error is ${e.message} ")
+            flowOf()
         }
     }
     override suspend fun getDraftOrder(id: Long): Flow<DraftOrderBody> {
@@ -227,6 +231,7 @@ class Repository(private val remoteDataSource: RemoteDataSourceInterface) : Repo
             wishLestDraftOrderResponse
         }catch (e : Exception){
             Log.i("wishList", "updateDraftOrder in repo error is ${e.message} ")
+            flowOf()
         }
     }
     override suspend fun updateDraftOrder(id: Long, draftOrderBody: DraftOrderBody): Flow<DraftOrderBody> {

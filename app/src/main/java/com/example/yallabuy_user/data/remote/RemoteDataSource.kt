@@ -129,6 +129,7 @@ class RemoteDataSource (
             flowOf(customer)
         }catch (e : Exception){
             Log.i("customer", "getCustomerById in remote error is ${e.message} ")
+            flowOf()
         }
     }
     override suspend fun getCustomerAddressById(
@@ -192,6 +193,7 @@ class RemoteDataSource (
             flowOf(wishListDraftOrderResponse)
         }catch (e : Exception){
             Log.i("wishList", "creteWishListDraftOrder in remote error is ${e.message} ")
+            flowOf()
         }
     }
     override suspend fun getDraftOrder(id: Long): Flow<DraftOrderBody> {
@@ -213,6 +215,7 @@ class RemoteDataSource (
             flowOf(updatedCustomerResponse)
         }catch (e : Exception){
             Log.i("wishList", "updateNoteInCustomer in remote error is ${e.message} ")
+            flowOf()
         }
     }
     override suspend fun updateDraftOrder(id: Long, draftOrderBody: DraftOrderBody): Flow<DraftOrderBody> {
@@ -234,6 +237,7 @@ class RemoteDataSource (
             flowOf(wishLestDraftOrderResponse)
         }catch (e : Exception){
             Log.i("wishList", "getWishListDraftById:  in remote error is ${e.message} ")
+            flowOf()
         }
     }
     override suspend fun deleteDraftOrder(id: Long): Flow<Unit> {
