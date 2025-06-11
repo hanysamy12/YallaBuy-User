@@ -1,5 +1,6 @@
 package com.example.yallabuy_user.data.remote
 
+import WishListDraftOrderRequest
 import android.util.Log
 import com.example.yallabuy_user.data.models.BrandResponse
 import com.example.yallabuy_user.data.models.CategoryResponse
@@ -11,6 +12,8 @@ import com.example.yallabuy_user.data.models.createUser.request.CreateUSerOnShop
 import com.example.yallabuy_user.data.models.createUser.request.CustomerRequest
 import com.example.yallabuy_user.data.models.customer.CustomerDataResponse
 import com.example.yallabuy_user.data.models.productInfo.ProductInfoResponse
+import com.example.yallabuy_user.data.models.wishListDraftOrder.UpdateNoteInCustomer
+import com.example.yallabuy_user.data.models.wishListDraftOrder.response.WishListDraftOrderResponse
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import retrofit2.HttpException
@@ -109,6 +112,56 @@ class RemoteDataSource (
             Log.i("customer", "getUserDataByEmail in remote error is ${e.message} ")
             flowOf()
         }
+    }
+
+    override suspend fun getCustomerById(customerId: Long): Flow<CreateUserOnShopifyResponse> {
+        return try {
+            val customer = service.getCustomerById(customerId)
+            flowOf(customer)
+        }catch (e : Exception){
+            Log.i("customer", "getCustomerById in remote error is ${e.message} ")
+            flowOf()
+        }
+    }
+
+    override suspend fun creteWishListDraftOrder(wishListDraftOrderRequest: WishListDraftOrderRequest): Flow<WishListDraftOrderResponse> {
+        return try {
+            val wishListDraftOrderResponse = service.createWishListDraftOrder(wishListDraftOrderRequest)
+            flowOf(wishListDraftOrderResponse)
+        }catch (e : Exception){
+            Log.i("wishList", "creteWishListDraftOrder in remote error is ${e.message} ")
+            flowOf()
+        }
+    }
+
+    override suspend fun updateNoteInCustomer(customerId : Long,updateNoteInCustomer: UpdateNoteInCustomer): Flow<CreateUserOnShopifyResponse> {
+        return try {
+            val updatedCustomerResponse = service.updateNoteInCustomer(customerId , updateNoteInCustomer)
+            flowOf(updatedCustomerResponse)
+        }catch (e : Exception){
+            Log.i("wishList", "updateNoteInCustomer in remote error is ${e.message} ")
+            flowOf()
+        }
+    }
+
+    override suspend fun getWishListDraftById(wishListDraftOrderId: Long): Flow<WishListDraftOrderResponse> {
+        return try {
+            val wishLestDraftOrderResponse = service.getWishListDraftById(wishListDraftOrderId)
+            flowOf(wishLestDraftOrderResponse)
+        }catch (e : Exception){
+            Log.i("wishList", "getWishListDraftById:  in remote error is ${e.message} ")
+            flowOf()
+        }
+    }
+
+    override suspend fun updateDraftOrder(draftOrderId: Long ,wishListDraftOrderRequest: WishListDraftOrderRequest): Flow<WishListDraftOrderResponse> {
+       return try {
+           val wishLestDraftOrderResponse = service.updateDraftOrder(draftOrderId , wishListDraftOrderRequest)
+           flowOf(wishLestDraftOrderResponse)
+       }catch (e : Exception){
+           Log.i("wishList", "updateDraftOrder in remote error is ${e.message} ")
+           flowOf()
+       }
     }
 
 }

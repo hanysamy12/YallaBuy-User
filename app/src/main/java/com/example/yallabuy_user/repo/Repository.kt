@@ -1,6 +1,7 @@
 package com.example.yallabuy_user.repo
 
 
+import WishListDraftOrderRequest
 import android.util.Log
 import com.example.yallabuy_user.data.models.BrandResponse
 import com.example.yallabuy_user.data.models.CategoryResponse
@@ -10,6 +11,8 @@ import com.example.yallabuy_user.data.models.ProductResponse
 import com.example.yallabuy_user.data.models.createUser.CreateUserOnShopifyResponse
 import com.example.yallabuy_user.data.models.customer.CustomerDataResponse
 import com.example.yallabuy_user.data.models.productInfo.ProductInfoResponse
+import com.example.yallabuy_user.data.models.wishListDraftOrder.UpdateNoteInCustomer
+import com.example.yallabuy_user.data.models.wishListDraftOrder.response.WishListDraftOrderResponse
 import com.example.yallabuy_user.data.remote.RemoteDataSourceInterface
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
@@ -91,6 +94,59 @@ class Repository(private val remoteDataSource: RemoteDataSourceInterface) : Repo
             customer
         }catch (e : Exception){
             Log.i("customer", "getUserDataByEmail in repo error is ${e.message} ")
+            flowOf()
+        }
+    }
+
+    override suspend fun getUserById(customerId: Long): Flow<CreateUserOnShopifyResponse> {
+        return try {
+            val customer = remoteDataSource.getCustomerById(customerId)
+            customer
+        }catch (e : Exception){
+            Log.i("customer", "getUserById in repo error is ${e.message} ")
+            flowOf()
+        }
+    }
+
+    override suspend fun creteWishListDraftOrder(wishListDraftOrderRequest: WishListDraftOrderRequest): Flow<WishListDraftOrderResponse> {
+        return try {
+            val wishListDraftOrderResponse = remoteDataSource.creteWishListDraftOrder(wishListDraftOrderRequest)
+            wishListDraftOrderResponse
+        }catch (e : Exception){
+            Log.i("wishList", "creteWishListDraftOrder in repo error is ${e.message} ")
+            flowOf()
+        }
+    }
+
+    override suspend fun updateNoteInCustomer(
+        customerId: Long,
+        updateNoteInCustomer: UpdateNoteInCustomer
+    ): Flow<CreateUserOnShopifyResponse> {
+        return try {
+            val updatedCustomerResponse = remoteDataSource.updateNoteInCustomer(customerId , updateNoteInCustomer)
+            updatedCustomerResponse
+        }catch (e : Exception){
+            Log.i("wishList", "updateNoteInCustomer in remote error is ${e.message} ")
+            flowOf()
+        }
+    }
+
+    override suspend fun getWishListDraftById(wishListDraftOrderId: Long): Flow<WishListDraftOrderResponse> {
+        return try {
+            val wishLestDraftOrderResponse = remoteDataSource.getWishListDraftById(wishListDraftOrderId)
+            wishLestDraftOrderResponse
+        }catch (e : Exception){
+            Log.i("wishList", "getWishListDraftById:  in repo error is ${e.message} ")
+            flowOf()
+        }
+    }
+
+    override suspend fun updateDraftOrder(draftOrderId: Long , wishListDraftOrderRequest: WishListDraftOrderRequest): Flow<WishListDraftOrderResponse> {
+        return try {
+            val wishLestDraftOrderResponse = remoteDataSource.updateDraftOrder(draftOrderId , wishListDraftOrderRequest)
+            wishLestDraftOrderResponse
+        }catch (e : Exception){
+            Log.i("wishList", "updateDraftOrder in repo error is ${e.message} ")
             flowOf()
         }
     }
