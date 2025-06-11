@@ -18,10 +18,6 @@ import kotlinx.coroutines.launch
 import java.util.Locale
 
 private const val TAG = "ProductsViewModel"
-//currency conversion
-//get currency code if it's in egyptian I will put it as it is
-//if different currency than EGP so I will check the time if it more than 24 hours I will hit the api and get the new rate
-//save the rate and date in the shared preference and do here the conversion based on the currency
 
 class ProductsViewModel(private val repo: RepositoryInterface,
                         private val currencyConversionManager: CurrencyConversionManager
