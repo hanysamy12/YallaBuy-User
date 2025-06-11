@@ -1,5 +1,6 @@
 package com.example.yallabuy_user.data.remote
 
+import WishListDraftOrderRequest
 import android.util.Log
 import com.example.yallabuy_user.data.models.BrandResponse
 import com.example.yallabuy_user.data.models.CategoryResponse
@@ -12,6 +13,8 @@ import com.example.yallabuy_user.data.models.createUser.request.CreateUSerOnShop
 import com.example.yallabuy_user.data.models.createUser.request.CustomerRequest
 import com.example.yallabuy_user.data.models.customer.CustomerDataResponse
 import com.example.yallabuy_user.data.models.productInfo.ProductInfoResponse
+import com.example.yallabuy_user.data.models.wishListDraftOrder.UpdateNoteInCustomer
+import com.example.yallabuy_user.data.models.wishListDraftOrder.response.WishListDraftOrderResponse
 import com.example.yallabuy_user.data.models.settings.AddressBody
 import com.example.yallabuy_user.data.models.settings.AddressesResponse
 import com.example.yallabuy_user.data.models.settings.NewAddressResponse
@@ -119,7 +122,15 @@ class RemoteDataSource (
         }
     }
 
-//address
+
+    override suspend fun getCustomerById(customerId: Long): Flow<CreateUserOnShopifyResponse> {
+        return try {
+            val customer = service.getCustomerById(customerId)
+            flowOf(customer)
+        }catch (e : Exception){
+            Log.i("customer", "getCustomerById in remote error is ${e.message} ")
+        }
+    }
     override suspend fun getCustomerAddressById(
         customerId: Long,
         addressId: Long
@@ -175,6 +186,14 @@ class RemoteDataSource (
         }
     }
 
+    override suspend fun creteWishListDraftOrder(wishListDraftOrderRequest: WishListDraftOrderRequest): Flow<WishListDraftOrderResponse> {
+        return try {
+            val wishListDraftOrderResponse = service.createWishListDraftOrder(wishListDraftOrderRequest)
+            flowOf(wishListDraftOrderResponse)
+        }catch (e : Exception){
+            Log.i("wishList", "creteWishListDraftOrder in remote error is ${e.message} ")
+        }
+    }
     override suspend fun getDraftOrder(id: Long): Flow<DraftOrderBody> {
         return try {
             val response = service.getDraftOrder(id)
@@ -188,6 +207,14 @@ class RemoteDataSource (
         }
     }
 
+    override suspend fun updateNoteInCustomer(customerId : Long,updateNoteInCustomer: UpdateNoteInCustomer): Flow<CreateUserOnShopifyResponse> {
+        return try {
+            val updatedCustomerResponse = service.updateNoteInCustomer(customerId , updateNoteInCustomer)
+            flowOf(updatedCustomerResponse)
+        }catch (e : Exception){
+            Log.i("wishList", "updateNoteInCustomer in remote error is ${e.message} ")
+        }
+    }
     override suspend fun updateDraftOrder(id: Long, draftOrderBody: DraftOrderBody): Flow<DraftOrderBody> {
         return try {
             val response = service.updateDraftOrder(draftOrderBody, id)
@@ -201,6 +228,14 @@ class RemoteDataSource (
         }
     }
 
+    override suspend fun getWishListDraftById(wishListDraftOrderId: Long): Flow<WishListDraftOrderResponse> {
+        return try {
+            val wishLestDraftOrderResponse = service.getWishListDraftById(wishListDraftOrderId)
+            flowOf(wishLestDraftOrderResponse)
+        }catch (e : Exception){
+            Log.i("wishList", "getWishListDraftById:  in remote error is ${e.message} ")
+        }
+    }
     override suspend fun deleteDraftOrder(id: Long): Flow<Unit> {
         return try {
             service.deleteDraftOrder(id)
@@ -212,6 +247,16 @@ class RemoteDataSource (
             Log.i("CartRemote", "deleteDraftOrder Exception: ${e.message}")
             flowOf()
         }
+    }
+
+    override suspend fun updateDraftOrder(draftOrderId: Long ,wishListDraftOrderRequest: WishListDraftOrderRequest): Flow<WishListDraftOrderResponse> {
+       return try {
+           val wishLestDraftOrderResponse = service.updateDraftOrder(draftOrderId , wishListDraftOrderRequest)
+           flowOf(wishLestDraftOrderResponse)
+       }catch (e : Exception){
+           Log.i("wishList", "updateDraftOrder in remote error is ${e.message} ")
+           flowOf()
+       }
     }
 
 }

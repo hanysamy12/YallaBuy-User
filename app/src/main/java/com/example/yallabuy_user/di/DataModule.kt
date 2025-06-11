@@ -99,7 +99,7 @@ val dataModule = module {
         HomeViewModel(get())
     }
     viewModel {
-        WishViewModel()
+        WishViewModel(get())
     }
     viewModel {
         ProductsViewModel(get(),get())

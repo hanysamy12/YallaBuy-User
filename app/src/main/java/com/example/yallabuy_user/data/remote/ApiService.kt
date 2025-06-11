@@ -1,5 +1,6 @@
 package com.example.yallabuy_user.data.remote
 
+import WishListDraftOrderRequest
 import com.example.yallabuy_user.BuildConfig
 import com.example.yallabuy_user.data.models.cart.DraftOrderBody
 import com.example.yallabuy_user.data.models.BrandResponse
@@ -11,6 +12,8 @@ import com.example.yallabuy_user.data.models.createUser.CreateUserOnShopifyRespo
 import com.example.yallabuy_user.data.models.createUser.request.CreateUSerOnShopifyRequest
 import com.example.yallabuy_user.data.models.customer.CustomerDataResponse
 import com.example.yallabuy_user.data.models.productInfo.ProductInfoResponse
+import com.example.yallabuy_user.data.models.wishListDraftOrder.UpdateNoteInCustomer
+import com.example.yallabuy_user.data.models.wishListDraftOrder.response.WishListDraftOrderResponse
 import com.example.yallabuy_user.data.models.settings.AddressBody
 import com.example.yallabuy_user.data.models.settings.AddressesResponse
 import com.example.yallabuy_user.data.models.settings.DeleteResponse
@@ -27,7 +30,7 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 
 
-class AuthInterceptor() : Interceptor {
+class AuthInterceptor : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         val token = BuildConfig.API_TOKEN
         val request = chain.request().newBuilder()
@@ -74,6 +77,32 @@ interface ApiService  {
         @Query("email") email : String
     ) : CustomerDataResponse
 
+    @GET("/admin/api/2025-04/customers/{id}.json")
+    suspend fun getCustomerById(
+        @Path("id") customerId : Long
+    ) : CreateUserOnShopifyResponse
+
+    @POST("/admin/api/2025-04/draft_orders.json")
+    suspend fun createWishListDraftOrder(
+        @Body wishListDraftOrderRequest: WishListDraftOrderRequest
+    ) : WishListDraftOrderResponse
+
+    @PUT("/admin/api/2025-04/customers/{id}.json")
+    suspend fun updateNoteInCustomer(
+        @Path("id") customerId : Long ,
+        @Body updateNoteInCustomer: UpdateNoteInCustomer
+    ) : CreateUserOnShopifyResponse
+
+    @GET("/admin/api/2025-04/draft_orders/{id}.json")
+    suspend fun getWishListDraftById(
+        @Path("id") wishListDraftOrderId : Long
+    ) : WishListDraftOrderResponse
+
+    @PUT("/admin/api/2025-04/draft_orders/{draftOrderId}.json")
+    suspend fun updateDraftOrder(
+        @Path("draftOrderId") draftOrderId : Long ,
+        @Body wishListDraftOrderRequest: WishListDraftOrderRequest
+    ): WishListDraftOrderResponse
 //address
     @GET("customers/{customer_id}/addresses/{address_id}.json")
     suspend fun getCustomerAddressById(

@@ -1,6 +1,7 @@
 package com.example.yallabuy_user.repo
 
 
+import WishListDraftOrderRequest
 import android.util.Log
 import com.example.yallabuy_user.data.models.BrandResponse
 import com.example.yallabuy_user.data.models.CategoryResponse
@@ -11,6 +12,8 @@ import com.example.yallabuy_user.data.models.cart.DraftOrderBody
 import com.example.yallabuy_user.data.models.createUser.CreateUserOnShopifyResponse
 import com.example.yallabuy_user.data.models.customer.CustomerDataResponse
 import com.example.yallabuy_user.data.models.productInfo.ProductInfoResponse
+import com.example.yallabuy_user.data.models.wishListDraftOrder.UpdateNoteInCustomer
+import com.example.yallabuy_user.data.models.wishListDraftOrder.response.WishListDraftOrderResponse
 import com.example.yallabuy_user.data.models.settings.AddressBody
 import com.example.yallabuy_user.data.models.settings.AddressesResponse
 import com.example.yallabuy_user.data.models.settings.NewAddressResponse
@@ -99,6 +102,15 @@ class Repository(private val remoteDataSource: RemoteDataSourceInterface) : Repo
         }
     }
 
+
+    override suspend fun getUserById(customerId: Long): Flow<CreateUserOnShopifyResponse> {
+        return try {
+            val customer = remoteDataSource.getCustomerById(customerId)
+            customer
+        }catch (e : Exception){
+            Log.i("customer", "getUserById in repo error is ${e.message} ")
+        }
+    }
     override suspend fun getCustomerAddressById(
         customerId: Long,
         addressId: Long
@@ -111,6 +123,14 @@ class Repository(private val remoteDataSource: RemoteDataSourceInterface) : Repo
         }
     }
 
+    override suspend fun creteWishListDraftOrder(wishListDraftOrderRequest: WishListDraftOrderRequest): Flow<WishListDraftOrderResponse> {
+        return try {
+            val wishListDraftOrderResponse = remoteDataSource.creteWishListDraftOrder(wishListDraftOrderRequest)
+            wishListDraftOrderResponse
+        }catch (e : Exception){
+            Log.i("wishList", "creteWishListDraftOrder in repo error is ${e.message} ")
+        }
+    }
     override suspend fun getAddresses(customerId: Long): Flow<AddressesResponse> {
         return try {
             remoteDataSource.getAddresses(customerId)
@@ -132,6 +152,17 @@ class Repository(private val remoteDataSource: RemoteDataSourceInterface) : Repo
         }
     }
 
+    override suspend fun updateNoteInCustomer(
+        customerId: Long,
+        updateNoteInCustomer: UpdateNoteInCustomer
+    ): Flow<CreateUserOnShopifyResponse> {
+        return try {
+            val updatedCustomerResponse = remoteDataSource.updateNoteInCustomer(customerId , updateNoteInCustomer)
+            updatedCustomerResponse
+        }catch (e : Exception){
+            Log.i("wishList", "updateNoteInCustomer in remote error is ${e.message} ")
+        }
+    }
     override suspend fun updateCustomerAddress(
         customerId: Long,
         addressId: Long,
@@ -168,6 +199,15 @@ class Repository(private val remoteDataSource: RemoteDataSourceInterface) : Repo
         }
     }
 
+    override suspend fun getWishListDraftById(wishListDraftOrderId: Long): Flow<WishListDraftOrderResponse> {
+        return try {
+            val wishLestDraftOrderResponse = remoteDataSource.getWishListDraftById(wishListDraftOrderId)
+            Log.i("wishList", "getWishListDraftById:  in repo success ")
+            wishLestDraftOrderResponse
+        }catch (e : Exception){
+            Log.i("wishList", "getWishListDraftById:  in repo error is ${e.message} ")
+        }
+    }
     override suspend fun getDraftOrder(id: Long): Flow<DraftOrderBody> {
         return try {
             remoteDataSource.getDraftOrder(id)
@@ -180,6 +220,15 @@ class Repository(private val remoteDataSource: RemoteDataSourceInterface) : Repo
         }
     }
 
+    override suspend fun updateDraftOrder(draftOrderId: Long , wishListDraftOrderRequest: WishListDraftOrderRequest): Flow<WishListDraftOrderResponse> {
+        return try {
+            val wishLestDraftOrderResponse = remoteDataSource.updateDraftOrder(draftOrderId , wishListDraftOrderRequest)
+            Log.i("wishList", "updateDraftOrder in repo success ")
+            wishLestDraftOrderResponse
+        }catch (e : Exception){
+            Log.i("wishList", "updateDraftOrder in repo error is ${e.message} ")
+        }
+    }
     override suspend fun updateDraftOrder(id: Long, draftOrderBody: DraftOrderBody): Flow<DraftOrderBody> {
         return try {
             remoteDataSource.updateDraftOrder(id, draftOrderBody)
