@@ -26,7 +26,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,18 +36,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navArgument
 import androidx.navigation.toRoute
 import com.example.yallabuy_user.R
 import com.example.yallabuy_user.authentication.login.CustomerIdPreferences
 import com.example.yallabuy_user.authentication.login.LoginScreen
 import com.example.yallabuy_user.authentication.registration.RegistrationScreen
-import com.example.yallabuy_user.cart.CartScreen
+import com.example.yallabuy_user.cart.view.CartScreen
 import com.example.yallabuy_user.collections.CollectionsScreen
 import com.example.yallabuy_user.home.HomeScreen
 import com.example.yallabuy_user.orders.OrderItemScreen
@@ -56,7 +53,13 @@ import com.example.yallabuy_user.orders.PreviousOrdersScreen
 import com.example.yallabuy_user.productInfo.ProductInfoScreen
 import com.example.yallabuy_user.products.ProductsScreen
 import com.example.yallabuy_user.profile.ProfileScreen
+import com.example.yallabuy_user.settings.view.AddressScreen
+import com.example.yallabuy_user.settings.view.CurrencyScreen
+import com.example.yallabuy_user.settings.view.MapLocationScreen
 import com.example.yallabuy_user.wish.WishScreen
+import com.mariammuhammad.yallabuy.View.Settings.AboutUsScreen
+import com.mariammuhammad.yallabuy.View.Settings.ContactUsScreen
+import com.mariammuhammad.yallabuy.View.Settings.SettingsScreen
 
 
 private const val TAG = "MainScreen"
@@ -211,6 +214,36 @@ fun MainScreen() {
             composable(route = ScreenRoute.Profile.route) {
                 ProfileScreen(navController)
             }
+
+            composable(ScreenRoute.Settings.route){
+                SettingsScreen(navController)
+            }
+            composable(ScreenRoute.AboutUs.route) {
+                AboutUsScreen(onNavigateBack = { navController.popBackStack() })
+            }
+            composable(ScreenRoute.ContactUs.route) {
+                ContactUsScreen(onNavigateBack = { navController.popBackStack() })
+            }
+            composable(ScreenRoute.Currency.route) {
+                CurrencyScreen(
+                    onNavigateBack = { navController.popBackStack() })
+            }
+            composable(ScreenRoute.Address.route) {
+                AddressScreen(//viewModel = viewModel
+                    customerId = 8805732188478,
+                    onNavigateBack = { navController.popBackStack() },
+                    onNavigateToMap = {
+                        navController.navigate(ScreenRoute.Map.route)
+                    }
+                )
+            }
+
+            composable(ScreenRoute.Map.route){
+                MapLocationScreen() {
+
+                }
+            }
+
             //with null
             composable(ScreenRoute.ProductsScreen.BASE_ROUTE) {
                 ProductsScreen(
@@ -220,6 +253,7 @@ fun MainScreen() {
                     categoryID = null
                 )
             }
+
             //with value
             composable(
                 route = ScreenRoute.ProductsScreen.FULL_ROUTE

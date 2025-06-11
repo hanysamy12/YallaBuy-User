@@ -3,13 +3,12 @@ package com.mariammuhammad.yallabuy.ViewModel.Settings
 
 import androidx.lifecycle.ViewModel
 import com.example.yallabuy_user.R
-import com.example.yallabuy_user.settings.model.local.SettingsItem
+import com.example.yallabuy_user.data.models.settings.SettingsItem
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 class SettingsViewModel : ViewModel() {
-
     private val _settingsItems = MutableStateFlow<List<SettingsItem>>(emptyList())
     val settingsItems: StateFlow<List<SettingsItem>> = _settingsItems.asStateFlow()
 

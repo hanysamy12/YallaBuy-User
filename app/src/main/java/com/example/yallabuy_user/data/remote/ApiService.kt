@@ -2,6 +2,7 @@ package com.example.yallabuy_user.data.remote
 
 import WishListDraftOrderRequest
 import com.example.yallabuy_user.BuildConfig
+import com.example.yallabuy_user.data.models.cart.DraftOrderBody
 import com.example.yallabuy_user.data.models.BrandResponse
 import com.example.yallabuy_user.data.models.CategoryResponse
 import com.example.yallabuy_user.data.models.OrderDetailsResponse
@@ -13,12 +14,17 @@ import com.example.yallabuy_user.data.models.customer.CustomerDataResponse
 import com.example.yallabuy_user.data.models.productInfo.ProductInfoResponse
 import com.example.yallabuy_user.data.models.wishListDraftOrder.UpdateNoteInCustomer
 import com.example.yallabuy_user.data.models.wishListDraftOrder.response.WishListDraftOrderResponse
+import com.example.yallabuy_user.data.models.settings.AddressBody
+import com.example.yallabuy_user.data.models.settings.AddressesResponse
+import com.example.yallabuy_user.data.models.settings.DeleteResponse
+import com.example.yallabuy_user.data.models.settings.NewAddressResponse
 import okhttp3.Interceptor
 import okhttp3.Response
 import retrofit2.http.Body
-import retrofit2.http.GET
 import retrofit2.http.Headers
 import retrofit2.http.POST
+import retrofit2.http.DELETE
+import retrofit2.http.GET
 import retrofit2.http.PUT
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -35,7 +41,7 @@ class AuthInterceptor : Interceptor {
     }
 }
 
-interface ApiService {
+interface ApiService  {
     @GET("custom_collections.json")
     suspend fun getAllCategories(): CategoryResponse
 
@@ -50,7 +56,8 @@ interface ApiService {
 
     @GET("products/{product_id}.json")
     suspend fun getProductById(
-        @Path("product_id") productId: Long
+
+      @Path("product_id") productId: Long
     ): ProductInfoResponse
 
     @GET("customers/{userID}/orders.json")
@@ -96,6 +103,66 @@ interface ApiService {
         @Path("draftOrderId") draftOrderId : Long ,
         @Body wishListDraftOrderRequest: WishListDraftOrderRequest
     ): WishListDraftOrderResponse
+//address
+    @GET("customers/{customer_id}/addresses/{address_id}.json")
+    suspend fun getCustomerAddressById(
+        @Path("customer_id") customerId: Long,
+        @Path("address_id") addressId: Long,
+    ): NewAddressResponse
+
+    @GET("customers/{customer_id}/addresses.json")
+    suspend fun getAddresses(
+        @Path("customer_id") customerId: Long
+    ): AddressesResponse
+
+    @POST("customers/{customer_id}/addresses.json")
+    suspend fun createCustomerAddress(
+        @Path("customer_id") customerId: Long,
+        @Body newAddressBody: AddressBody,
+    ): NewAddressResponse
+
+    @PUT("customers/{customer_id}/addresses/{address_id}.json")
+    suspend fun updateCustomerAddress(
+        @Path("customer_id") customerId: Long,
+        @Path("address_id") addressId: Long,
+        @Body updatedAddressBody: AddressBody,
+    ): NewAddressResponse
+
+    @DELETE("admin/api/2025-04/customers/{customer_id}/addresses/{address_id}.json")
+    suspend fun deleteCustomerAddress(
+        @Path("customer_id") customerId: Long,
+        @Path("address_id") addressId: Long,
+    ): DeleteResponse
+
+//cart
+    @POST("admin/api/2025-04/draft_orders.json")
+    suspend fun createDraftOrder(
+        @Body draftOrderBody: DraftOrderBody
+    ): DraftOrderBody
+
+
+    @GET("/admin/api/2025-04/draft_orders/{draft_order_id}.json")
+    suspend fun getDraftOrder(
+        @Path("draft_order_id") draftOrderID: Long
+    ): DraftOrderBody
+
+
+    @PUT("/admin/api/2025-04/draft_orders/{draft_order_id}.json")
+    suspend fun updateDraftOrder(
+        @Body draftOrderBody: DraftOrderBody,
+        @Path("draft_order_id") draftOrderID: Long
+    ): DraftOrderBody
+
+
+    @DELETE("/admin/api/2025-04/draft_orders/{draft_order_id}.json")
+    suspend fun deleteDraftOrder(
+        @Path("draft_order_id") draftOrderID: Long
+    )
+
+    @GET("admin/api/2025-04/products/{product_id}.json")
+    suspend fun getProductByID(
+        @Path("product_id") productID: Long
+    ): ProductResponse
 
 
 }

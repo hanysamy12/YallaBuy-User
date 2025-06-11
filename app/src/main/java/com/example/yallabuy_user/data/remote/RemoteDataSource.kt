@@ -7,6 +7,7 @@ import com.example.yallabuy_user.data.models.CategoryResponse
 import com.example.yallabuy_user.data.models.OrderDetailsResponse
 import com.example.yallabuy_user.data.models.OrdersResponse
 import com.example.yallabuy_user.data.models.ProductResponse
+import com.example.yallabuy_user.data.models.cart.DraftOrderBody
 import com.example.yallabuy_user.data.models.createUser.CreateUserOnShopifyResponse
 import com.example.yallabuy_user.data.models.createUser.request.CreateUSerOnShopifyRequest
 import com.example.yallabuy_user.data.models.createUser.request.CustomerRequest
@@ -14,7 +15,11 @@ import com.example.yallabuy_user.data.models.customer.CustomerDataResponse
 import com.example.yallabuy_user.data.models.productInfo.ProductInfoResponse
 import com.example.yallabuy_user.data.models.wishListDraftOrder.UpdateNoteInCustomer
 import com.example.yallabuy_user.data.models.wishListDraftOrder.response.WishListDraftOrderResponse
+import com.example.yallabuy_user.data.models.settings.AddressBody
+import com.example.yallabuy_user.data.models.settings.AddressesResponse
+import com.example.yallabuy_user.data.models.settings.NewAddressResponse
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import retrofit2.HttpException
 
@@ -23,6 +28,8 @@ class RemoteDataSource (
     private val service: ApiService ,
     private val fireBaseService: FireBaseService
 ) : RemoteDataSourceInterface {
+
+
     override suspend fun getAllCategories(): Flow<CategoryResponse> {
         val categories = service.getAllCategories()
         return flowOf(categories)
@@ -55,6 +62,7 @@ class RemoteDataSource (
             flowOf()
         }
     }
+
 
     override suspend fun getPreviousOrders(userID: Long): Flow<OrdersResponse> {
         val orders = service.getPreviousOrders(userID)
@@ -114,12 +122,66 @@ class RemoteDataSource (
         }
     }
 
+
     override suspend fun getCustomerById(customerId: Long): Flow<CreateUserOnShopifyResponse> {
         return try {
             val customer = service.getCustomerById(customerId)
             flowOf(customer)
         }catch (e : Exception){
             Log.i("customer", "getCustomerById in remote error is ${e.message} ")
+        }
+    }
+    override suspend fun getCustomerAddressById(
+        customerId: Long,
+        addressId: Long
+    ): Flow<NewAddressResponse> = flow {
+        val response = service.getCustomerAddressById(customerId, addressId)
+        emit(response)
+    }
+
+    override suspend fun getAddresses(
+        customerId: Long
+    ): Flow<AddressesResponse> = flow {
+        val response = service.getAddresses(customerId)
+        emit(response)
+    }
+
+    override suspend fun createCustomerAddress(
+        customerId: Long,
+        newAddressBody: AddressBody
+    ): Flow<NewAddressResponse> = flow {
+        val response = service.createCustomerAddress(customerId, newAddressBody)
+        emit(response)
+    }
+
+    override suspend fun updateCustomerAddress(
+        customerId: Long,
+        addressId: Long,
+        updatedAddressBody: AddressBody
+    ): Flow<NewAddressResponse> = flow {
+        val response = service.updateCustomerAddress(customerId, addressId, updatedAddressBody)
+        emit(response)
+    }
+
+    override suspend fun deleteCustomerAddress(
+        customerId: Long,
+        addressId: Long
+    ) {
+        service.deleteCustomerAddress(customerId, addressId)
+    }
+
+    //cart
+    override suspend fun createDraftOrder(draftOrderBody: DraftOrderBody): Flow<DraftOrderBody> {
+        return try {
+            val response = service.createDraftOrder(draftOrderBody)
+            flowOf(response)
+        } catch (e: HttpException) {
+            Log.i("CartRemote", "createDraftOrder HttpException: ${e.message()}")
+            Log.e("CartRemote", "HttpException: ${e.code()} ")
+
+            flowOf()
+        } catch (e: Exception) {
+            Log.i("CartRemote", "createDraftOrder Exception: ${e.message}")
             flowOf()
         }
     }
@@ -130,6 +192,17 @@ class RemoteDataSource (
             flowOf(wishListDraftOrderResponse)
         }catch (e : Exception){
             Log.i("wishList", "creteWishListDraftOrder in remote error is ${e.message} ")
+        }
+    }
+    override suspend fun getDraftOrder(id: Long): Flow<DraftOrderBody> {
+        return try {
+            val response = service.getDraftOrder(id)
+            flowOf(response)
+        } catch (e: HttpException) {
+            Log.i("CartRemote", "getDraftOrder HttpException: ${e.message()}")
+            flowOf()
+        } catch (e: Exception) {
+            Log.i("CartRemote", "getDraftOrder Exception: ${e.message}")
             flowOf()
         }
     }
@@ -140,6 +213,17 @@ class RemoteDataSource (
             flowOf(updatedCustomerResponse)
         }catch (e : Exception){
             Log.i("wishList", "updateNoteInCustomer in remote error is ${e.message} ")
+        }
+    }
+    override suspend fun updateDraftOrder(id: Long, draftOrderBody: DraftOrderBody): Flow<DraftOrderBody> {
+        return try {
+            val response = service.updateDraftOrder(draftOrderBody, id)
+            flowOf(response)
+        } catch (e: HttpException) {
+            Log.i("CartRemote", "updateDraftOrder HttpException: ${e.message()}")
+            flowOf()
+        } catch (e: Exception) {
+            Log.i("CartRemote", "updateDraftOrder Exception: ${e.message}")
             flowOf()
         }
     }
@@ -150,6 +234,17 @@ class RemoteDataSource (
             flowOf(wishLestDraftOrderResponse)
         }catch (e : Exception){
             Log.i("wishList", "getWishListDraftById:  in remote error is ${e.message} ")
+        }
+    }
+    override suspend fun deleteDraftOrder(id: Long): Flow<Unit> {
+        return try {
+            service.deleteDraftOrder(id)
+            flowOf(Unit)
+        } catch (e: HttpException) {
+            Log.i("CartRemote", "deleteDraftOrder HttpException: ${e.message()}")
+            flowOf()
+        } catch (e: Exception) {
+            Log.i("CartRemote", "deleteDraftOrder Exception: ${e.message}")
             flowOf()
         }
     }

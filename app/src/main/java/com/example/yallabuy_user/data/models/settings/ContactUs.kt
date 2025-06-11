@@ -1,4 +1,4 @@
-package com.example.yallabuy_user.settings.model.local
+package com.example.yallabuy_user.data.models.settings
 
 data class ContactUs(
     val name: String,
