@@ -35,13 +35,14 @@ class ProductInfoViewModel(
     val isFirstProductInWishList = _isFirstProductInWishList.asStateFlow()
 
     private var wishListDraftOrderIdGlobal: Long = 0L
-
+    private var productIdGlobal: Long = 0L
     fun getProductInfoById(productId: Long) {
         viewModelScope.launch {
             try {
                 val response = repo.getProductById(productId)
                 response.collect { productInfo ->
                     _productInfo.emit(ApiResponse.Success(productInfo))
+                    productIdGlobal = productInfo.product.id
                 }
             } catch (e: HttpException) {
                 Log.i("error", "getProductInfoById in view model http error ${e.message} ")
@@ -80,20 +81,6 @@ class ProductInfoViewModel(
         viewModelScope.launch {
 
             try {
-
-
-                val draftOrderLineItem = DraftOrderLineItem(
-                    title = data.product.title,
-                    price = data.product.variants[0].price.takeIf { it.isNotEmpty() } ?: "0.00",
-                    quantity = 1,
-                    properties = listOf(
-                        LineItemProperty(
-                            name = "image",
-                            value = data.product.image.src
-                        )
-                    )
-                )
-
                 val wishListDraftOrderId = noteString.toLong()
                 repo.getWishListDraftById(wishListDraftOrderId)
                     .collect { response ->
@@ -114,6 +101,10 @@ class ProductInfoViewModel(
                                             LineItemProperty(
                                                 name = "image",
                                                 value = data.product.image.src
+                                            ),
+                                            LineItemProperty(
+                                                name = "productId",
+                                                value = productIdGlobal.toString()
                                             )
                                         )
                                     )

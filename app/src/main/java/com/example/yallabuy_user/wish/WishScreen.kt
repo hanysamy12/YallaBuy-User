@@ -103,7 +103,7 @@ fun WishListItems(
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         itemsIndexed(draftOrderLineItems) { _, product ->
-            WishListItemCard(product, navController , wishListViewModel , draftOrderLineItems )
+            WishListItemCard(product, navController , wishListViewModel  )
         }
     }
 }
@@ -113,7 +113,6 @@ fun WishListItemCard(
     product: DraftOrderLineItem,
     navController: NavController,
     wishListViewModel: WishViewModel,
-    draftOrderLineItems: List<DraftOrderLineItem>
 ) {
     Card(
         modifier = Modifier
@@ -122,8 +121,8 @@ fun WishListItemCard(
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         onClick = {
-            Log.i("ids", "WishListItemCard ${product.product_id} ")
-            navController.navigate(ScreenRoute.ProductInfo(product.product_id ?: 0))
+            Log.i("ids", "WishListItemCard ${product.properties?.get(1)?.value?.toLong()} ")
+            navController.navigate(ScreenRoute.ProductInfo(product.properties?.get(1)?.value?.toLong() ?: 0))
         }
     ) {
         Column(
@@ -148,8 +147,7 @@ fun WishListItemCard(
                         .padding(8.dp)
                         .zIndex(1f),
                     wishListViewModel ,
-                    draftOrderLineItems ,
-                    product.title
+                    product.title ,
                 )
             }
 
@@ -175,7 +173,6 @@ fun DeleteProductAlert(
     onConfirmation: () -> Unit,
     onDismissRequest: () -> Unit,
     wishListViewModel: WishViewModel,
-    draftOrderLineItems: List<DraftOrderLineItem>,
     title: String?,
 
     ) {
@@ -277,7 +274,6 @@ fun DeleteProductAlert(
 fun HeartInCircle(
     modifier: Modifier = Modifier,
     wishListViewModel: WishViewModel,
-    draftOrderLineItems: List<DraftOrderLineItem>,
     title: String?,
 
     ) {
@@ -312,8 +308,7 @@ fun HeartInCircle(
                 showErrorDialog.value = false
             } ,
             wishListViewModel ,
-            draftOrderLineItems ,
-            title
+            title ,
         )
     }
 
