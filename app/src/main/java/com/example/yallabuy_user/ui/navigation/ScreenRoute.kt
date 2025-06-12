@@ -40,10 +40,55 @@ sealed class ScreenRoute(val route: String) {
     }
 
     @Serializable
+    data object PreviousOrders : ScreenRoute("previous_orders")
 
-    data class ProductInfo(val productId : Long) : ScreenRoute("productInfo")
+    @Serializable
+    data class PreviousOrderDetails(val orderId: Long?) :
+        ScreenRoute(route = "previous_orders/$orderId") {
+        companion object {
+            const val BASE_ROUTE = "previous_orders"
+            const val FULL_ROUTE = "previous_orders/{orderId}"
+            fun createRoute(orderId: Long?): String {
+                return if (orderId != null) "$BASE_ROUTE/$orderId" else BASE_ROUTE
+            }
+        }
+    }
+
+    @Serializable
+    data class ProductInfo(val productId: Long) : ScreenRoute("productInfo")
+
     @Serializable
     data object Registration : ScreenRoute("Registration")
+
     @Serializable
     data object Login : ScreenRoute("Login")
+
+//    @Serializable //I added that
+//    data class ProductInfo(val productId: Long)
+
+    @Serializable
+    data object Settings : ScreenRoute("settings")
+
+    @Serializable
+    data object AboutUs : ScreenRoute("about_us")
+
+    @Serializable
+    data object ContactUs : ScreenRoute("contact_us")
+
+    @Serializable
+    data object Currency : ScreenRoute("currency")
+
+    @Serializable
+    data object Map : ScreenRoute("map")
+
+    @Serializable
+    data object Address : ScreenRoute("address")
+
+//@Serializable
+//data class Address(val customerId: Long) : ScreenRoute("address/{customerId}") {
+//    companion object {
+//        fun createRoute(customerId: Long) = "address/$customerId"
+//    }
+//}
+
 }

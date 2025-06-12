@@ -2,6 +2,8 @@ package com.example.yallabuy_user.ui.navigation
 
 import android.os.Build
 import android.util.Log
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.LocalActivity
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
@@ -26,7 +28,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,29 +38,36 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navArgument
 import androidx.navigation.toRoute
 import com.example.yallabuy_user.R
 import com.example.yallabuy_user.authentication.login.CustomerIdPreferences
 import com.example.yallabuy_user.authentication.login.LoginScreen
 import com.example.yallabuy_user.authentication.registration.RegistrationScreen
-import com.example.yallabuy_user.cart.CartScreen
+import com.example.yallabuy_user.cart.view.CartScreen
 import com.example.yallabuy_user.collections.CollectionsScreen
 import com.example.yallabuy_user.home.HomeScreen
+import com.example.yallabuy_user.orders.OrderItemScreen
+import com.example.yallabuy_user.orders.PreviousOrdersScreen
 import com.example.yallabuy_user.productInfo.ProductInfoScreen
 import com.example.yallabuy_user.products.ProductsScreen
 import com.example.yallabuy_user.profile.ProfileScreen
+import com.example.yallabuy_user.settings.view.AddressScreen
+import com.example.yallabuy_user.settings.view.CurrencyScreen
+import com.example.yallabuy_user.settings.view.MapLocationScreen
+import com.example.yallabuy_user.utilities.LocationPermissionManager
 import com.example.yallabuy_user.wish.WishScreen
+import com.mariammuhammad.yallabuy.View.Settings.AboutUsScreen
+import com.mariammuhammad.yallabuy.View.Settings.ContactUsScreen
+import com.mariammuhammad.yallabuy.View.Settings.SettingsScreen
 
 
 private const val TAG = "MainScreen"
 
-@RequiresApi(Build.VERSION_CODES.O)
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen() {
@@ -93,7 +101,7 @@ fun MainScreen() {
             currentRoute == ScreenRoute.Home.route -> CenterAlignedTopAppBar(
                 title = { Text("Home") },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = Color(0xFFFFC107)
+                    containerColor = Color(0xFF3B9A94)
                 )
             )
 
@@ -108,7 +116,7 @@ fun MainScreen() {
             currentRoute == ScreenRoute.Collections.route -> CenterAlignedTopAppBar(
                 title = { Text("Collections") },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = Color(0xFFFFC107)
+                    containerColor = Color(0xFF3B9A94)
                 )
             )
 
@@ -144,6 +152,20 @@ fun MainScreen() {
                     }
                 )
             }
+
+            currentRoute == ScreenRoute.PreviousOrders.route -> CenterAlignedTopAppBar(
+                title = { Text("Previous Orders") },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = Color(0xFFFFC107)
+                )
+            )
+            ////change order ID !!!
+            currentRoute == ScreenRoute.PreviousOrderDetails(22).route -> CenterAlignedTopAppBar(
+                title = { Text("Order Details") },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = Color(0xFFFFC107)
+                )
+            )
 
         }
 
@@ -195,6 +217,40 @@ fun MainScreen() {
             composable(route = ScreenRoute.Profile.route) {
                 ProfileScreen(navController)
             }
+
+            composable(ScreenRoute.Settings.route){
+                SettingsScreen(navController)
+            }
+            composable(ScreenRoute.AboutUs.route) {
+                AboutUsScreen(onNavigateBack = { navController.popBackStack() })
+            }
+            composable(ScreenRoute.ContactUs.route) {
+                ContactUsScreen(onNavigateBack = { navController.popBackStack() })
+            }
+            composable(ScreenRoute.Currency.route) {
+                CurrencyScreen(
+                    onNavigateBack = { navController.popBackStack() })
+            }
+            composable(ScreenRoute.Address.route) {
+                val context = LocalContext.current
+
+                AddressScreen(//viewModel = viewModel
+                    customerId = CustomerIdPreferences.getData(context), //8805732188478,
+                    onNavigateBack = { navController.popBackStack() },
+                    onNavigateToMap = {
+                        navController.navigate(ScreenRoute.Map.route)
+                    }
+                )
+            }
+
+            composable(ScreenRoute.Map.route){
+                val context= LocalContext.current
+                val activity = LocalActivity.current as ComponentActivity
+                MapLocationScreen(locationPermissionManager = LocationPermissionManager(context, activity)) {
+
+                }
+            }
+
             //with null
             composable(ScreenRoute.ProductsScreen.BASE_ROUTE) {
                 ProductsScreen(
@@ -204,6 +260,7 @@ fun MainScreen() {
                     categoryID = null
                 )
             }
+
             //with value
             composable(
                 route = ScreenRoute.ProductsScreen.FULL_ROUTE
@@ -216,11 +273,18 @@ fun MainScreen() {
                     isFilterBarShown = isShowFilterBarProductsScreen,
                     vendorName = vendorName,
                     categoryID = categoryID
-                    )
+                )
             }
             composable<ScreenRoute.ProductInfo> {
                 val args = it.toRoute<ScreenRoute.ProductInfo>()
-                ProductInfoScreen(args.productId)
+                ProductInfoScreen(args.productId, navController)
+            }
+            composable(ScreenRoute.PreviousOrders.route) {
+                PreviousOrdersScreen(navController)
+            }
+            composable(route = ScreenRoute.PreviousOrderDetails.FULL_ROUTE) { navBackStackEntry ->
+                val orderId = navBackStackEntry.arguments?.getString("orderId")?.toLongOrNull()
+                OrderItemScreen(orderId, navController)
             }
         }
     }

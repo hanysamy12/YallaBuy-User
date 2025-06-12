@@ -20,6 +20,7 @@ val properties = Properties().apply {
 
 // Extract token
 val apiToken = properties.getProperty("API_TOKEN") ?: ""
+val currencyToken = properties.getProperty("CURRENCY_API_KEY") ?: ""
 
 android {
     namespace = "com.example.yallabuy_user"
@@ -39,6 +40,15 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         buildConfigField("String", "API_TOKEN","\"$apiToken\"")
+        buildConfigField ("String", "CURRENCY_API_KEY", "\"${currencyToken}\"")
+
+        val mapsApiKey = properties.getProperty("MAPS_API_KEY") ?: ""
+        manifestPlaceholders["MAPS_API_KEY"] = properties.getProperty("MAPS_API_KEY")
+        buildConfigField(
+            type = "String",
+            name = "MAPS_API_KEY",
+            value = mapsApiKey
+        )
     }
 
     buildTypes {
@@ -84,11 +94,17 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
+    //lottie
+    implementation("com.airbnb.android:lottie-compose:4.0.0")
+
     //viewModel
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose-android:2.8.7")
     //Retrofit
     implementation("com.squareup.retrofit2:retrofit:2.11.0")
     implementation("com.squareup.retrofit2:converter-gson:2.11.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
+
+
     // JSON serialization library
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.0")
     //glide
@@ -116,7 +132,6 @@ dependencies {
 
 
     //view pager
-
     implementation("com.google.accompanist:accompanist-pager:0.34.0")
     implementation("com.google.accompanist:accompanist-pager-indicators:0.34.0")
 
@@ -127,4 +142,7 @@ dependencies {
     implementation ("com.airbnb.android:lottie-compose:6.1.0")
 
 
+    //google
+    implementation("com.google.maps.android:maps-compose:6.5.2")
+    implementation("com.google.android.libraries.places:places:3.3.0")
 }
