@@ -7,6 +7,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModelProvider
+import com.example.yallabuy_user.orders.OrderCheckoutScreen
 
 
 import com.example.yallabuy_user.settings.viewmodel.CurrencyViewModel
@@ -23,8 +24,8 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             YallaBuyUserTheme {
-                MainScreen()
-
+                //MainScreen()
+                OrderCheckoutScreen(cartId = 1208624218430)
             //    CurrencyScreen(currencyViewModel = viewModel)
             }
         }

@@ -39,7 +39,8 @@ data class DraftOrder(
     var lineItems: MutableList<LineItem>,
     @SerializedName("total_price")
     val totalPrice: String,
-    val customer: Customer
+    val customer: Customer,
+    val currency: String
 
 )
 

@@ -283,7 +283,8 @@ fun ProductInfoScreen(
                                         // customer = Customer( CustomerIdPreferences.getData(LocalContext.current)
                                         customer = Customer(
                                             id = 8805732188478
-                                        )
+                                        ),
+                                        currency = TODO() //////////////
                                     )
                                 )
                                 //send viewModel to draftorder object
