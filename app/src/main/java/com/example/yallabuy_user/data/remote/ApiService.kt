@@ -138,15 +138,16 @@ interface ApiService  {
     ): DeleteResponse
 
 //cart
-    @POST("draft_orders.json")
-    suspend fun createDraftOrder(
-        @Body draftOrderBody: DraftOrderBody
-    ): DraftOrderBody
 
 //    @GET("draft_orders/{draft_order_id}.json")
 //    suspend fun getDraftOrders(
 //        @Path("draft_order_id") draftOrderID: Long
 //    ): DraftOrderBody
+
+    @POST("draft_orders.json")
+    suspend fun createDraftOrder(
+        @Body draftOrderBody: DraftOrderBody
+    ): DraftOrderBody
 
     @GET("draft_orders.json")
     suspend fun getDraftOrders(

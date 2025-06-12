@@ -12,17 +12,24 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -30,6 +37,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.yallabuy_user.R
+import com.example.yallabuy_user.authentication.login.CustomerIdPreferences
 import com.example.yallabuy_user.data.models.settings.SettingsItem
 import com.example.yallabuy_user.ui.navigation.ScreenRoute
 
@@ -40,12 +48,22 @@ import com.example.yallabuy_user.ui.navigation.ScreenRoute
 
 @Composable
 fun SettingsScreen(navController: NavController) {
+
+    var showLoginDialog by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+
     val settingsItems = listOf(
         SettingsItem(
             title = "Address",
             icon = R.drawable.location_on,
             onClick = {
-                navController.navigate(ScreenRoute.Address.route)
+                if (CustomerIdPreferences.getData(context) != 0L) {
+                    navController.navigate(ScreenRoute.Address.route)
+                }
+                else{
+                    showLoginDialog = true
+
+                }
             }
         ),
         SettingsItem(
@@ -87,6 +105,16 @@ fun SettingsScreen(navController: NavController) {
             settingsItems = settingsItems,
             modifier = Modifier.padding(innerPadding)
         )
+
+        if (showLoginDialog) {
+            LoginPromptDialog(
+                onDismiss = { showLoginDialog = false },
+                onConfirm = {
+                    showLoginDialog = false
+                    navController.navigate(ScreenRoute.Login.route)
+                }
+            )
+        }
     }
 }
 
@@ -104,6 +132,28 @@ fun SettingsTopAppBar() {
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = colorResource(R.color.dark_blue)
         )
+    )
+}
+
+@Composable
+fun LoginPromptDialog(
+    onDismiss: () -> Unit,
+    onConfirm: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Sign Up Required") },
+        text = { Text("You need to sign up or log in to access your address.") },
+        confirmButton = {
+            TextButton(onClick = onConfirm) {
+                Text("Sign Up")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
     )
 }
 

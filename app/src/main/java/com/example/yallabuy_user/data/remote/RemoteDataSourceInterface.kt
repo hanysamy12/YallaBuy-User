@@ -36,7 +36,7 @@ interface RemoteDataSourceInterface {
     suspend fun updateNoteInCustomer(customerId : Long,updateNoteInCustomer: UpdateNoteInCustomer) : Flow<CreateUserOnShopifyResponse>
     suspend fun getWishListDraftById(wishListDraftOrderId : Long) : Flow<WishListDraftOrderResponse>
     suspend fun updateDraftOrder(draftOrderId : Long , wishListDraftOrderRequest: WishListDraftOrderRequest): Flow<WishListDraftOrderResponse>
-    suspend fun getCustomerAddressById(customerId: Long, addressId: Long): Flow<NewAddressResponse>
+  //  suspend fun getCustomerAddressById(customerId: Long, addressId: Long): Flow<NewAddressResponse>
     suspend fun getAddresses(customerId: Long): Flow<AddressesResponse>
     suspend fun createCustomerAddress(customerId: Long, newAddressBody: AddressBody): Flow<NewAddressResponse>
     suspend fun updateCustomerAddress(customerId: Long, addressId: Long, updatedAddressBody: AddressBody): Flow<NewAddressResponse>

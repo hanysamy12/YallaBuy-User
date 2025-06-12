@@ -232,8 +232,10 @@ fun MainScreen() {
                     onNavigateBack = { navController.popBackStack() })
             }
             composable(ScreenRoute.Address.route) {
+                val context = LocalContext.current
+
                 AddressScreen(//viewModel = viewModel
-                    customerId = 8805732188478,
+                    customerId = CustomerIdPreferences.getData(context), //8805732188478,
                     onNavigateBack = { navController.popBackStack() },
                     onNavigateToMap = {
                         navController.navigate(ScreenRoute.Map.route)
@@ -275,7 +277,7 @@ fun MainScreen() {
             }
             composable<ScreenRoute.ProductInfo> {
                 val args = it.toRoute<ScreenRoute.ProductInfo>()
-                ProductInfoScreen(args.productId)
+                ProductInfoScreen(args.productId, navController)
             }
             composable(ScreenRoute.PreviousOrders.route) {
                 PreviousOrdersScreen(navController)

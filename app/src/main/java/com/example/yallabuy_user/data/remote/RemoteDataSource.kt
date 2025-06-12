@@ -174,20 +174,34 @@ class RemoteDataSource(
         service.deleteCustomerAddress(customerId, addressId)
     }
 
+
     //cart
     override suspend fun createDraftOrder(draftOrderBody: DraftOrderBody): Flow<DraftOrderBody> {
-        return try {
-            val response = service.createDraftOrder(draftOrderBody)
-            flowOf(response)
-        } catch (e: HttpException) {
-            Log.i("CartRemote", "createDraftOrder HttpException: ${e.message()}")
-            Log.e("CartRemote", "HttpException: ${e.code()} ")
+        val response = service.createDraftOrder(draftOrderBody)
+        return flowOf(response)
 
-            flowOf()
-        } catch (e: Exception) {
-            Log.i("CartRemote", "createDraftOrder Exception: ${e.message}")
-            flowOf()
-        }
+    }
+
+
+    override suspend fun getDraftOrder(): Flow<DraftOrderResponse> {
+        val response = service.getDraftOrders()
+        return flowOf(response)
+    }
+
+
+    override suspend fun updateDraftOrder(
+        id: Long,
+        draftOrderBody: DraftOrderBody
+    ): Flow<DraftOrderBody> {
+        val response = service.updateDraftOrder(draftOrderBody, id)
+        return flowOf(response)
+
+    }
+
+
+    override suspend fun deleteDraftOrder(id: Long): Flow<Unit> {
+         service.deleteDraftOrder(id)
+        return flowOf(Unit)
     }
 
 
@@ -201,43 +215,6 @@ class RemoteDataSource(
             flowOf()
         }
     }
-
-    override suspend fun getDraftOrder(): Flow<DraftOrderResponse> {
-        val response = service.getDraftOrders()
-        return flowOf(response)
-    }
-
-
-    override suspend fun updateDraftOrder(
-        id: Long,
-        draftOrderBody: DraftOrderBody
-    ): Flow<DraftOrderBody> {
-        return try {
-            val response = service.updateDraftOrder(draftOrderBody, id)
-            flowOf(response)
-        } catch (e: HttpException) {
-            Log.i("CartRemote", "updateDraftOrder HttpException: ${e.message()}")
-            flowOf()
-        } catch (e: Exception) {
-            Log.i("CartRemote", "updateDraftOrder Exception: ${e.message}")
-            flowOf()
-        }
-    }
-
-
-    override suspend fun deleteDraftOrder(id: Long): Flow<Unit> {
-        return try {
-            service.deleteDraftOrder(id)
-            flowOf(Unit)
-        } catch (e: HttpException) {
-            Log.i("CartRemote", "deleteDraftOrder HttpException: ${e.message()}")
-            flowOf()
-        } catch (e: Exception) {
-            Log.i("CartRemote", "deleteDraftOrder Exception: ${e.message}")
-            flowOf()
-        }
-    }
-
 
     override suspend fun updateDraftOrder(draftOrderId: Long ,wishListDraftOrderRequest: WishListDraftOrderRequest): Flow<WishListDraftOrderResponse> {
        return try {

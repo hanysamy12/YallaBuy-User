@@ -45,12 +45,12 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -65,6 +65,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.DialogProperties
+import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
@@ -76,24 +77,28 @@ import com.example.yallabuy_user.authentication.login.CustomerIdPreferences
 import com.example.yallabuy_user.wish.WishListIdPref
 
 import com.example.yallabuy_user.cart.viewmodel.CartViewModel
-import com.example.yallabuy_user.data.models.ProductImage
 import com.example.yallabuy_user.data.models.cart.Customer
 import com.example.yallabuy_user.data.models.cart.DraftOrder
 import com.example.yallabuy_user.data.models.cart.DraftOrderBody
 import com.example.yallabuy_user.data.models.cart.LineItem
 import com.example.yallabuy_user.data.models.cart.Property
+import com.example.yallabuy_user.ui.navigation.ScreenRoute
 
 
 @Composable
 fun ProductInfoScreen(
     productId: Long,
+    navController: NavHostController,
     productInfoViewModel: ProductInfoViewModel = koinViewModel(),
     cartViewModel: CartViewModel = koinViewModel()
 ) {
 
-    WishListIdPref.saveWishListID(LocalContext.current, 1208624218430)
+//    WishListIdPref.saveWishListID(LocalContext.current, 1208624218430)
     val productInfo = productInfoViewModel.productInfo.collectAsState().value
+    val showSignUpDialog = cartViewModel.showSignUpDialog.collectAsState()
 
+
+    val context = LocalContext.current
     LaunchedEffect(productId) {
         productInfoViewModel.getProductInfoById(productId)
     }
@@ -111,10 +116,10 @@ fun ProductInfoScreen(
             Column {
                 ProductImage(productInfo.data, productInfoViewModel)
                 Spacer(Modifier.height(5.dp))
-               // ProductDetail(productInfo.data)
+                // ProductDetail(productInfo.data)
 
                 Column(modifier = Modifier.fillMaxSize()) {
-                 //   ProductImage(productInfo.data)
+                    //   ProductImage(productInfo.data)
                     Column(
                         modifier = Modifier
                             .weight(1f)
@@ -124,11 +129,37 @@ fun ProductInfoScreen(
                         ProductDetail(
                             productInfo.data,
                             onAddToCartClick = { draftOrder ->
-                                cartViewModel.addToCart(draftOrder)
+                                cartViewModel.addToCart(
+                                    draftOrder,
+                                    customerId = CustomerIdPreferences.getData(context)
+                                )
                             }
                         )
                     }
                 }
+                if (showSignUpDialog.value) {
+                    AlertDialog(
+                        onDismissRequest = { cartViewModel.dismissSignUpDialog() },
+                        title = { Text("Login Required") },
+                        text = { Text("You need to sign up or log in to be able to add products to the cart.") },
+                        confirmButton = {
+                            Button(
+                                onClick = {
+                                    cartViewModel.dismissSignUpDialog()
+                                    navController.navigate(ScreenRoute.Login.route)
+                                }
+                            ) {
+                                Text("Sign up")
+                            }
+                        },
+                        dismissButton = {
+                            Button(onClick = { cartViewModel.dismissSignUpDialog() }) {
+                                Text("Cancel")
+                            }
+                        }
+                    )
+                }
+
             }
         }
     }
@@ -205,7 +236,8 @@ fun ProductInfoScreen(
     ) {
 
 
-        var productCounter by remember { mutableLongStateOf(1L) }
+        var productCounter by remember { mutableIntStateOf(1) }
+         val context = LocalContext.current
 
         var selectedSize by remember { mutableStateOf("") }
         var selectedColor by remember { mutableStateOf("") }
@@ -254,8 +286,7 @@ fun ProductInfoScreen(
                             selectedVariant?.let { variant ->
                                 val draftOrderObject = DraftOrderBody(
                                     draftOrder = DraftOrder(
-                                        Id = 0L,
-                                        note = "Added from Product Details",
+                                        id = 0L,
                                         lineItems = mutableListOf(
                                             LineItem(
                                                 variantID = variant.id,
@@ -275,19 +306,15 @@ fun ProductInfoScreen(
                                                 )
                                             )
                                         ),
-                                        totalPrice = (variant.price.toDoubleOrNull()
-                                            ?: 0.0 * productCounter).toString(),
+//                                        totalPrice = (variant.price.toDoubleOrNull()
+//                                            ?: 0.0 * productCounter).toString(),
 
-                                        // val context = LocalContext.current
 
-                                        // customer = Customer( CustomerIdPreferences.getData(LocalContext.current)
-                                        customer = Customer(
-                                            id = 8805732188478
+                                        customer = Customer( CustomerIdPreferences.getData(context)
+                                          //  id = 8805732188478
                                         )
                                     )
                                 )
-                                //send viewModel to draftorder object
-                                //you can try to do it using lambda
 
                                 onAddToCartClick(draftOrderObject)
                             }
@@ -327,7 +354,7 @@ fun ProductInfoScreen(
 
     @Composable
     fun QuantitySelectorCard(
-        productCounter: Long,
+        productCounter: Int,
         onIncrease: () -> Unit,
         onDecrease: () -> Unit
     ) {
@@ -535,7 +562,7 @@ fun ProductInfoScreen(
     }
 
     @Composable
-    fun Price(data: ProductInfoResponse, count: Long) {
+    fun Price(data: ProductInfoResponse, count: Int) {
         var priceInBound = remember { mutableDoubleStateOf(0.0) }
         priceInBound.doubleValue =
             ((data?.product?.variants?.get(0)?.price?.toDoubleOrNull() ?: 0.0) * 50) * count

@@ -1,5 +1,6 @@
 package com.example.yallabuy_user.cart.view
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -38,6 +39,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -45,6 +47,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.yallabuy_user.R
+import com.example.yallabuy_user.authentication.login.CustomerIdPreferences
 import com.example.yallabuy_user.cart.viewmodel.CartViewModel
 import com.example.yallabuy_user.home.HomeViewModel
 import com.example.yallabuy_user.utilities.ApiResponse
@@ -60,8 +63,11 @@ fun CartScreen(
     // val draftOrderId = 123456789L
     val draftOrdersState by cartViewModel.draftOrders.collectAsState()
 
+    val context = LocalContext.current
+    val customerId = CustomerIdPreferences.getData(context)
     LaunchedEffect(Unit) {
-        cartViewModel.fetchCart()
+        Log.i("TAG", "CartScreen: customerId: $customerId ")
+        cartViewModel.fetchCart(customerId)
     }
 
     Column(
@@ -109,7 +115,7 @@ fun CartScreen(
                         items(draftOrders) { draftOrder ->
                             draftOrder.lineItems.forEach { item ->
                                 CartItemCard(
-                                    draftOrderId = draftOrder.Id,
+                                    draftOrderId = draftOrder.id ?: -1L,
                                     variantId = item.variantID,
                                     title = item.title,
                                     price = item.price,
@@ -119,19 +125,19 @@ fun CartScreen(
                                     }?.value ?: "",
                                     onIncrease = {
                                         cartViewModel.increaseItemQuantity(
-                                            draftOrder.Id,
+                                            draftOrder.id ?: -1L,
                                             item.variantID
                                         )
                                     },
                                     onDecrease = {
                                         cartViewModel.decreaseItemQuantity(
-                                            draftOrder.Id,
+                                            draftOrder.id?: -1L,
                                             item.variantID
                                         )
                                     },
                                     onDelete = {
                                         cartViewModel.removeItemFromCart(
-                                            draftOrder.Id,
+                                            draftOrder.id?: -1L,
                                             item.variantID
                                         )
                                     }
