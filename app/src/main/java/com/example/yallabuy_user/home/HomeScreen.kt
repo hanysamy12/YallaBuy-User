@@ -1,6 +1,7 @@
 package com.example.yallabuy_user.home
 
 import android.util.Log
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -19,6 +20,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
@@ -52,6 +55,7 @@ import com.example.yallabuy_user.data.models.CustomCollectionsItem
 import com.example.yallabuy_user.data.models.SmartCollectionsItem
 import com.example.yallabuy_user.ui.navigation.ScreenRoute
 import com.example.yallabuy_user.utilities.ApiResponse
+import kotlinx.coroutines.delay
 import org.koin.androidx.compose.koinViewModel
 
 private const val TAG = "HomeScreen"
@@ -188,18 +192,54 @@ private fun HomeContent(
 
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun CouponsCarousel(imageResIds: List<Int>) {
-    val carouselState = rememberCarouselState { imageResIds.size }
 
-    HorizontalMultiBrowseCarousel(
-        state = carouselState,
-        preferredItemWidth = 300.dp,
-        itemSpacing = 12.dp,
-        contentPadding = PaddingValues(horizontal = 16.dp)
-    ) { index ->
-        CouponImage(imageResId = imageResIds[index])
+    val pagerState = rememberPagerState(
+        initialPage = 0,
+        pageCount = { imageResIds.size }
+    )
+
+    LaunchedEffect(key1 = true) {
+        while (true) {
+            delay(3000L)
+            val nextPage = (pagerState.currentPage + 1) % imageResIds.size
+            pagerState.animateScrollToPage(nextPage)
+        }
+    }
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(200.dp)
+    ) {
+        HorizontalPager(
+            state = pagerState,
+            contentPadding = PaddingValues(horizontal = 32.dp),
+            pageSpacing = 16.dp,
+            modifier = Modifier.fillMaxSize()
+        ) { page ->
+            CouponImage(imageResId = imageResIds[page])
+        }
+
+        Row(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 8.dp),
+            horizontalArrangement = Arrangement.Center
+        ) {
+            repeat(imageResIds.size) { index ->
+                val color = if (pagerState.currentPage == index) Color.Black else Color.LightGray
+                Box(
+                    modifier = Modifier
+                        .padding(4.dp)
+                        .size(8.dp)
+                        .clip(CircleShape)
+                        .background(color)
+                )
+            }
+        }
     }
 }
 
