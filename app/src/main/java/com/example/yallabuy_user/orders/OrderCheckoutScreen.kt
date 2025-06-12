@@ -13,28 +13,32 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.yallabuy_user.data.models.cart.LineItem
 import com.example.yallabuy_user.home.ProgressShow
 import com.example.yallabuy_user.utilities.ApiResponse
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
 private const val TAG = "OrderCheckoutScreen"
@@ -45,6 +49,8 @@ fun OrderCheckoutScreen(viewModel: NewOrderViewModel = koinViewModel(), cartId: 
     val uiCartOrderState = viewModel.cartOrder.collectAsState()
     var couponCode by remember { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf("") }
+
+    val coroutineScope = rememberCoroutineScope()
     LaunchedEffect(Unit) {
         viewModel.getDraftOrder(cartId)
     }
@@ -61,6 +67,8 @@ fun OrderCheckoutScreen(viewModel: NewOrderViewModel = koinViewModel(), cartId: 
         is ApiResponse.Success<*> -> {
             val order = (uiCartOrderState.value as ApiResponse.Success).data
             val currency = order.currency
+            var isCash by remember { mutableStateOf(true) }
+            var isOnline by remember { mutableStateOf(false) }
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -86,21 +94,6 @@ fun OrderCheckoutScreen(viewModel: NewOrderViewModel = koinViewModel(), cartId: 
                         }
                     }
 
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 4.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text("Total Price", fontSize = 22.sp, fontWeight = FontWeight.Bold)
-                        Text(
-                            "${order.totalPrice} $currency",
-                            fontSize = 22.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                    HorizontalDivider()
-
                     Spacer(modifier = Modifier.height(10.dp))
                     Text("Coupons", fontWeight = FontWeight.Bold, fontSize = 22.sp)
                     Row(
@@ -123,15 +116,13 @@ fun OrderCheckoutScreen(viewModel: NewOrderViewModel = koinViewModel(), cartId: 
                                     Log.i(TAG, "OrderCheckoutScreen: $couponCode")
                                     // call verification
                                 }
-                            },
-                            modifier = Modifier, shape = RoundedCornerShape(8.dp)
+                            }, modifier = Modifier, shape = RoundedCornerShape(8.dp)
 
                         ) {
                             Text("Verify")
                         }
                     }
                     Spacer(modifier = Modifier.height(10.dp))
-
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -145,6 +136,76 @@ fun OrderCheckoutScreen(viewModel: NewOrderViewModel = koinViewModel(), cartId: 
                             fontWeight = FontWeight.Bold
                         )
                     }
+                    HorizontalDivider()
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Text("Payment Options", fontWeight = FontWeight.Bold, fontSize = 22.sp)
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp),
+                        horizontalArrangement = Arrangement.SpaceAround,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            RadioButton(
+                                selected = isCash, onClick = {
+                                    isCash = !isCash
+                                    isOnline = !isOnline
+                                })
+                            Text("Cash")
+                        }
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            RadioButton(
+                                selected = isOnline, onClick = {
+                                    isOnline = !isOnline
+                                    isCash = !isCash
+                                })
+                            Text("Online")
+                        }
+
+                    }
+                    Spacer(modifier = Modifier.weight(10F))
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text("Total Price", fontSize = 22.sp, fontWeight = FontWeight.Bold)
+                        Text(
+                            "${order.totalPrice} $currency",
+                            fontSize = 22.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Button(
+                        onClick = {
+                            coroutineScope.launch {
+                                viewModel.postNewOrder()
+                            }
+
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(56.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFF3B9A94), contentColor = Color.White
+                        )
+                    ) {
+                        Text(
+                            "CheckOut",
+                            fontSize = 22.sp,
+                            fontWeight = FontWeight.Bold,
+                            textAlign = TextAlign.Center
+                        )
+                    }
+
                 }
             }
         }
