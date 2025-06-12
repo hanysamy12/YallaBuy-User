@@ -1,5 +1,6 @@
 package com.example.yallabuy_user.data.remote
 
+import android.util.Log
 import com.example.yallabuy_user.BuildConfig
 import com.example.yallabuy_user.data.models.cart.DraftOrderBody
 import com.example.yallabuy_user.data.models.BrandResponse
@@ -7,6 +8,7 @@ import com.example.yallabuy_user.data.models.CategoryResponse
 import com.example.yallabuy_user.data.models.OrderDetailsResponse
 import com.example.yallabuy_user.data.models.OrdersResponse
 import com.example.yallabuy_user.data.models.ProductResponse
+import com.example.yallabuy_user.data.models.cart.DraftOrderResponse
 import com.example.yallabuy_user.data.models.createUser.CreateUserOnShopifyResponse
 import com.example.yallabuy_user.data.models.createUser.request.CreateUSerOnShopifyRequest
 import com.example.yallabuy_user.data.models.customer.CustomerDataResponse
@@ -34,6 +36,7 @@ class AuthInterceptor() : Interceptor {
             .addHeader("X-Shopify-Access-Token", token)
             .addHeader("Content-Type", "application/json")
             .build()
+        Log.d("TAG", "interceptor : ${request.url} ====== ${request.headers.get("X-Shopify-Access-Token")} ")
         return chain.proceed(request)
     }
 }
@@ -99,38 +102,41 @@ interface ApiService  {
         @Body updatedAddressBody: AddressBody,
     ): NewAddressResponse
 
-    @DELETE("admin/api/2025-04/customers/{customer_id}/addresses/{address_id}.json")
+    @DELETE("customers/{customer_id}/addresses/{address_id}.json")
     suspend fun deleteCustomerAddress(
         @Path("customer_id") customerId: Long,
         @Path("address_id") addressId: Long,
     ): DeleteResponse
 
 //cart
-    @POST("admin/api/2025-04/draft_orders.json")
+    @POST("draft_orders.json")
     suspend fun createDraftOrder(
         @Body draftOrderBody: DraftOrderBody
     ): DraftOrderBody
 
+//    @GET("draft_orders/{draft_order_id}.json")
+//    suspend fun getDraftOrders(
+//        @Path("draft_order_id") draftOrderID: Long
+//    ): DraftOrderBody
 
-    @GET("/admin/api/2025-04/draft_orders/{draft_order_id}.json")
-    suspend fun getDraftOrder(
-        @Path("draft_order_id") draftOrderID: Long
-    ): DraftOrderBody
+    @GET("draft_orders.json")
+    suspend fun getDraftOrders(
+    ): DraftOrderResponse
 
 
-    @PUT("/admin/api/2025-04/draft_orders/{draft_order_id}.json")
+    @PUT("draft_orders/{draft_order_id}.json")
     suspend fun updateDraftOrder(
         @Body draftOrderBody: DraftOrderBody,
         @Path("draft_order_id") draftOrderID: Long
     ): DraftOrderBody
 
 
-    @DELETE("/admin/api/2025-04/draft_orders/{draft_order_id}.json")
+    @DELETE("draft_orders/{draft_order_id}.json")
     suspend fun deleteDraftOrder(
         @Path("draft_order_id") draftOrderID: Long
     )
 
-    @GET("admin/api/2025-04/products/{product_id}.json")
+    @GET("products/{product_id}.json")
     suspend fun getProductByID(
         @Path("product_id") productID: Long
     ): ProductResponse

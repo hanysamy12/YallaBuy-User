@@ -7,7 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.yallabuy_user.data.models.CustomCollectionsItem
 import com.example.yallabuy_user.data.models.ProductsItem
 import com.example.yallabuy_user.repo.RepositoryInterface
-import com.example.yallabuy_user.settings.viewmodel.CurrencyConversionManager
+import com.example.yallabuy_user.utilities.CurrencyConversionManager
 import com.example.yallabuy_user.utilities.ApiResponse
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

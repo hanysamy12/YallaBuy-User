@@ -60,6 +60,7 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.yallabuy_user.R
 import com.example.yallabuy_user.data.models.settings.Address
 import com.example.yallabuy_user.data.models.settings.AddressBody
@@ -190,11 +191,16 @@ fun AddressScreenContent(
     paddingValues: PaddingValues,
     onEditAddress: (Address) -> Unit,
 ) {
+
+    val addressList = viewModel.addressesList.collectAsStateWithLifecycle()
+
+
     Column(
         modifier = Modifier
             .padding(paddingValues)
             .fillMaxSize()
     ) {
+
         when (addressState) {
             is ApiResponse.Loading -> {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -215,20 +221,27 @@ fun AddressScreenContent(
                 if (addresses.isEmpty()) {
                     EmptyAddressList()
                 } else {
+
                     AddressList(
-                        addresses = addresses,
-                        onEditAddress = onEditAddress,
+                        addresses = viewModel.addressesList.collectAsState().value,
+                        onEditAddress =  onEditAddress ,
                         onDeleteAddress = { viewModel.deleteAddress(it) },
-                        onSetDefault = { newDefault ->
-                            val currentDefault = addresses.find { it.default && it.id != newDefault.id }
-
-                            currentDefault?.let {
-                                viewModel.updateAddress(it.id, AddressBody(it.copy(default = false)))
-                            }
-
-                            viewModel.updateAddress(newDefault.id, AddressBody(newDefault.copy(default = true)))
-                        }
+                        onSetDefault = {  address -> viewModel.setDefaultAddress(address)  }
                     )
+//                    AddressList(
+//                        addresses = addressList.value,
+//                        onEditAddress = onEditAddress,
+//                        onDeleteAddress = { viewModel.deleteAddress(it) },
+//                        onSetDefault = { newDefault ->
+//                            val currentDefault = addresses.find { it.default && it.id != newDefault.id }
+//
+//                            currentDefault?.let {
+//                                viewModel.updateAddress(it.id, AddressBody(it.copy(default = false)))
+//                            }
+//
+//                            viewModel.updateAddress(newDefault.id, AddressBody(newDefault.copy(default = true)))
+//                        }
+//                    )
                 }
             }
         }
@@ -324,14 +337,14 @@ fun AddressItem(
                 }
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(4.dp))
 
             Text(
                 text = address.fullAddress,
                 style = MaterialTheme.typography.bodyMedium
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(4.dp))
 
             Text(
                 text = address.phone,
@@ -475,7 +488,7 @@ fun EditAddressDialog(
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .menuAnchor()
+                            //.menuAnchor()
                     )
 
                     ExposedDropdownMenu(
@@ -496,7 +509,7 @@ fun EditAddressDialog(
 
                 OutlinedTextField(
                     value = country,
-                    onValueChange = {},  // country = it },
+                    onValueChange = {},
                     label = { Text("Country") },
                     modifier = Modifier.fillMaxWidth()
                 )

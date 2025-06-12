@@ -38,7 +38,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -174,7 +173,7 @@ fun ProductDetail(data: ProductInfoResponse,
                   onAddToCartClick:(DraftOrderBody)-> Unit
 ) {
 
-    var productCounter by  remember { mutableLongStateOf(1L) }
+    var productCounter by  remember { mutableIntStateOf(1) }
 
     var selectedSize by remember { mutableStateOf("") }
     var selectedColor by remember { mutableStateOf("") }
@@ -221,7 +220,6 @@ fun ProductDetail(data: ProductInfoResponse,
                             val draftOrderObject = DraftOrderBody(
                                 draftOrder = DraftOrder(
                                     Id = 0L,
-                                    note = "Added from Product Details",
                                     lineItems = mutableListOf(
                                         LineItem(
                                             variantID = variant.id,
@@ -238,8 +236,8 @@ fun ProductDetail(data: ProductInfoResponse,
                                             )
                                         )
                                     ),
-                                    totalPrice = (variant.price.toDoubleOrNull()
-                                        ?: 0.0 * productCounter).toString(),
+//                                    totalPrice = (variant.price.toDoubleOrNull()
+//                                        ?: 0.0 * productCounter).toString(),
 
                                    // val context = LocalContext.current
 
@@ -290,7 +288,7 @@ fun ProductDetail(data: ProductInfoResponse,
 
 @Composable
 fun QuantitySelectorCard(
-    productCounter: Long,
+    productCounter: Int,
     onIncrease: () -> Unit,
     onDecrease: () -> Unit
 ) {
@@ -492,7 +490,7 @@ fun ColorDropDownMenu(data: ProductInfoResponse,
 }
 
 @Composable
-fun Price(data: ProductInfoResponse, count: Long) {
+fun Price(data: ProductInfoResponse, count: Int) {
     var priceInBound = remember { mutableDoubleStateOf(0.0) }
     priceInBound.doubleValue = ((data?.product?.variants?.get(0)?.price?.toDoubleOrNull() ?: 0.0) * 50 ) * count
     Text(text = "  Total Price :  ${priceInBound.doubleValue}  EGP" , modifier = Modifier.padding(10.dp)

@@ -1,5 +1,6 @@
 package com.example.yallabuy_user.di
 
+import android.util.Log
 import com.example.yallabuy_user.authentication.login.LoginViewModel
 import com.example.yallabuy_user.authentication.registration.RegistrationViewModel
 import com.example.yallabuy_user.cart.viewmodel.CartViewModel
@@ -15,7 +16,7 @@ import com.example.yallabuy_user.productInfo.ProductInfoViewModel
 import com.example.yallabuy_user.repo.Repository
 import com.example.yallabuy_user.products.ProductsViewModel
 import com.example.yallabuy_user.profile.ProfileViewModel
-import com.example.yallabuy_user.settings.viewmodel.CurrencyConversionManager
+import com.example.yallabuy_user.utilities.CurrencyConversionManager
 import com.example.yallabuy_user.data.local.CurrencyPreferenceManager
 import com.example.yallabuy_user.data.local.CurrencyPreferenceManagerImpl
 import com.example.yallabuy_user.data.remote.CurrencyRemoteDataSource
@@ -29,6 +30,7 @@ import com.example.yallabuy_user.wish.WishViewModel
 import com.google.firebase.auth.FirebaseAuth
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.viewModel
 import org.koin.core.qualifier.named
@@ -40,8 +42,13 @@ val dataModule = module {
     single<AuthInterceptor> { AuthInterceptor() }
     single<Interceptor> { get<AuthInterceptor>() }
     factory {
+        val httpClientLoggingInterceptor = HttpLoggingInterceptor { msg ->
+            Log.i("NetworkInterceptor", "Result : $msg")
+        }
+        httpClientLoggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
         OkHttpClient.Builder()
             .addInterceptor(get<Interceptor>())
+            .addInterceptor(httpClientLoggingInterceptor)
             .build()
     }
     single (named("shopifyRetrofit")) {

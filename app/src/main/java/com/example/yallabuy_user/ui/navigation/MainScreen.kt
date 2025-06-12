@@ -2,6 +2,8 @@ package com.example.yallabuy_user.ui.navigation
 
 import android.os.Build
 import android.util.Log
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.LocalActivity
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
@@ -56,6 +58,7 @@ import com.example.yallabuy_user.profile.ProfileScreen
 import com.example.yallabuy_user.settings.view.AddressScreen
 import com.example.yallabuy_user.settings.view.CurrencyScreen
 import com.example.yallabuy_user.settings.view.MapLocationScreen
+import com.example.yallabuy_user.utilities.LocationPermissionManager
 import com.example.yallabuy_user.wish.WishScreen
 import com.mariammuhammad.yallabuy.View.Settings.AboutUsScreen
 import com.mariammuhammad.yallabuy.View.Settings.ContactUsScreen
@@ -64,7 +67,7 @@ import com.mariammuhammad.yallabuy.View.Settings.SettingsScreen
 
 private const val TAG = "MainScreen"
 
-@RequiresApi(Build.VERSION_CODES.O)
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen() {
@@ -239,7 +242,9 @@ fun MainScreen() {
             }
 
             composable(ScreenRoute.Map.route){
-                MapLocationScreen() {
+                val context= LocalContext.current
+                val activity = LocalActivity.current as ComponentActivity
+                MapLocationScreen(locationPermissionManager = LocationPermissionManager(context, activity)) {
 
                 }
             }
