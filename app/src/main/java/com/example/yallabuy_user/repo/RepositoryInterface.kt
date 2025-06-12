@@ -8,6 +8,7 @@ import com.example.yallabuy_user.data.models.OrderDetailsResponse
 import com.example.yallabuy_user.data.models.OrdersResponse
 import com.example.yallabuy_user.data.models.ProductResponse
 import com.example.yallabuy_user.data.models.cart.DraftOrderBody
+import com.example.yallabuy_user.data.models.cart.DraftOrderResponse
 import com.example.yallabuy_user.data.models.createUser.CreateUserOnShopifyResponse
 import com.example.yallabuy_user.data.models.customer.CustomerDataResponse
 import com.example.yallabuy_user.data.models.productInfo.ProductInfoResponse
@@ -34,15 +35,15 @@ interface RepositoryInterface {
     suspend fun creteWishListDraftOrder(wishListDraftOrderRequest: WishListDraftOrderRequest) : Flow<WishListDraftOrderResponse>
     suspend fun updateNoteInCustomer(customerId : Long,updateNoteInCustomer: UpdateNoteInCustomer) : Flow<CreateUserOnShopifyResponse>
     suspend fun getWishListDraftById(wishListDraftOrderId : Long) : Flow<WishListDraftOrderResponse>
-    suspend fun updateDraftOrder(draftOrderId : Long , wishListDraftOrderRequest: WishListDraftOrderRequest): Flow<WishListDraftOrderResponse>
-    suspend fun getCustomerAddressById(customerId: Long, addressId: Long): Flow<NewAddressResponse>
+    suspend fun updateDraftOrder(draftOrderId : Long, wishListDraftOrderRequest: WishListDraftOrderRequest): Flow<WishListDraftOrderResponse>
+    //  suspend fun getCustomerAddressById(customerId: Long, addressId: Long): Flow<NewAddressResponse>
     suspend fun getAddresses(customerId: Long): Flow<AddressesResponse>
     suspend fun createCustomerAddress(customerId: Long, newAddressBody: AddressBody): Flow<NewAddressResponse>
     suspend fun updateCustomerAddress(customerId: Long, addressId: Long, updatedAddressBody: AddressBody
     ): Flow<NewAddressResponse>
     suspend fun deleteCustomerAddress(customerId: Long, addressId: Long)
-    suspend fun createDraftOrder(draftOrderBody: DraftOrderBody): Flow<DraftOrderBody>
-    suspend fun getDraftOrder(id: Long): Flow<DraftOrderBody>
+    suspend fun createDraftOrderCart(draftOrderBody: DraftOrderBody): Flow<DraftOrderBody>
+    suspend fun getDraftOrderCart(): Flow<DraftOrderResponse>
     suspend fun updateDraftOrder(id: Long, draftOrderBody: DraftOrderBody): Flow<DraftOrderBody>
-    suspend fun deleteDraftOrder(id: Long): Flow<Unit>
+    suspend fun deleteDraftOrderCart(id: Long): Flow<Unit>
 }

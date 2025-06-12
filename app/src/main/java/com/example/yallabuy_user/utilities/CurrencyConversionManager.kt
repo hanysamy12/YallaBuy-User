@@ -1,4 +1,4 @@
-package com.example.yallabuy_user.settings.viewmodel
+package com.example.yallabuy_user.utilities
 
 import android.util.Log
 import com.example.yallabuy_user.data.local.CurrencyPreferenceManager

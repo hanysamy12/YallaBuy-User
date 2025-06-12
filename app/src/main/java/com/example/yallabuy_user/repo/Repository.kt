@@ -9,6 +9,7 @@ import com.example.yallabuy_user.data.models.OrderDetailsResponse
 import com.example.yallabuy_user.data.models.OrdersResponse
 import com.example.yallabuy_user.data.models.ProductResponse
 import com.example.yallabuy_user.data.models.cart.DraftOrderBody
+import com.example.yallabuy_user.data.models.cart.DraftOrderResponse
 import com.example.yallabuy_user.data.models.createUser.CreateUserOnShopifyResponse
 import com.example.yallabuy_user.data.models.customer.CustomerDataResponse
 import com.example.yallabuy_user.data.models.productInfo.ProductInfoResponse
@@ -66,7 +67,7 @@ class Repository(private val remoteDataSource: RemoteDataSourceInterface) : Repo
             createUserResponse
         }catch (e : Exception){
             Log.i("createUser", "createUserAccount in repo error ${e.message}  ")
-           flowOf( "error ${e.message}")
+            flowOf( "error ${e.message}")
         }
     }
 
@@ -102,7 +103,6 @@ class Repository(private val remoteDataSource: RemoteDataSourceInterface) : Repo
         }
     }
 
-
     override suspend fun getUserById(customerId: Long): Flow<CreateUserOnShopifyResponse> {
         return try {
             val customer = remoteDataSource.getCustomerById(customerId)
@@ -112,18 +112,19 @@ class Repository(private val remoteDataSource: RemoteDataSourceInterface) : Repo
             flowOf()
         }
     }
-    override suspend fun getCustomerAddressById(
-        customerId: Long,
-        addressId: Long
-    ): Flow<NewAddressResponse> {
-        return try {
-            remoteDataSource.getCustomerAddressById(customerId, addressId)
-        } catch (e: Exception) {
-            Log.e("Repository", "getCustomerAddressById error: ${e.message}", e)
-            flowOf()
-        }
-    }
+//    override suspend fun getCustomerAddressById(
+//        customerId: Long,
+//        addressId: Long
+//    ): Flow<NewAddressResponse> {
+//        return try {
+//            remoteDataSource.getCustomerAddressById(customerId, addressId)
+//        } catch (e: Exception) {
+//            Log.e("Repository", "getCustomerAddressById error: ${e.message}", e)
+//            flowOf()
+//        }
+//    }
 
+    //wishList
     override suspend fun creteWishListDraftOrder(wishListDraftOrderRequest: WishListDraftOrderRequest): Flow<WishListDraftOrderResponse> {
         return try {
             val wishListDraftOrderResponse = remoteDataSource.creteWishListDraftOrder(wishListDraftOrderRequest)
@@ -133,23 +134,25 @@ class Repository(private val remoteDataSource: RemoteDataSourceInterface) : Repo
             flowOf()
         }
     }
-    override suspend fun getAddresses(customerId: Long): Flow<AddressesResponse> {
+
+    override suspend fun getWishListDraftById(wishListDraftOrderId: Long): Flow<WishListDraftOrderResponse> {
         return try {
-            remoteDataSource.getAddresses(customerId)
-        } catch (e: Exception) {
-            Log.e("Repository", "getAddresses error: ${e.message}", e)
+            val wishLestDraftOrderResponse = remoteDataSource.getWishListDraftById(wishListDraftOrderId)
+            Log.i("wishList", "getWishListDraftById:  in repo success ")
+            wishLestDraftOrderResponse
+        }catch (e : Exception){
+            Log.i("wishList", "getWishListDraftById:  in repo error is ${e.message} ")
             flowOf()
         }
     }
 
-    override suspend fun createCustomerAddress(
-        customerId: Long,
-        newAddressBody: AddressBody
-    ): Flow<NewAddressResponse> {
+    override suspend fun updateDraftOrder(draftOrderId: Long , wishListDraftOrderRequest: WishListDraftOrderRequest): Flow<WishListDraftOrderResponse> {
         return try {
-            remoteDataSource.createCustomerAddress(customerId, newAddressBody)
-        } catch (e: Exception) {
-            Log.e("Repository", "createCustomerAddress error: ${e.message}", e)
+            val wishLestDraftOrderResponse = remoteDataSource.updateDraftOrder(draftOrderId , wishListDraftOrderRequest)
+            Log.i("wishList", "updateDraftOrder in repo success ")
+            wishLestDraftOrderResponse
+        }catch (e : Exception){
+            Log.i("wishList", "updateDraftOrder in repo error is ${e.message} ")
             flowOf()
         }
     }
@@ -166,17 +169,25 @@ class Repository(private val remoteDataSource: RemoteDataSourceInterface) : Repo
             flowOf()
         }
     }
+
+    //address
+    override suspend fun getAddresses(customerId: Long): Flow<AddressesResponse> {
+        return remoteDataSource.getAddresses(customerId)
+    }
+
+    override suspend fun createCustomerAddress(
+        customerId: Long,
+        newAddressBody: AddressBody
+    ): Flow<NewAddressResponse> {
+        return remoteDataSource.createCustomerAddress(customerId, newAddressBody)
+    }
+
     override suspend fun updateCustomerAddress(
         customerId: Long,
         addressId: Long,
         updatedAddressBody: AddressBody
     ): Flow<NewAddressResponse> {
-        return try {
-            remoteDataSource.updateCustomerAddress(customerId, addressId, updatedAddressBody)
-        } catch (e: Exception) {
-            Log.e("Repository", "updateCustomerAddress error: ${e.message}", e)
-            flowOf()
-        }
+        return remoteDataSource.updateCustomerAddress(customerId, addressId, updatedAddressBody)
     }
 
     override suspend fun deleteCustomerAddress(customerId: Long, addressId: Long) {
@@ -187,74 +198,23 @@ class Repository(private val remoteDataSource: RemoteDataSourceInterface) : Repo
         }
     }
 
-
     //cart
-    override suspend fun createDraftOrder(draftOrderBody: DraftOrderBody): Flow<DraftOrderBody> {
-        return try {
-            remoteDataSource.createDraftOrder(draftOrderBody)
-        } catch (e: HttpException) {
-            Log.i("CartRepo", "createDraftOrder http error: ${e.message}")
-
-            flowOf()
-        } catch (e: NullPointerException) {
-            Log.i("CartRepo", "createDraftOrder null error: ${e.message}")
-            flowOf()
-        }
+    override suspend fun createDraftOrderCart(draftOrderBody: DraftOrderBody): Flow<DraftOrderBody> {
+        return remoteDataSource.createDraftOrder(draftOrderBody)
     }
 
-    override suspend fun getWishListDraftById(wishListDraftOrderId: Long): Flow<WishListDraftOrderResponse> {
-        return try {
-            val wishLestDraftOrderResponse = remoteDataSource.getWishListDraftById(wishListDraftOrderId)
-            Log.i("wishList", "getWishListDraftById:  in repo success ")
-            wishLestDraftOrderResponse
-        }catch (e : Exception){
-            Log.i("wishList", "getWishListDraftById:  in repo error is ${e.message} ")
-            flowOf()
-        }
-    }
-    override suspend fun getDraftOrder(id: Long): Flow<DraftOrderBody> {
-        return try {
-            remoteDataSource.getDraftOrder(id)
-        } catch (e: HttpException) {
-            Log.i("CartRepo", "getDraftOrder http error: ${e.message}")
-            flowOf()
-        } catch (e: NullPointerException) {
-            Log.i("CartRepo", "getDraftOrder null error: ${e.message}")
-            flowOf()
-        }
+    override suspend fun getDraftOrderCart(): Flow<DraftOrderResponse> {
+        return remoteDataSource.getDraftOrder()
     }
 
-    override suspend fun updateDraftOrder(draftOrderId: Long , wishListDraftOrderRequest: WishListDraftOrderRequest): Flow<WishListDraftOrderResponse> {
-        return try {
-            val wishLestDraftOrderResponse = remoteDataSource.updateDraftOrder(draftOrderId , wishListDraftOrderRequest)
-            Log.i("wishList", "updateDraftOrder in repo success ")
-            wishLestDraftOrderResponse
-        }catch (e : Exception){
-            Log.i("wishList", "updateDraftOrder in repo error is ${e.message} ")
-            flowOf()
-        }
-    }
-    override suspend fun updateDraftOrder(id: Long, draftOrderBody: DraftOrderBody): Flow<DraftOrderBody> {
-        return try {
-            remoteDataSource.updateDraftOrder(id, draftOrderBody)
-        } catch (e: HttpException) {
-            Log.i("CartRepo", "updateDraftOrder http error: ${e.message}")
-            flowOf()
-        } catch (e: NullPointerException) {
-            Log.i("CartRepo", "updateDraftOrder null error: ${e.message}")
-            flowOf()
-        }
+    override suspend fun updateDraftOrder(id: Long, draftOrderBody: DraftOrderBody): Flow<DraftOrderBody>{
+
+        return remoteDataSource.updateDraftOrder(id, draftOrderBody)
     }
 
-    override suspend fun deleteDraftOrder(id: Long): Flow<Unit> {
-        return try {
-            remoteDataSource.deleteDraftOrder(id)
-        } catch (e: HttpException) {
-            Log.i("CartRepo", "deleteDraftOrder http error: ${e.message}")
-            flowOf()
-        } catch (e: NullPointerException) {
-            Log.i("CartRepo", "deleteDraftOrder null error: ${e.message}")
-            flowOf()
-        }
+    override suspend fun deleteDraftOrderCart(id: Long): Flow<Unit> {
+        return remoteDataSource.deleteDraftOrder(id)
     }
+
+
 }
