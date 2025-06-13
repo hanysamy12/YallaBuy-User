@@ -16,6 +16,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
@@ -164,7 +165,7 @@ fun AddressTopBar(onNavigateBack: () -> Unit) {
         navigationIcon = {
             IconButton(onClick = onNavigateBack) {
                 Icon(
-                    imageVector = Icons.Default.ArrowBack,
+                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
                     contentDescription = "Back",
                     tint = Color.White
                 )
@@ -228,20 +229,6 @@ fun AddressScreenContent(
                         onDeleteAddress = { viewModel.deleteAddress(it) },
                         onSetDefault = {  address -> viewModel.setDefaultAddress(address)  }
                     )
-//                    AddressList(
-//                        addresses = addressList.value,
-//                        onEditAddress = onEditAddress,
-//                        onDeleteAddress = { viewModel.deleteAddress(it) },
-//                        onSetDefault = { newDefault ->
-//                            val currentDefault = addresses.find { it.default && it.id != newDefault.id }
-//
-//                            currentDefault?.let {
-//                                viewModel.updateAddress(it.id, AddressBody(it.copy(default = false)))
-//                            }
-//
-//                            viewModel.updateAddress(newDefault.id, AddressBody(newDefault.copy(default = true)))
-//                        }
-//                    )
                 }
             }
         }
@@ -386,30 +373,55 @@ fun AddressItem(
     }
 }
 
+
 @Composable
-fun DeleteConfirmationDialog(
-    onDismiss: () -> Unit,
-    onConfirm: () -> Unit
+fun ExpandableFab(
+    onAddAddressClick: () -> Unit,
+    onAddByMapClick: () -> Unit
 ) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text("Delete Address") },
-        text = { Text("Are you sure you want to delete this address?") },
-        confirmButton = {
-            TextButton(
-                onClick = onConfirm,
-                colors = ButtonDefaults.textButtonColors(contentColor = Color.Red)
-            ) {
-                Text("Delete")
+    var expanded by remember { mutableStateOf(false) }
+
+    Box(
+        modifier = Modifier.wrapContentSize(),
+        contentAlignment = Alignment.BottomEnd
+    ) {
+        Column(horizontalAlignment = Alignment.End) {
+            if (expanded) {
+                FloatingActionButton(
+                    onClick = onAddByMapClick,
+                    modifier = Modifier.padding(bottom = 12.dp),
+                    containerColor = colorResource(R.color.light_gray)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Place,
+                        contentDescription = "Add by Map",
+                        tint = colorResource(id = R.color.dark_blue)
+                    )
+                }
+
+                FloatingActionButton(
+                    onClick = onAddAddressClick,
+                    modifier = Modifier.padding(bottom = 12.dp),
+                    containerColor = Color.LightGray
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Home,
+                        contentDescription = "Add Address",
+                        tint = colorResource(id = R.color.dark_blue)
+                    )
+                }
             }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Cancel")
+
+            FloatingActionButton(onClick = { expanded = !expanded }) {
+                Icon(
+                    imageVector = if (expanded) Icons.Default.Close else Icons.Default.Add,
+                    contentDescription = "Toggle"
+                )
             }
         }
-    )
+    }
 }
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -468,13 +480,6 @@ fun EditAddressDialog(
                     modifier = Modifier.fillMaxWidth(),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)
                 )
-//                OutlinedTextField(
-//                    value = city,
-//                    onValueChange = { city = it },
-//                    label = { Text("City") },
-//                    modifier = Modifier.fillMaxWidth()
-//                )
-
 
                 ExposedDropdownMenuBox(
                     expanded = expanded,
@@ -488,7 +493,7 @@ fun EditAddressDialog(
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
                         modifier = Modifier
                             .fillMaxWidth()
-                            //.menuAnchor()
+                            .menuAnchor()
                     )
 
                     ExposedDropdownMenu(
@@ -600,54 +605,6 @@ fun EditConfirmationDialog(
         }
     )
 }
-@Composable
-fun ExpandableFab(
-    onAddAddressClick: () -> Unit,
-    onAddByMapClick: () -> Unit
-) {
-    var expanded by remember { mutableStateOf(false) }
-
-    Box(
-        modifier = Modifier.wrapContentSize(),
-        contentAlignment = Alignment.BottomEnd
-    ) {
-        Column(horizontalAlignment = Alignment.End) {
-            if (expanded) {
-                FloatingActionButton(
-                    onClick = onAddByMapClick,
-                    modifier = Modifier.padding(bottom = 12.dp),
-                    containerColor = colorResource(R.color.light_gray)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Place,
-                        contentDescription = "Add by Map",
-                        tint = colorResource(id = R.color.dark_blue)
-                    )
-                }
-
-                FloatingActionButton(
-                    onClick = onAddAddressClick,
-                    modifier = Modifier.padding(bottom = 12.dp),
-                    containerColor = Color.LightGray
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Home,
-                        contentDescription = "Add Address",
-                        tint = colorResource(id = R.color.dark_blue)
-                    )
-                }
-            }
-
-            FloatingActionButton(onClick = { expanded = !expanded }) {
-                Icon(
-                    imageVector = if (expanded) Icons.Default.Close else Icons.Default.Add,
-                    contentDescription = "Toggle"
-                )
-            }
-            }
-        }
-    }
-
 
 
 @Composable
@@ -659,6 +616,31 @@ fun MissingFieldsDialog(onDismiss: () -> Unit) {
         confirmButton = {
             TextButton(onClick = onDismiss) {
                 Text("OK")
+            }
+        }
+    )
+}
+
+@Composable
+fun DeleteConfirmationDialog(
+    onDismiss: () -> Unit,
+    onConfirm: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Delete Address") },
+        text = { Text("Are you sure you want to delete this address?") },
+        confirmButton = {
+            TextButton(
+                onClick = onConfirm,
+                colors = ButtonDefaults.textButtonColors(contentColor = Color.Red)
+            ) {
+                Text("Delete")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
             }
         }
     )

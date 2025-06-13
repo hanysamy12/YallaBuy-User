@@ -38,10 +38,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import androidx.navigation.toRoute
 import com.example.yallabuy_user.R
 import com.example.yallabuy_user.authentication.login.CustomerIdPreferences
@@ -55,6 +57,7 @@ import com.example.yallabuy_user.orders.PreviousOrdersScreen
 import com.example.yallabuy_user.productInfo.ProductInfoScreen
 import com.example.yallabuy_user.products.ProductsScreen
 import com.example.yallabuy_user.profile.ProfileScreen
+import com.example.yallabuy_user.settings.view.AddressFormScreen
 import com.example.yallabuy_user.settings.view.AddressScreen
 import com.example.yallabuy_user.settings.view.CurrencyScreen
 import com.example.yallabuy_user.settings.view.MapLocationScreen
@@ -246,9 +249,47 @@ fun MainScreen() {
             composable(ScreenRoute.Map.route){
                 val context= LocalContext.current
                 val activity = LocalActivity.current as ComponentActivity
-                MapLocationScreen(locationPermissionManager = LocationPermissionManager(context, activity)) {
+                    val locationPermissionManager = remember { LocationPermissionManager(context, activity) }
 
+                    MapLocationScreen(
+                        locationPermissionManager = locationPermissionManager,
+                        navController = navController,
+                        onNavigateBack = { navController.popBackStack() }
+                    )
                 }
+
+            //question about that
+            composable(
+                route = "address_form?addressId={addressId}&fullAddress={fullAddress}&city={city}&country={country}",
+                arguments = listOf(
+                    navArgument("addressId") {
+                        type = NavType.LongType
+                        defaultValue = 0L
+                    },
+                    navArgument("fullAddress") {
+                        type = NavType.StringType
+                        nullable = true
+                        defaultValue = null
+                    },
+                    navArgument("city") {
+                        type = NavType.StringType
+                        nullable = true
+                        defaultValue = null
+                    },
+                    navArgument("country") {
+                        type = NavType.StringType
+                        nullable = true
+                        defaultValue = null
+                    }
+                )
+            ) { backStackEntry ->
+                AddressFormScreen(
+                    navController = navController,
+                    addressId = backStackEntry.arguments?.getLong("addressId") ?: 0L,
+                    fullAddress = backStackEntry.arguments?.getString("fullAddress"),
+                    city = backStackEntry.arguments?.getString("city"),
+                    country = backStackEntry.arguments?.getString("country")
+                )
             }
 
             //with null

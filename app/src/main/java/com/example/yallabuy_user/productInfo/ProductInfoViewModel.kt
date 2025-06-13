@@ -59,12 +59,17 @@ class ProductInfoViewModel(
                 customerResponse.collect { customer ->
                     val note = customer.customer.note
                     val noteString = note as? String
+                    val tags = customer.customer.tags
                     if (noteString.isNullOrBlank()) {
                         Log.i("customer", "Note is empty or null.")
                         createWishListDraftOrder(data, customerId)
                     } else {
                         Log.i("customer", "Note is not empty: $noteString")
                         addProductToWishList(noteString, data, customerId)
+                    }
+
+                    if(tags.isNullOrBlank()){
+
                     }
                 }
             } catch (e: Exception) {

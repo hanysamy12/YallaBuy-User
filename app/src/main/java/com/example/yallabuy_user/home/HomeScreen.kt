@@ -192,7 +192,6 @@ private fun HomeContent(
 
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun CouponsCarousel(imageResIds: List<Int>) {
 

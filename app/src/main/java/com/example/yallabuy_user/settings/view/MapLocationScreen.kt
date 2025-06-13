@@ -59,6 +59,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.navigation.NavController
 import com.example.yallabuy_user.R
 import com.example.yallabuy_user.settings.viewmodel.AddressViewModel
 import com.example.yallabuy_user.utilities.LocationPermissionManager
@@ -89,13 +90,22 @@ fun MapLocationScreen(
     viewModel: AddressViewModel= koinViewModel(),
     locationPermissionManager: LocationPermissionManager,
     onNavigateBack: () -> Unit,
+    navController: NavController
    // onLocationConfirmed: (Address) -> Unit
 ) {
+    val context = LocalContext.current
+    val activity = LocalActivity.current
+    val lifecycleOwner = LocalLifecycleOwner.current
+
     var selectedLocation by remember { mutableStateOf(LatLng(30.0444, 31.2357)) }
     var currentAddress by remember { mutableStateOf("Searching for address...") }
+    var city by remember { mutableStateOf("") }
+    var country by remember { mutableStateOf("") }
 
-    val context = LocalContext.current
-    val lifecycleOwner = LocalLifecycleOwner.current
+    val cameraPositionState = rememberCameraPositionState {
+        position = CameraPosition.fromLatLngZoom(selectedLocation, 15f)
+    }
+
 
     var showRationaleDialog by remember { mutableStateOf(false) }
     var showPermissionDeniedDialog by remember { mutableStateOf(false) }
@@ -106,16 +116,10 @@ fun MapLocationScreen(
     var showLocationSettingsDialog by remember { mutableStateOf(false) }
     var showInternetDialog by remember { mutableStateOf(false) }
 
-    var showRecipientDialog by remember { mutableStateOf(false) }
-
-
     val geocoder = remember { Geocoder(context, Locale.getDefault()) }
 
-    val cameraPositionState = rememberCameraPositionState {
-        position = CameraPosition.fromLatLngZoom(selectedLocation, 15f)
-    }
-
-    val activity = LocalActivity.current
+    var detectedAddress by remember { mutableStateOf("Tap on the map to select an address") }
+    var showEditDialog by remember { mutableStateOf(false) }
 
     val launcher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -144,9 +148,6 @@ fun MapLocationScreen(
         )
     }
 
-
-
-
 //    LaunchedEffect(cameraPositionState.position) {
 //        delay(500)
 //        updateAddressFromLocation(
@@ -161,27 +162,34 @@ fun MapLocationScreen(
     LaunchedEffect(cameraPositionState.isMoving) {
         if (!cameraPositionState.isMoving) {
             selectedLocation = cameraPositionState.position.target
-
             Geocoder(context, Locale.getDefault()).getFromLocation(
                 selectedLocation.latitude,
                 selectedLocation.longitude,
                 1,
                 object : Geocoder.GeocodeListener {
-                    override fun onGeocode(addresses: MutableList<Address>) {
-                        currentAddress = if (addresses.isNotEmpty()) {
-                            addresses[0].getAddressLine(0) ?: "Address not found"
+                    override fun onGeocode(addresses: MutableList<android.location.Address>) {
+                        if (addresses.isNotEmpty()) {
+                            val addr = addresses[0]
+                            currentAddress = addr.getAddressLine(0) ?: "Address not found"
+                            city = addr.locality ?: ""
+                            country = addr.countryName ?: ""
                         } else {
-                            "Address not found"
+                            currentAddress = "Address not found"
+                            city = ""
+                            country = ""
                         }
                     }
 
                     override fun onError(errorMessage: String?) {
                         currentAddress = "Address not found"
+                        city = ""
+                        country = ""
                     }
                 }
             )
         }
     }
+
 
     LaunchedEffect(Unit) {
         locationPermissionManager.checkPermission() //internet
@@ -383,10 +391,6 @@ fun MapLocationScreen(
                 }
             }
 
-
-
-
-
             Icon(
                 imageVector = Icons.Default.LocationOn,
                 contentDescription = "Location Marker",
@@ -418,8 +422,13 @@ fun MapLocationScreen(
 
             Button(
                 onClick = {
-                    showRecipientDialog = true
-                },
+                    navController.navigate(
+                        "address_form" +
+                                "?fullAddress=${Uri.encode(currentAddress)}" +
+                                "&city=${Uri.encode(city)}" +
+                                "&country=${Uri.encode(country)}"
+                    )
+                          },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp)
@@ -435,64 +444,42 @@ fun MapLocationScreen(
                     fontSize = 18.sp
                 )
             }
+
+
         }
-
-        
     }
-
-
 }
 
 @Composable
-fun RecipientDialog(
-    address: String,
+fun EditAddressDialog(
+    detectedAddress: String,
     onDismiss: () -> Unit,
-    onSubmit: (firstName: String, lastName: String, phone: String, address: String) -> Unit
+    onConfirm: (String) -> Unit
 ) {
-    var firstName by remember { mutableStateOf("") }
-    var lastName by remember { mutableStateOf("") }
-    var phone by remember { mutableStateOf("") }
+    var address by remember { mutableStateOf(detectedAddress) }
 
     AlertDialog(
         onDismissRequest = onDismiss,
+        title = { Text("Edit Address") },
+        text = {
+            OutlinedTextField(
+                value = address,
+                onValueChange = { address = it },
+                label = { Text("Address") },
+                modifier = Modifier.fillMaxWidth()
+            )
+        },
         confirmButton = {
             TextButton(onClick = {
-                onSubmit(firstName, lastName, phone, address)
+                onConfirm(address)
+                onDismiss()
             }) {
-                Text("Save")
+                Text("Confirm")
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
                 Text("Cancel")
-            }
-        },
-        title = { Text("Enter recipient details") },
-        text = {
-            Column {
-                OutlinedTextField(
-                    value = firstName,
-                    onValueChange = { firstName = it },
-                    label = { Text("Recipient First Name") },
-                    singleLine = true
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                OutlinedTextField(
-                    value = lastName,
-                    onValueChange = { lastName = it },
-                    label = { Text("Recipient Last Name") },
-                    singleLine = true
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                OutlinedTextField(
-                    value = phone,
-                    onValueChange = { phone = it },
-                    label = { Text("Phone Number") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
-                    singleLine = true
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text("Full address: $address", style = MaterialTheme.typography.bodySmall)
             }
         }
     )
