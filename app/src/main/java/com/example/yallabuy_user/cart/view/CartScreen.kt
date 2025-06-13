@@ -50,6 +50,7 @@ import com.example.yallabuy_user.R
 import com.example.yallabuy_user.authentication.login.CustomerIdPreferences
 import com.example.yallabuy_user.cart.viewmodel.CartViewModel
 import com.example.yallabuy_user.home.HomeViewModel
+import com.example.yallabuy_user.ui.navigation.ScreenRoute
 import com.example.yallabuy_user.utilities.ApiResponse
 import org.koin.androidx.compose.koinViewModel
 
@@ -131,13 +132,13 @@ fun CartScreen(
                                     },
                                     onDecrease = {
                                         cartViewModel.decreaseItemQuantity(
-                                            draftOrder.id?: -1L,
+                                            draftOrder.id ?: -1L,
                                             item.variantID
                                         )
                                     },
                                     onDelete = {
                                         cartViewModel.removeItemFromCart(
-                                            draftOrder.id?: -1L,
+                                            draftOrder.id ?: -1L,
                                             item.variantID
                                         )
                                     }
@@ -146,7 +147,11 @@ fun CartScreen(
                         }
                     }
 
-                    CheckoutSection(total = "${"%.2f".format(totalPrice)} EGP")
+                    CheckoutSection(
+                        total = "${"%.2f".format(totalPrice)} EGP",
+                        onCheckOutClicked = {
+                            navController.navigate(ScreenRoute.OrderCheckOut(1209159713086))//??
+                        })
                 }
             }
         }
@@ -302,7 +307,7 @@ fun QuantitySelector(
 }
 
 @Composable
-fun CheckoutSection(total: String) {
+fun CheckoutSection(total: String, onCheckOutClicked: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -317,7 +322,7 @@ fun CheckoutSection(total: String) {
         }
 
         Button(
-            onClick = { },
+            onClick = { onCheckOutClicked() },
             colors = ButtonDefaults.buttonColors(containerColor = colorResource(R.color.dark_blue)),
             modifier = Modifier
                 .fillMaxWidth()

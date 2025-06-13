@@ -14,7 +14,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
@@ -37,7 +36,6 @@ import androidx.compose.ui.unit.sp
 import com.example.yallabuy_user.data.models.cart.LineItem
 import com.example.yallabuy_user.home.ProgressShow
 import com.example.yallabuy_user.utilities.ApiResponse
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
@@ -89,7 +87,7 @@ fun OrderCheckoutScreen(viewModel: NewOrderViewModel = koinViewModel(), cartId: 
                     ) {
                         items(order.lineItems.size) { index ->
                             Log.i(TAG, "OrderCheckoutScreen: ${order.lineItems.size}")
-                            OrderCheckoutItem(lineItem = order.lineItems[index], currency)
+                            OrderCheckoutItem(lineItem = order.lineItems[index], currency ?:"$")
                             HorizontalDivider()
                         }
                     }
@@ -210,7 +208,6 @@ fun OrderCheckoutScreen(viewModel: NewOrderViewModel = koinViewModel(), cartId: 
             }
         }
     }
-
 }
 
 @Composable

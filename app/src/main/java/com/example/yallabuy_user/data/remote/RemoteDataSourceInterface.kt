@@ -4,6 +4,7 @@ package com.example.yallabuy_user.data.remote
 import WishListDraftOrderRequest
 import com.example.yallabuy_user.data.models.BrandResponse
 import com.example.yallabuy_user.data.models.CategoryResponse
+import com.example.yallabuy_user.data.models.CreateOrderRequest
 import com.example.yallabuy_user.data.models.OrderDetailsResponse
 import com.example.yallabuy_user.data.models.OrdersResponse
 import com.example.yallabuy_user.data.models.ProductResponse
@@ -46,6 +47,10 @@ interface RemoteDataSourceInterface {
     suspend fun getDraftOrder(): Flow<DraftOrderResponse>
     suspend fun updateDraftOrder(id: Long, draftOrderBody: DraftOrderBody): Flow<DraftOrderBody>
     suspend fun deleteDraftOrder(id: Long): Flow<Unit>
+    suspend fun draftOrderById(draftOrderId: Long): Flow<DraftOrderBody>
+    suspend fun createOrder(order: CreateOrderRequest): Flow<OrderDetailsResponse>
+
+
 
     
 

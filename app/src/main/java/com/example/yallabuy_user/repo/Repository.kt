@@ -5,6 +5,7 @@ import WishListDraftOrderRequest
 import android.util.Log
 import com.example.yallabuy_user.data.models.BrandResponse
 import com.example.yallabuy_user.data.models.CategoryResponse
+import com.example.yallabuy_user.data.models.CreateOrderRequest
 import com.example.yallabuy_user.data.models.OrderDetailsResponse
 import com.example.yallabuy_user.data.models.OrdersResponse
 import com.example.yallabuy_user.data.models.ProductResponse
@@ -214,6 +215,14 @@ class Repository(private val remoteDataSource: RemoteDataSourceInterface) : Repo
 
     override suspend fun deleteDraftOrderCart(id: Long): Flow<Unit> {
         return remoteDataSource.deleteDraftOrder(id)
+    }
+
+    override suspend fun getDraftOrderById(draftOrderId: Long): Flow<DraftOrderBody> {
+        return remoteDataSource.draftOrderById(draftOrderId)
+    }
+
+    override suspend fun createOrder(order: CreateOrderRequest): Flow<OrderDetailsResponse> {
+        return remoteDataSource.createOrder(order)
     }
 
 

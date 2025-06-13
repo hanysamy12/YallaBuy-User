@@ -71,7 +71,10 @@ data class LineItemsItem(
 	val productId: Long? = null,
 	val name: String? = null,
 	val imgUrl : String? = null,
-	val currency: String? = null
+	val currency: String? = null,
+	@SerializedName("variant_id")
+	val variantId: Long? = null,
+	val quantity: Int? = null
 
 	)
 
