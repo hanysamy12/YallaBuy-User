@@ -107,6 +107,7 @@ fun CartScreen(
                         Text(text = "Your cart is empty", fontSize = 18.sp)
                     }
                 } else {
+                    val draftOrderId = draftOrders.first().id
                     val allLineItems = draftOrders.flatMap { it.lineItems }
                     val totalPrice = allLineItems.sumOf { it.getTotalPrice().toDouble() }
 
@@ -167,7 +168,8 @@ fun CartScreen(
                     CheckoutSection(
                         total = "${"%.2f".format(totalPrice)} EGP",
                         onCheckOutClicked = {
-                            navController.navigate(ScreenRoute.OrderCheckOut(1209159713086))//??
+                            if (draftOrderId != null)
+                            navController.navigate(ScreenRoute.OrderCheckOut(draftOrderId))
                         })
 
                         Button(
