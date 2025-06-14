@@ -122,7 +122,6 @@ private fun HomeContent(
     val context = LocalContext.current
 
     val coupons = listOf(
-        CouponItem(R.drawable.sale4, "ZIAD40"),
         CouponItem(R.drawable.coupon22, "ZIAD40"),
         CouponItem(R.drawable.coupon30, "ZIAD30"),
         CouponItem(R.drawable.coupon20, "ZIAD20"),
@@ -157,8 +156,8 @@ private fun HomeContent(
             ) {
                 CircularImageWithTitle(categories[0], R.drawable.img_kid, onCatClicked)
                 CircularImageWithTitle(categories[1], R.drawable.img_man, onCatClicked)
-                CircularImageWithTitle(categories[2], R.drawable.img_women, onCatClicked)
-                CircularImageWithTitle(categories[3], R.drawable.img_sale, onCatClicked)
+                CircularImageWithTitle(categories[3], R.drawable.img_women, onCatClicked)
+                CircularImageWithTitle(categories[2], R.drawable.img_sale, onCatClicked)
             }
         } else {
             Text(
