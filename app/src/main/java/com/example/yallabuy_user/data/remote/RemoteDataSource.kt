@@ -4,6 +4,7 @@ import WishListDraftOrderRequest
 import android.util.Log
 import com.example.yallabuy_user.data.models.BrandResponse
 import com.example.yallabuy_user.data.models.CategoryResponse
+import com.example.yallabuy_user.data.models.CreateOrderRequest
 import com.example.yallabuy_user.data.models.DiscountCode
 import com.example.yallabuy_user.data.models.OrderDetailsResponse
 import com.example.yallabuy_user.data.models.OrdersResponse
@@ -254,6 +255,14 @@ class RemoteDataSource(
             Log.i("wishList", "updateNoteInCustomer in remote error is ${e.message} ")
             flowOf()
         }
+    }
+    override suspend fun draftOrderById(draftOrderId: Long): Flow<DraftOrderBody> {
+        val order = service.getCartDraftOrderById(draftOrderId)
+        return flowOf(order)
+    }
+    override suspend fun createOrder(order: CreateOrderRequest): Flow<OrderDetailsResponse> {
+        val response = service.createOrder(order)
+        return flowOf(response)
     }
 
 }

@@ -100,4 +100,7 @@ sealed class ScreenRoute(val route: String) {
 //    }
 //}
 
+    @Serializable
+    data class OrderCheckOut (val orderId: Long?): ScreenRoute("new_order")
+
 }

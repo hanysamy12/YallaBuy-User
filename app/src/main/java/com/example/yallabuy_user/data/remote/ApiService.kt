@@ -6,6 +6,7 @@ import android.util.Log
 import com.example.yallabuy_user.data.models.cart.DraftOrderBody
 import com.example.yallabuy_user.data.models.BrandResponse
 import com.example.yallabuy_user.data.models.CategoryResponse
+import com.example.yallabuy_user.data.models.CreateOrderRequest
 import com.example.yallabuy_user.data.models.DiscountCodesResponse
 import com.example.yallabuy_user.data.models.OrderDetailsResponse
 import com.example.yallabuy_user.data.models.OrdersResponse
@@ -43,12 +44,15 @@ class AuthInterceptor() : Interceptor {
             .addHeader("X-Shopify-Access-Token", token)
             .addHeader("Content-Type", "application/json")
             .build()
-        Log.d("TAG", "interceptor : ${request.url} ====== ${request.headers.get("X-Shopify-Access-Token")} ")
+        Log.d(
+            "TAG",
+            "interceptor : ${request.url} ====== ${request.headers.get("X-Shopify-Access-Token")} "
+        )
         return chain.proceed(request)
     }
 }
 
-interface ApiService  {
+interface ApiService {
     @GET("custom_collections.json")
     suspend fun getAllCategories(): CategoryResponse
 
@@ -64,7 +68,7 @@ interface ApiService  {
     @GET("products/{product_id}.json")
     suspend fun getProductById(
 
-      @Path("product_id") productId: Long
+        @Path("product_id") productId: Long
     ): ProductInfoResponse
 
     @GET("customers/{userID}/orders.json")
@@ -76,41 +80,42 @@ interface ApiService  {
     @Headers("Accept: application/json")
     @POST("customers.json?send_email_invite=true")
     suspend fun createUserOnShopify(
-        @Body request : CreateUSerOnShopifyRequest
-    ) : CreateUserOnShopifyResponse
+        @Body request: CreateUSerOnShopifyRequest
+    ): CreateUserOnShopifyResponse
 
     @GET("/admin/api/2025-04/customers/search.json")
     suspend fun getUserDataByEmail(
-        @Query("email") email : String
-    ) : CustomerDataResponse
+        @Query("email") email: String
+    ): CustomerDataResponse
 
     @GET("/admin/api/2025-04/customers/{id}.json")
     suspend fun getCustomerById(
-        @Path("id") customerId : Long
-    ) : CreateUserOnShopifyResponse
+        @Path("id") customerId: Long
+    ): CreateUserOnShopifyResponse
 
     @POST("/admin/api/2025-04/draft_orders.json")
     suspend fun createWishListDraftOrder(
         @Body wishListDraftOrderRequest: WishListDraftOrderRequest
-    ) : WishListDraftOrderResponse
+    ): WishListDraftOrderResponse
 
     @PUT("/admin/api/2025-04/customers/{id}.json")
     suspend fun updateNoteInCustomer(
-        @Path("id") customerId : Long ,
+        @Path("id") customerId: Long,
         @Body updateNoteInCustomer: UpdateNoteInCustomer
-    ) : CreateUserOnShopifyResponse
+    ): CreateUserOnShopifyResponse
 
     @GET("/admin/api/2025-04/draft_orders/{id}.json")
     suspend fun getWishListDraftById(
-        @Path("id") wishListDraftOrderId : Long
-    ) : WishListDraftOrderResponse
+        @Path("id") wishListDraftOrderId: Long
+    ): WishListDraftOrderResponse
 
     @PUT("/admin/api/2025-04/draft_orders/{draftOrderId}.json")
     suspend fun updateDraftOrder(
-        @Path("draftOrderId") draftOrderId : Long ,
+        @Path("draftOrderId") draftOrderId: Long,
         @Body wishListDraftOrderRequest: WishListDraftOrderRequest
     ): WishListDraftOrderResponse
-//address
+
+    //address
     @GET("customers/{customer_id}/addresses/{address_id}.json")
     suspend fun getCustomerAddressById(
         @Path("customer_id") customerId: Long,
@@ -142,6 +147,14 @@ interface ApiService  {
     ): DeleteResponse
 
 //cart
+
+
+    @GET("draft_orders/{draft_order_id}.json")
+    suspend fun getCartDraftOrderById(
+        @Path("draft_order_id") draftOrderID: Long
+    ): DraftOrderBody
+
+
 
     @POST("draft_orders.json")
     suspend fun createDraftOrder(
@@ -181,5 +194,8 @@ interface ApiService  {
         @Path("price_rule_id") priceRuleId: Long
     ): DiscountCodesResponse
 
-
+    @POST("orders.json")
+    suspend fun createOrder(
+        @Body order: CreateOrderRequest
+    ): OrderDetailsResponse
 }

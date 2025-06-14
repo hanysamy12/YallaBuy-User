@@ -52,6 +52,7 @@ import com.example.yallabuy_user.authentication.registration.RegistrationScreen
 import com.example.yallabuy_user.cart.view.CartScreen
 import com.example.yallabuy_user.collections.CollectionsScreen
 import com.example.yallabuy_user.home.HomeScreen
+import com.example.yallabuy_user.orders.OrderCheckoutScreen
 import com.example.yallabuy_user.orders.OrderItemScreen
 import com.example.yallabuy_user.orders.PreviousOrdersScreen
 import com.example.yallabuy_user.productInfo.ProductInfoScreen
@@ -326,6 +327,10 @@ fun MainScreen() {
             composable(route = ScreenRoute.PreviousOrderDetails.FULL_ROUTE) { navBackStackEntry ->
                 val orderId = navBackStackEntry.arguments?.getString("orderId")?.toLongOrNull()
                 OrderItemScreen(orderId, navController)
+            }
+            composable<ScreenRoute.OrderCheckOut>{
+                val args = it.toRoute<ScreenRoute.OrderCheckOut>()
+                OrderCheckoutScreen(cartId = args.orderId ?: 0L)
             }
         }
     }

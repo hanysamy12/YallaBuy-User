@@ -4,6 +4,7 @@ package com.example.yallabuy_user.repo
 import WishListDraftOrderRequest
 import com.example.yallabuy_user.data.models.BrandResponse
 import com.example.yallabuy_user.data.models.CategoryResponse
+import com.example.yallabuy_user.data.models.CreateOrderRequest
 import com.example.yallabuy_user.data.models.DiscountCode
 import com.example.yallabuy_user.data.models.OrderDetailsResponse
 import com.example.yallabuy_user.data.models.OrdersResponse
@@ -51,7 +52,10 @@ interface RepositoryInterface {
     suspend fun getDraftOrderCart(draftOrderId: Long): Flow<DraftOrderBody>
     suspend fun updateDraftOrder(id: Long, draftOrderBody: DraftOrderBody): Flow<DraftOrderBody>
     suspend fun deleteDraftOrderCart(id: Long): Flow<Unit>
+    suspend fun getDraftOrderById(draftOrderId: Long): Flow<DraftOrderBody>
+    suspend fun createOrder(order: CreateOrderRequest): Flow<OrderDetailsResponse>
     suspend fun updateCustomerTags(customerId: Long, customerBody: UpdateCustomerBody): Flow<CreateCustomerCart>
+  
     suspend fun getAllCouponsForRule(priceRuleId: Long): Flow<List<DiscountCode>>
 
 }

@@ -22,6 +22,7 @@ import com.example.yallabuy_user.data.local.CurrencyPreferenceManagerImpl
 import com.example.yallabuy_user.data.remote.CurrencyRemoteDataSource
 import com.example.yallabuy_user.data.remote.CurrencyRemoteDataSourceImpl
 import com.example.yallabuy_user.data.remote.ExchangeRateApiService
+import com.example.yallabuy_user.orders.NewOrderViewModel
 import com.example.yallabuy_user.repo.CurrencyRepository
 import com.example.yallabuy_user.repo.ICurrencyRepository
 import com.example.yallabuy_user.settings.viewmodel.AddressViewModel
@@ -142,6 +143,9 @@ val dataModule = module {
 
     viewModel {
         AddressViewModel(get())
+    }
+    viewModel {
+        NewOrderViewModel(get())
     }
 
 }

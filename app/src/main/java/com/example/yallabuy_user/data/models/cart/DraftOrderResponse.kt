@@ -21,7 +21,11 @@ data class DraftOrderCart(
     @SerializedName("tags")
     val tags: String? = null,
 
-    val customer: Customer? = null
+    val customer: Customer? = null,
+    @SerializedName("total_price")
+    val totalPrice: String? = null,
+    val currency: String? = null,
+
 )
 
 data class LineItem(
