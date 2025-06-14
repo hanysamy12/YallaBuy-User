@@ -97,7 +97,7 @@ fun CartScreen(
             }
 
             is ApiResponse.Success -> {
-                val draftOrders = state.data.draftOrders
+                val draftOrders = state.data.draftOrderCarts
                 if (draftOrders.isEmpty()) {
                     Box(
                         modifier = Modifier.fillMaxSize(),
