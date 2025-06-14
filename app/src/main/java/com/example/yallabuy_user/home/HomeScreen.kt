@@ -1,6 +1,11 @@
 package com.example.yallabuy_user.home
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import android.util.Log
+import android.widget.Toast
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -19,6 +24,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
@@ -38,6 +45,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -48,10 +56,12 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.yallabuy_user.R
+import com.example.yallabuy_user.data.models.CouponItem
 import com.example.yallabuy_user.data.models.CustomCollectionsItem
 import com.example.yallabuy_user.data.models.SmartCollectionsItem
 import com.example.yallabuy_user.ui.navigation.ScreenRoute
 import com.example.yallabuy_user.utilities.ApiResponse
+import kotlinx.coroutines.delay
 import org.koin.androidx.compose.koinViewModel
 
 private const val TAG = "HomeScreen"
@@ -72,7 +82,7 @@ fun HomeScreen(navController: NavController, homeViewModel: HomeViewModel = koin
                 val brands = (uiBrandState as ApiResponse.Success).data
                 val categories = (uiCategoriesState as ApiResponse.Success).data
                 HomeContent(categories, brands, onCatClicked = { catId ->
-                      Log.i(TAG, "HomeScreen: Collection ID = $catId")
+                    Log.i(TAG, "HomeScreen: Collection ID = $catId")
                     navController.navigate(
                         ScreenRoute.ProductsScreen.createRoute(
                             vendorName = null,
@@ -101,7 +111,6 @@ fun HomeScreen(navController: NavController, homeViewModel: HomeViewModel = koin
     }
 
 }
-
 @Composable
 private fun HomeContent(
     categories: List<CustomCollectionsItem>,
@@ -110,15 +119,14 @@ private fun HomeContent(
     onBrandClicked: (String) -> Unit
 ) {
 
-    val couponImages = listOf(
-        R.drawable.sale1,
-        R.drawable.sale2,
-        R.drawable.sale3,
-        R.drawable.sale4,
-        R.drawable.sale5,
-        R.drawable.img_sale
-    )
+    val context = LocalContext.current
 
+    val coupons = listOf(
+        CouponItem(R.drawable.coupon22, "ZIAD40"),
+        CouponItem(R.drawable.coupon30, "ZIAD30"),
+        CouponItem(R.drawable.coupon20, "ZIAD20"),
+        CouponItem(R.drawable.coupon10, "ZIAD10"),
+    )
     Column {
         Spacer(modifier = Modifier.height(10.dp))
         Text(
@@ -127,34 +135,40 @@ private fun HomeContent(
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp),
             fontSize = 16.sp,
-          //  color = Color.White,
+            //  color = Color.White,
             textAlign = TextAlign.Center,
             fontWeight = FontWeight.Medium
         )
-        CouponsCarousel(imageResIds = couponImages)
+        CouponsCarousel(coupons = coupons, onCouponClick = { couponCode ->
+            val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+            val clip = ClipData.newPlainText("Coupon Code", couponCode)
+            clipboard.setPrimaryClip(clip)
+            Toast.makeText(context, "Coupon code copied: $couponCode", Toast.LENGTH_SHORT).show()
+        })
 
         Spacer(Modifier.height(20.dp))
 
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            CircularImageWithTitle(categories[1], R.drawable.img_kid, onCatClicked = { catID ->
-                onCatClicked(catID)
-            })
-            CircularImageWithTitle(categories[2], R.drawable.img_man, onCatClicked = { catID ->
-                onCatClicked(catID)
-            })
-            CircularImageWithTitle(categories[4], R.drawable.img_women, onCatClicked = { catID ->
-                onCatClicked(catID)
-            })
-            CircularImageWithTitle(categories[3], R.drawable.img_sale, onCatClicked = { catID ->
-                onCatClicked(catID)
-            })
+        if (categories.size >= 4) { //I added that
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                CircularImageWithTitle(categories[0], R.drawable.img_kid, onCatClicked)
+                CircularImageWithTitle(categories[1], R.drawable.img_man, onCatClicked)
+                CircularImageWithTitle(categories[3], R.drawable.img_women, onCatClicked)
+                CircularImageWithTitle(categories[2], R.drawable.img_sale, onCatClicked)
+            }
+        } else {
+            Text(
+                text = "Not enough categories available",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                color = Color.Red,
+                textAlign = TextAlign.Center
+            )
         }
-
         Spacer(Modifier.height(20.dp))
         Text(
             "Show All Products",
@@ -187,29 +201,72 @@ private fun HomeContent(
     }
 
 }
-
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CouponsCarousel(imageResIds: List<Int>) {
-    val carouselState = rememberCarouselState { imageResIds.size }
+fun CouponsCarousel(
+    coupons: List<CouponItem>,
+    onCouponClick: (String) -> Unit
+) {
+    val pagerState = rememberPagerState(
+        initialPage = 0,
+        pageCount = { coupons.size }
+    )
 
-    HorizontalMultiBrowseCarousel(
-        state = carouselState,
-        preferredItemWidth = 300.dp,
-        itemSpacing = 12.dp,
-        contentPadding = PaddingValues(horizontal = 16.dp)
-    ) { index ->
-        CouponImage(imageResId = imageResIds[index])
+    LaunchedEffect(Unit) {
+        while (true) {
+            delay(3000L)
+            val nextPage = (pagerState.currentPage + 1) % coupons.size
+            pagerState.animateScrollToPage(nextPage)
+        }
+    }
+
+    Box(modifier = Modifier
+        .fillMaxWidth()
+        .height(200.dp)
+    ) {
+        HorizontalPager(
+            state = pagerState,
+            contentPadding = PaddingValues(horizontal = 32.dp),
+            pageSpacing = 16.dp,
+            modifier = Modifier.fillMaxSize()
+        ) { page ->
+            val coupon = coupons[page]
+            CouponImage(
+                imageResId = coupon.imageResId,
+                onClick = { onCouponClick(coupon.code) }
+            )
+        }
+
+        Row(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 8.dp),
+            horizontalArrangement = Arrangement.Center
+        ) {
+            repeat(coupons.size) { index ->
+                val color = if (pagerState.currentPage == index) Color.Black else Color.LightGray
+                Box(
+                    modifier = Modifier
+                        .padding(4.dp)
+                        .size(8.dp)
+                        .clip(CircleShape)
+                        .background(color)
+                )
+            }
+        }
     }
 }
 
+
 @Composable
-fun CouponImage(imageResId: Int) {
+fun CouponImage(
+    imageResId: Int,
+    onClick: () -> Unit
+) {
     Box(
         modifier = Modifier
-            //.fillMaxHeight()
             .height(200.dp)
             .clip(RoundedCornerShape(12.dp))
+            .clickable { onClick() } // ← Handle image tap
             .background(Color.LightGray)
     ) {
         Image(
@@ -223,24 +280,23 @@ fun CouponImage(imageResId: Int) {
     }
 }
 
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewCouponsCarousel() {
-    val previewImages = listOf(
-        android.R.drawable.ic_menu_gallery,
-        android.R.drawable.ic_menu_gallery,
-        android.R.drawable.ic_menu_gallery,
-        android.R.drawable.ic_menu_gallery,
-        android.R.drawable.ic_menu_gallery,
-        android.R.drawable.ic_menu_gallery
-    )
-
-    //https://developer.android.com/develop/ui/compose/components/carousel
-    MaterialTheme {
-        CouponsCarousel(imageResIds = previewImages)
-    }
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun PreviewCouponsCarousel() {
+//    val previewImages = listOf(
+//        android.R.drawable.ic_menu_gallery,
+//        android.R.drawable.ic_menu_gallery,
+//        android.R.drawable.ic_menu_gallery,
+//        android.R.drawable.ic_menu_gallery,
+//        android.R.drawable.ic_menu_gallery,
+//        android.R.drawable.ic_menu_gallery
+//    )
+//
+//    //https://developer.android.com/develop/ui/compose/components/carousel
+//    MaterialTheme {
+//        CouponsCarousel(imageResIds = previewImages)
+//    }
+//}
 
 
 @Composable

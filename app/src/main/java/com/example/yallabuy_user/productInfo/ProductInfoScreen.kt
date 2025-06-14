@@ -45,7 +45,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -78,7 +77,7 @@ import com.example.yallabuy_user.wish.WishListIdPref
 
 import com.example.yallabuy_user.cart.viewmodel.CartViewModel
 import com.example.yallabuy_user.data.models.cart.Customer
-import com.example.yallabuy_user.data.models.cart.DraftOrder
+import com.example.yallabuy_user.data.models.cart.DraftOrderCart
 import com.example.yallabuy_user.data.models.cart.DraftOrderBody
 import com.example.yallabuy_user.data.models.cart.LineItem
 import com.example.yallabuy_user.data.models.cart.Property
@@ -129,12 +128,16 @@ fun ProductInfoScreen(
                         ProductDetail(
                             productInfo.data,
                             onAddToCartClick = { draftOrder ->
-                                cartViewModel.addToCart(
-                                    draftOrder,
-                                    customerId = CustomerIdPreferences.getData(context)
+
+
+//                                cartViewModel.addToCart(
+//                                    draftOrder,
+//                                    customerId = CustomerIdPreferences.getData(context)
+                                productInfoViewModel.getCustomerById(customerId = CustomerIdPreferences.getData(context),
+                                    data = productInfo.data)}
                                 )
                             }
-                        )
+
                     }
                 }
                 if (showSignUpDialog.value) {
@@ -163,7 +166,7 @@ fun ProductInfoScreen(
             }
         }
     }
-}
+
 
 
 // , onAddToCartClick ={cartViewModel.addProductToCart()} )
@@ -284,8 +287,8 @@ fun ProductInfoScreen(
                                 it.option1 == selectedSize && it.option2 == selectedColor
                             }
                             selectedVariant?.let { variant ->
-                                val draftOrderObject = DraftOrderBody(
-                                    draftOrder = DraftOrder(
+                                val draftOrderCartObject = DraftOrderBody(
+                                    draftOrderCart = DraftOrderCart(
                                         id = 0L,
                                         lineItems = mutableListOf(
                                             LineItem(
@@ -316,7 +319,7 @@ fun ProductInfoScreen(
                                     )
                                 )
 
-                                onAddToCartClick(draftOrderObject)
+                                onAddToCartClick(draftOrderCartObject)
                             }
                         }
                     },
