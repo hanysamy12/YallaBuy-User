@@ -330,7 +330,7 @@ fun MainScreen() {
             }
             composable<ScreenRoute.OrderCheckOut>{
                 val args = it.toRoute<ScreenRoute.OrderCheckOut>()
-                OrderCheckoutScreen(cartId = args.orderId ?: 0L)
+                OrderCheckoutScreen(cartId = args.orderId )
             }
         }
     }

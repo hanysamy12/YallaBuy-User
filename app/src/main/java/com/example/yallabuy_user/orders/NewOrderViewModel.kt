@@ -24,7 +24,7 @@ class NewOrderViewModel(private val repository: RepositoryInterface) : ViewModel
 
     suspend fun getDraftOrder(id: Long) {
         try {
-            repository.getDraftOrderById(id).map { draftOrderBody -> draftOrderBody.draftOrderCart }
+            repository.getDraftOrderCart(id).map { draftOrderBody -> draftOrderBody.draftOrderCart }
                 .catch { e -> _cartOrder.value = ApiResponse.Failure(e) }
                 .collect {
                     _cartOrder.value = ApiResponse.Success(it)
