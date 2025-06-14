@@ -61,6 +61,10 @@ class AddressViewModel(
 
     @SuppressLint("SuspiciousIndentation")
     fun createAddress(addressBody: AddressBody) {
+        if (customerId == 0L) {
+            Log.e("AddressViewModel", "CustomerId not set before creating address!")
+            return
+        }
         viewModelScope.launch {
             Log.i("TAG", "createAddress: $addressBody")
             _createUpdateState.value = ApiResponse.Loading
@@ -140,17 +144,6 @@ class AddressViewModel(
                 }
         }
     }
+
 }
 
-//class AddressViewModelFactory(
-//    private val addressRepository: IAddressRepository,
-//    private val customerId: Long
-//) : ViewModelProvider.Factory {
-//    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-//        if (modelClass.isAssignableFrom(AddressViewModel::class.java)) {
-//            @Suppress("UNCHECKED_CAST")
-//            return AddressViewModel(addressRepository, customerId) as T
-//        }
-//        throw IllegalArgumentException("Unknown ViewModel class")
-//    }
-//}

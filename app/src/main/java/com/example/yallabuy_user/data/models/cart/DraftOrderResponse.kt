@@ -4,14 +4,14 @@ import com.google.gson.annotations.SerializedName
 
 data class DraftOrderBody(
     @SerializedName("draft_order")
-    val draftOrder: DraftOrder
+    val draftOrderCart: DraftOrderCart
 )
 data class DraftOrderResponse(
     @SerializedName("draft_orders")
-    val draftOrders: List<DraftOrder>
+    val draftOrderCarts: List<DraftOrderCart>
 )
 
-data class DraftOrder(
+data class DraftOrderCart(
     @SerializedName("id")
     val id: Long? = null,
 
@@ -56,4 +56,19 @@ data class Property(
 
 data class Customer(
     val id: Long
+)
+
+data class UpdateCustomerBody(
+    @SerializedName("customer")
+    val customer: CustomerTagUpdate
+)
+
+data class CustomerTagUpdate(
+    val id: Long,
+    val tags: String
+)
+
+data class CreateCustomerCart(
+    @SerializedName("customer")
+    val customer: CustomerTagUpdate
 )

@@ -4,11 +4,9 @@ import kotlinx.coroutines.flow.Flow
 
 interface CurrencyPreferenceManager {
 
-    //save the preferred currency code
     suspend fun setPreferredCurrency(currencyCode: String)
     suspend fun getPreferredCurrency(): String
 
-    // this allows other parts of the app to reactively update when the preference changes.
     val preferredCurrencyFlow: Flow<String>
 
     suspend fun setCurrencyRate(rate: Double)

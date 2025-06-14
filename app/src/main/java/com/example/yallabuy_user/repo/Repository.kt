@@ -6,11 +6,14 @@ import android.util.Log
 import com.example.yallabuy_user.data.models.BrandResponse
 import com.example.yallabuy_user.data.models.CategoryResponse
 import com.example.yallabuy_user.data.models.CreateOrderRequest
+import com.example.yallabuy_user.data.models.DiscountCode
 import com.example.yallabuy_user.data.models.OrderDetailsResponse
 import com.example.yallabuy_user.data.models.OrdersResponse
 import com.example.yallabuy_user.data.models.ProductResponse
+import com.example.yallabuy_user.data.models.cart.CreateCustomerCart
 import com.example.yallabuy_user.data.models.cart.DraftOrderBody
 import com.example.yallabuy_user.data.models.cart.DraftOrderResponse
+import com.example.yallabuy_user.data.models.cart.UpdateCustomerBody
 import com.example.yallabuy_user.data.models.createUser.CreateUserOnShopifyResponse
 import com.example.yallabuy_user.data.models.customer.CustomerDataResponse
 import com.example.yallabuy_user.data.models.productInfo.ProductInfoResponse
@@ -113,17 +116,6 @@ class Repository(private val remoteDataSource: RemoteDataSourceInterface) : Repo
             flowOf()
         }
     }
-//    override suspend fun getCustomerAddressById(
-//        customerId: Long,
-//        addressId: Long
-//    ): Flow<NewAddressResponse> {
-//        return try {
-//            remoteDataSource.getCustomerAddressById(customerId, addressId)
-//        } catch (e: Exception) {
-//            Log.e("Repository", "getCustomerAddressById error: ${e.message}", e)
-//            flowOf()
-//        }
-//    }
 
     //wishList
     override suspend fun creteWishListDraftOrder(wishListDraftOrderRequest: WishListDraftOrderRequest): Flow<WishListDraftOrderResponse> {
@@ -205,11 +197,14 @@ class Repository(private val remoteDataSource: RemoteDataSourceInterface) : Repo
     }
 
     override suspend fun getDraftOrderCart(): Flow<DraftOrderResponse> {
-        return remoteDataSource.getDraftOrder()
+        return remoteDataSource.getDraftOrders()
+    }
+
+    override suspend fun getDraftOrderCart(draftOrderId: Long): Flow<DraftOrderBody> {
+        return remoteDataSource.getDraftOrderCart(draftOrderId)
     }
 
     override suspend fun updateDraftOrder(id: Long, draftOrderBody: DraftOrderBody): Flow<DraftOrderBody>{
-
         return remoteDataSource.updateDraftOrder(id, draftOrderBody)
     }
 
@@ -223,6 +218,16 @@ class Repository(private val remoteDataSource: RemoteDataSourceInterface) : Repo
 
     override suspend fun createOrder(order: CreateOrderRequest): Flow<OrderDetailsResponse> {
         return remoteDataSource.createOrder(order)
+
+    override suspend fun updateCustomerTags(
+        customerId: Long,
+        customerBody: UpdateCustomerBody
+    ): Flow<CreateCustomerCart> {
+        return remoteDataSource.updateCustomerTags(customerId, customerBody)
+    }
+
+    override suspend fun getAllCouponsForRule(priceRuleId: Long): Flow<List<DiscountCode>> {
+            return remoteDataSource.getAllCouponsForRule(priceRuleId)
     }
 
 

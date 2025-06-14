@@ -26,6 +26,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -63,9 +64,11 @@ fun CartScreen(
     val cartState by cartViewModel.cartState.collectAsState()
     // val draftOrderId = 123456789L
     val draftOrdersState by cartViewModel.draftOrders.collectAsState()
-
     val context = LocalContext.current
     val customerId = CustomerIdPreferences.getData(context)
+
+    var couponCode by remember { mutableStateOf("") }
+
     LaunchedEffect(Unit) {
         Log.i("TAG", "CartScreen: customerId: $customerId ")
         cartViewModel.fetchCart(customerId)
@@ -95,7 +98,7 @@ fun CartScreen(
             }
 
             is ApiResponse.Success -> {
-                val draftOrders = state.data.draftOrders
+                val draftOrders = state.data.draftOrderCarts
                 if (draftOrders.isEmpty()) {
                     Box(
                         modifier = Modifier.fillMaxSize(),
@@ -111,6 +114,7 @@ fun CartScreen(
                         modifier = Modifier
                             .weight(1f)
                             .fillMaxWidth()
+                            .height(180.dp)
                             .padding(bottom = 8.dp)
                     ) {
                         items(draftOrders) { draftOrder ->
@@ -146,12 +150,39 @@ fun CartScreen(
                             }
                         }
                     }
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 8.dp)
+                    ) {
+                        OutlinedTextField(
+                            value = couponCode,
+                            onValueChange = { couponCode = it },
+                            label = { Text("Enter coupon code") },
+                            modifier = Modifier.fillMaxWidth(),
+                            singleLine = true
+                        )
+
 
                     CheckoutSection(
                         total = "${"%.2f".format(totalPrice)} EGP",
                         onCheckOutClicked = {
                             navController.navigate(ScreenRoute.OrderCheckOut(1209159713086))//??
                         })
+
+                        Button(
+                            onClick = {
+                               // cartViewModel.validateCoupon(couponCode)
+                            },
+                            colors = ButtonDefaults.buttonColors(containerColor = colorResource(R.color.dark_blue)),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 8.dp)
+                        ) {
+                            Text("Apply Coupon", color = Color.White)
+                        }
+                    }
+                    CheckoutSection(total = "${"%.2f".format(totalPrice)} EGP")
                 }
             }
         }

@@ -1,5 +1,6 @@
 package com.example.yallabuy_user.ui.navigation
 
+import android.net.Uri
 import androidx.compose.ui.graphics.painter.Painter
 import kotlinx.serialization.Serializable
 
@@ -63,9 +64,6 @@ sealed class ScreenRoute(val route: String) {
     @Serializable
     data object Login : ScreenRoute("Login")
 
-//    @Serializable //I added that
-//    data class ProductInfo(val productId: Long)
-
     @Serializable
     data object Settings : ScreenRoute("settings")
 
@@ -83,6 +81,17 @@ sealed class ScreenRoute(val route: String) {
 
     @Serializable
     data object Address : ScreenRoute("address")
+
+    @Serializable
+    data class AddressForm(
+        val addressId: Long,
+        val fullAddress: String,
+        val city: String,
+        val country: String
+    ) : ScreenRoute("address_form? \"addressId={addressId}&fullAddress={fullAddress}&city={city}&country={country}") {
+        fun createRoute(): String =
+            "address_form?addressId=${addressId}&fullAddress=${Uri.encode(fullAddress)}&city=${Uri.encode(city)}&country=${Uri.encode(country)}"
+    }
 
 //@Serializable
 //data class Address(val customerId: Long) : ScreenRoute("address/{customerId}") {
