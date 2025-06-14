@@ -24,7 +24,7 @@ data class PriceRulesResponse(
     val price_rules: List<PriceRule>
 )
 
-data class DiscountCode(
+data class DiscountCodeCoupon(
     @SerializedName("id")
     val id: Long,
     @SerializedName("price_rule_id")
@@ -41,7 +41,7 @@ data class DiscountCode(
 
 data class DiscountCodesResponse(
     @SerializedName("discount_codes")
-    val discountCodes: List<DiscountCode>
+    val discountCodes: List<DiscountCodeCoupon>
 )
 
 data class CouponItem(
