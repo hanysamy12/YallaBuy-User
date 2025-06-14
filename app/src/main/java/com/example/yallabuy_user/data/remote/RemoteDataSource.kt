@@ -6,6 +6,7 @@ import com.example.yallabuy_user.data.models.BrandResponse
 import com.example.yallabuy_user.data.models.CategoryResponse
 import com.example.yallabuy_user.data.models.CreateOrderRequest
 import com.example.yallabuy_user.data.models.DiscountCode
+import com.example.yallabuy_user.data.models.DiscountCodeCoupon
 import com.example.yallabuy_user.data.models.OrderDetailsResponse
 import com.example.yallabuy_user.data.models.OrdersResponse
 import com.example.yallabuy_user.data.models.ProductResponse
@@ -213,7 +214,7 @@ class RemoteDataSource(
         return flowOf(response)
     }
 
-    override suspend fun getAllCouponsForRule(priceRuleId: Long): Flow<List<DiscountCode>> {
+    override suspend fun getAllCouponsForRule(priceRuleId: Long): Flow<List<DiscountCodeCoupon>> {
             val response = service.getDiscountCodesForPriceRule(priceRuleId)
             return flowOf(response.discountCodes)
     }

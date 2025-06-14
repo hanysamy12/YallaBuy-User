@@ -182,7 +182,7 @@ fun CartScreen(
                             Text("Apply Coupon", color = Color.White)
                         }
                     }
-                    CheckoutSection(total = "${"%.2f".format(totalPrice)} EGP")
+                //    CheckoutSection(total = "${"%.2f".format(totalPrice)} EGP")
                 }
             }
         }

@@ -7,6 +7,7 @@ import com.example.yallabuy_user.data.models.BrandResponse
 import com.example.yallabuy_user.data.models.CategoryResponse
 import com.example.yallabuy_user.data.models.CreateOrderRequest
 import com.example.yallabuy_user.data.models.DiscountCode
+import com.example.yallabuy_user.data.models.DiscountCodeCoupon
 import com.example.yallabuy_user.data.models.OrderDetailsResponse
 import com.example.yallabuy_user.data.models.OrdersResponse
 import com.example.yallabuy_user.data.models.ProductResponse
@@ -29,7 +30,7 @@ import retrofit2.HttpException
 
 class Repository(private val remoteDataSource: RemoteDataSourceInterface) : RepositoryInterface {
     override suspend fun getAllCategories(): Flow<CategoryResponse> {
-        return  remoteDataSource.getAllCategories()
+        return remoteDataSource.getAllCategories()
     }
 
     override suspend fun getAllBrands(): Flow<BrandResponse> {
@@ -48,14 +49,15 @@ class Repository(private val remoteDataSource: RemoteDataSourceInterface) : Repo
         return try {
             val infoResponse = remoteDataSource.getProductInfoById(productId)
             infoResponse
-        }catch ( e : HttpException){
+        } catch (e: HttpException) {
             Log.i("error", "getProductInfoById in remote http error ${e.message} ")
             flowOf()
-        } catch (e : NullPointerException){
+        } catch (e: NullPointerException) {
             Log.i("error", "getProductInfoById in remote null point  error ${e.message} ")
             flowOf()
         }
     }
+
     override suspend fun getPreviousOrders(userID: Long): Flow<OrdersResponse> {
         return remoteDataSource.getPreviousOrders(userID)
     }
@@ -66,20 +68,20 @@ class Repository(private val remoteDataSource: RemoteDataSourceInterface) : Repo
 
     override suspend fun createUserAccount(email: String, password: String): Flow<String> {
         return try {
-            val createUserResponse = remoteDataSource.createUserAccount(email , password)
+            val createUserResponse = remoteDataSource.createUserAccount(email, password)
             Log.i("createUser", "createUserAccount in repo success ")
             createUserResponse
-        }catch (e : Exception){
+        } catch (e: Exception) {
             Log.i("createUser", "createUserAccount in repo error ${e.message}  ")
-            flowOf( "error ${e.message}")
+            flowOf("error ${e.message}")
         }
     }
 
     override suspend fun loginUser(email: String, password: String): Flow<String> {
         return try {
-            val loginResponse = remoteDataSource.loginUser(email , password)
+            val loginResponse = remoteDataSource.loginUser(email, password)
             loginResponse
-        }catch (e : Exception){
+        } catch (e: Exception) {
             flowOf("error ${e.message}")
         }
     }
@@ -90,9 +92,9 @@ class Repository(private val remoteDataSource: RemoteDataSourceInterface) : Repo
         userName: String
     ): Flow<CreateUserOnShopifyResponse> {
         return try {
-            val response = remoteDataSource.createUserOnShopify(email , password , userName)
+            val response = remoteDataSource.createUserOnShopify(email, password, userName)
             response
-        }catch (e : Exception){
+        } catch (e: Exception) {
             flowOf()
         }
     }
@@ -101,7 +103,7 @@ class Repository(private val remoteDataSource: RemoteDataSourceInterface) : Repo
         return try {
             val customer = remoteDataSource.getUserDataByEmail(email)
             customer
-        }catch (e : Exception){
+        } catch (e: Exception) {
             Log.i("customer", "getUserDataByEmail in repo error is ${e.message} ")
             flowOf()
         }
@@ -111,7 +113,7 @@ class Repository(private val remoteDataSource: RemoteDataSourceInterface) : Repo
         return try {
             val customer = remoteDataSource.getCustomerById(customerId)
             customer
-        }catch (e : Exception){
+        } catch (e: Exception) {
             Log.i("customer", "getUserById in repo error is ${e.message} ")
             flowOf()
         }
@@ -120,9 +122,10 @@ class Repository(private val remoteDataSource: RemoteDataSourceInterface) : Repo
     //wishList
     override suspend fun creteWishListDraftOrder(wishListDraftOrderRequest: WishListDraftOrderRequest): Flow<WishListDraftOrderResponse> {
         return try {
-            val wishListDraftOrderResponse = remoteDataSource.creteWishListDraftOrder(wishListDraftOrderRequest)
+            val wishListDraftOrderResponse =
+                remoteDataSource.creteWishListDraftOrder(wishListDraftOrderRequest)
             wishListDraftOrderResponse
-        }catch (e : Exception){
+        } catch (e: Exception) {
             Log.i("wishList", "creteWishListDraftOrder in repo error is ${e.message} ")
             flowOf()
         }
@@ -130,21 +133,26 @@ class Repository(private val remoteDataSource: RemoteDataSourceInterface) : Repo
 
     override suspend fun getWishListDraftById(wishListDraftOrderId: Long): Flow<WishListDraftOrderResponse> {
         return try {
-            val wishLestDraftOrderResponse = remoteDataSource.getWishListDraftById(wishListDraftOrderId)
+            val wishLestDraftOrderResponse =
+                remoteDataSource.getWishListDraftById(wishListDraftOrderId)
             Log.i("wishList", "getWishListDraftById:  in repo success ")
             wishLestDraftOrderResponse
-        }catch (e : Exception){
+        } catch (e: Exception) {
             Log.i("wishList", "getWishListDraftById:  in repo error is ${e.message} ")
             flowOf()
         }
     }
 
-    override suspend fun updateDraftOrder(draftOrderId: Long , wishListDraftOrderRequest: WishListDraftOrderRequest): Flow<WishListDraftOrderResponse> {
+    override suspend fun updateDraftOrder(
+        draftOrderId: Long,
+        wishListDraftOrderRequest: WishListDraftOrderRequest
+    ): Flow<WishListDraftOrderResponse> {
         return try {
-            val wishLestDraftOrderResponse = remoteDataSource.updateDraftOrder(draftOrderId , wishListDraftOrderRequest)
+            val wishLestDraftOrderResponse =
+                remoteDataSource.updateDraftOrder(draftOrderId, wishListDraftOrderRequest)
             Log.i("wishList", "updateDraftOrder in repo success ")
             wishLestDraftOrderResponse
-        }catch (e : Exception){
+        } catch (e: Exception) {
             Log.i("wishList", "updateDraftOrder in repo error is ${e.message} ")
             flowOf()
         }
@@ -155,9 +163,10 @@ class Repository(private val remoteDataSource: RemoteDataSourceInterface) : Repo
         updateNoteInCustomer: UpdateNoteInCustomer
     ): Flow<CreateUserOnShopifyResponse> {
         return try {
-            val updatedCustomerResponse = remoteDataSource.updateNoteInCustomer(customerId , updateNoteInCustomer)
+            val updatedCustomerResponse =
+                remoteDataSource.updateNoteInCustomer(customerId, updateNoteInCustomer)
             updatedCustomerResponse
-        }catch (e : Exception){
+        } catch (e: Exception) {
             Log.i("wishList", "updateNoteInCustomer in remote error is ${e.message} ")
             flowOf()
         }
@@ -204,7 +213,10 @@ class Repository(private val remoteDataSource: RemoteDataSourceInterface) : Repo
         return remoteDataSource.getDraftOrderCart(draftOrderId)
     }
 
-    override suspend fun updateDraftOrder(id: Long, draftOrderBody: DraftOrderBody): Flow<DraftOrderBody>{
+    override suspend fun updateDraftOrder(
+        id: Long,
+        draftOrderBody: DraftOrderBody
+    ): Flow<DraftOrderBody> {
         return remoteDataSource.updateDraftOrder(id, draftOrderBody)
     }
 
@@ -218,6 +230,7 @@ class Repository(private val remoteDataSource: RemoteDataSourceInterface) : Repo
 
     override suspend fun createOrder(order: CreateOrderRequest): Flow<OrderDetailsResponse> {
         return remoteDataSource.createOrder(order)
+    }
 
     override suspend fun updateCustomerTags(
         customerId: Long,
@@ -226,8 +239,8 @@ class Repository(private val remoteDataSource: RemoteDataSourceInterface) : Repo
         return remoteDataSource.updateCustomerTags(customerId, customerBody)
     }
 
-    override suspend fun getAllCouponsForRule(priceRuleId: Long): Flow<List<DiscountCode>> {
-            return remoteDataSource.getAllCouponsForRule(priceRuleId)
+    override suspend fun getAllCouponsForRule(priceRuleId: Long): Flow<List<DiscountCodeCoupon>> {
+        return remoteDataSource.getAllCouponsForRule(priceRuleId)
     }
 
 

@@ -9,7 +9,7 @@ import com.example.yallabuy_user.data.models.CreateOrderRequest
 import com.example.yallabuy_user.data.models.CreateShippingAddress
 import com.example.yallabuy_user.data.models.CreateTransaction
 import com.example.yallabuy_user.data.models.DiscountCode
-import com.example.yallabuy_user.data.models.cart.DraftOrder
+import com.example.yallabuy_user.data.models.cart.DraftOrderCart
 import com.example.yallabuy_user.repo.RepositoryInterface
 import com.example.yallabuy_user.utilities.ApiResponse
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,12 +19,12 @@ import kotlinx.coroutines.flow.map
 private const val TAG = "NewOrderViewModel"
 
 class NewOrderViewModel(private val repository: RepositoryInterface) : ViewModel() {
-    private var _cartOrder = MutableStateFlow<ApiResponse<DraftOrder>>(ApiResponse.Loading)
-    val cartOrder: MutableStateFlow<ApiResponse<DraftOrder>> = _cartOrder
+    private var _cartOrder = MutableStateFlow<ApiResponse<DraftOrderCart>>(ApiResponse.Loading)
+    val cartOrder: MutableStateFlow<ApiResponse<DraftOrderCart>> = _cartOrder
 
     suspend fun getDraftOrder(id: Long) {
         try {
-            repository.getDraftOrderById(id).map { draftOrderBody -> draftOrderBody.draftOrder }
+            repository.getDraftOrderById(id).map { draftOrderBody -> draftOrderBody.draftOrderCart }
                 .catch { e -> _cartOrder.value = ApiResponse.Failure(e) }
                 .collect {
                     _cartOrder.value = ApiResponse.Success(it)
