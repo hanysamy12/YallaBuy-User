@@ -145,7 +145,7 @@ val dataModule = module {
         AddressViewModel(get())
     }
     viewModel {
-        NewOrderViewModel(get())
+        NewOrderViewModel(get(),get())
     }
 
 }

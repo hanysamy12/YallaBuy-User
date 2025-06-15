@@ -26,6 +26,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -44,9 +45,9 @@ fun PreviousOrdersScreen(
 ) {
 
     val uiOrdersState by orderViewModel.orders.collectAsState()
-
+    val context = LocalContext.current
     LaunchedEffect(Unit) {
-        orderViewModel.getPreviousOrders(8792449548606)
+        orderViewModel.getPreviousOrders(context)
     }
     Box {
 
