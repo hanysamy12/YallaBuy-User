@@ -22,13 +22,16 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -56,8 +59,10 @@ import org.koin.androidx.compose.koinViewModel
 
 private const val TAG = "OrderCheckoutScreen"
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun OrderCheckoutScreen(viewModel: NewOrderViewModel = koinViewModel(), cartId: Long) {
+fun OrderCheckoutScreen(viewModel: NewOrderViewModel = koinViewModel(), cartId: Long,
+                        setTopBar: (@Composable () -> Unit) -> Unit) {
 
     val context = LocalContext.current
     val uiCartOrderState = viewModel.cartOrder.collectAsState()
@@ -67,6 +72,14 @@ fun OrderCheckoutScreen(viewModel: NewOrderViewModel = koinViewModel(), cartId: 
 
     val coroutineScope = rememberCoroutineScope()
     LaunchedEffect(Unit) {
+        setTopBar {
+            CenterAlignedTopAppBar(
+                title = { Text("Checkout") },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = Color(0xFF3B9A94)
+                )
+            )
+        }
         viewModel.getDraftOrder(cartId)
         viewModel.getCustomerAddress(context)
     }
