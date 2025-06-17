@@ -29,8 +29,13 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.carousel.HorizontalMultiBrowseCarousel
+import androidx.compose.material3.carousel.rememberCarouselState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -60,9 +65,21 @@ import org.koin.androidx.compose.koinViewModel
 
 private const val TAG = "HomeScreen"
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(navController: NavController, homeViewModel: HomeViewModel = koinViewModel()) {
+fun HomeScreen(
+    navController: NavController, homeViewModel: HomeViewModel = koinViewModel(),
+    setTopBar: (@Composable () -> Unit) -> Unit
+) {
     LaunchedEffect(Unit) {
+        setTopBar {
+            CenterAlignedTopAppBar(
+                title = { Text("Yalla Buy") },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = Color(0xFF3B9A94)
+                )
+            )
+        }
         homeViewModel.getAllCategories()
         homeViewModel.getAllBrands()
         // Coupons are fetched in ViewModel's init.
@@ -141,6 +158,22 @@ fun HomeScreen(navController: NavController, homeViewModel: HomeViewModel = koin
                             modifier = Modifier.align(Alignment.Center),
                             color = Color.Red,
                             textAlign = TextAlign.Center
+                val categories = (uiCategoriesState as ApiResponse.Success).data
+                HomeContent(categories, brands, onCatClicked = { catId ->
+                    Log.i(TAG, "HomeScreen: Collection ID = $catId")
+                    navController.navigate(
+                        ScreenRoute.ProductsScreen(
+                            vendorName = null,
+                            categoryID = catId,
+                            title = categories.first { it.id == catId }.title
+                        )
+                    )
+                }, onBrandClicked = { brandName ->
+                    navController.navigate(
+                        ScreenRoute.ProductsScreen(
+                            vendorName = brandName,
+                            categoryID = null,
+                            title = brands.first { it.title == brandName }.title
                         )
                     }
 
@@ -277,9 +310,10 @@ fun CouponsCarousel(
         }
     }
 
-    Box(modifier = Modifier
-        .fillMaxWidth()
-        .height(200.dp)
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(200.dp)
     ) {
         HorizontalPager(
             state = pagerState,
@@ -287,10 +321,9 @@ fun CouponsCarousel(
             modifier = Modifier.fillMaxSize()
         ) { page ->
             val coupon = coupons[page]
-            // Pass the coupon code to CouponImage for display
             CouponImage(
                 imageResId = coupon.imageResId,
-                couponCode = coupon.code, // Pass the code here
+                couponCode = coupon.code, 
                 onClick = { onCouponClick(coupon.code) }
             )
         }
@@ -318,7 +351,7 @@ fun CouponsCarousel(
 @Composable
 fun CouponImage(
     imageResId: Int,
-    couponCode: String, // New parameter to display the code
+    couponCode: String, 
     onClick: () -> Unit
 ) {
     Box(
@@ -326,7 +359,7 @@ fun CouponImage(
             .height(200.dp)
             .clip(RoundedCornerShape(12.dp))
             .clickable { onClick() }
-            .background(Color.LightGray) // Fallback background
+            .background(Color.LightGray) 
     ) {
         Image(
             painter = painterResource(id = imageResId),
@@ -334,43 +367,13 @@ fun CouponImage(
             modifier = Modifier
                 .fillMaxSize()
                 .clip(RoundedCornerShape(12.dp)),
-            contentScale = ContentScale.FillBounds // Scale image to fill bounds
+            contentScale = ContentScale.FillBounds 
         )
 
-        // Display the coupon code text on the image
-//        Text(
-//            text = couponCode,
-//            modifier = Modifier
-//                .align(Alignment.Center) // Center the text within the Box
-//                // Apply background and shape as part of the Modifier
-//                .background(Color.Black.copy(alpha = 0.4f), shape = RoundedCornerShape(4.dp))
-//                .padding(8.dp), // Padding should be *after* the background for the padding to be applied within the background
-//            color = Color.White, // Choose a contrasting color for readability
-//            fontSize = 24.sp, // Adjust font size as needed
-//            fontWeight = FontWeight.ExtraBold, // Make it bold for visibility
-//            textAlign = TextAlign.Center,
-//        )
     }
 }
 
 
-//@Preview(showBackground = true)
-//@Composable
-//fun PreviewCouponsCarousel() {
-//    val previewImages = listOf(
-//        android.R.drawable.ic_menu_gallery,
-//        android.R.drawable.ic_menu_gallery,
-//        android.R.drawable.ic_menu_gallery,
-//        android.R.drawable.ic_menu_gallery,
-//        android.R.drawable.ic_menu_gallery,
-//        android.R.drawable.ic_menu_gallery
-//    )
-//
-//    //https://developer.android.com/develop/ui/compose/components/carousel
-//    MaterialTheme {
-//        CouponsCarousel(imageResIds = previewImages)
-//    }
-//}
 
 
 @Composable

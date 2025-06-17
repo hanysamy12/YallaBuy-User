@@ -16,10 +16,13 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -41,16 +44,27 @@ import org.koin.androidx.compose.koinViewModel
 
 private const val TAG = "OrderItemsScreen"
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OrderItemScreen(
     orderId: Long?,
     navController: NavController,
-    viewModel: OrdersViewModel = koinViewModel()
+    viewModel: OrdersViewModel = koinViewModel(),
+    setTopBar: (@Composable () -> Unit) -> Unit,
+    title: String?
 ) {
 
     val uiOrderState by viewModel.orderProducts.collectAsState()
 
     LaunchedEffect(Unit) {
+        setTopBar {
+            CenterAlignedTopAppBar(
+                title = { Text(title?: "Order Details") },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = Color(0xFF3B9A94)
+                )
+            )
+        }
         viewModel.getOrderById(orderId)
     }
     Box {
@@ -83,7 +97,7 @@ fun OrderItemScreen(
                                     currentCode = currentCode,
                                     onOrderClicked = { productId ->
                                         navController.navigate(
-                                            ScreenRoute.ProductInfo(productId)
+                                            ScreenRoute.ProductInfo(productId),
                                         )
                                     }
                                 )
@@ -91,16 +105,26 @@ fun OrderItemScreen(
                             }
                         }
                     }
-                    Row(modifier = Modifier.fillMaxWidth().padding(10.dp),horizontalArrangement = Arrangement.SpaceBetween) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(10.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
                         Text("Total Price")
                         Text("${ordersItem.currency} ${ordersItem.totalPrice ?: "UnKnown"}")
                     }
                     HorizontalDivider()
 
-                    Row(modifier = Modifier.fillMaxWidth().padding(10.dp),horizontalArrangement = Arrangement.SpaceBetween) {
-                        Text("Shipped To:")
-                        Text("${ordersItem.shippingAddress?.country ?: ""}, ${ordersItem.shippingAddress?.city ?: ""}")
-                    }
+//                    Row(
+//                        modifier = Modifier
+//                            .fillMaxWidth()
+//                            .padding(10.dp),
+//                        horizontalArrangement = Arrangement.SpaceBetween
+//                    ) {
+//                        Text("Shipped To:")
+//                        Text("${ordersItem.shippingAddress?.country ?: ""}, ${ordersItem.shippingAddress?.city ?: ""}")
+//                    }
                 }
             }
         }

@@ -18,7 +18,10 @@ import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -49,14 +52,24 @@ import org.koin.compose.koinInject
 
 private const val TAG = "CollectionsScreen"
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CollectionsScreen(
     navController: NavController ,
     setFilterMeth: (filter: (String) -> Unit) -> Unit,
-    viewModel: ProductsViewModel = koinInject()
+    viewModel: ProductsViewModel = koinInject(),
+    setTopBar: (@Composable () -> Unit) -> Unit
 ) {
 
-    LaunchedEffect(UInt) {
+    LaunchedEffect(Unit) {
+        setTopBar {
+            CenterAlignedTopAppBar(
+                title = { Text("Categories") },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = Color(0xFF3B9A94)
+                )
+            )
+        }
         viewModel.getAllCategories()
     }
     val coroutineScope = rememberCoroutineScope()
