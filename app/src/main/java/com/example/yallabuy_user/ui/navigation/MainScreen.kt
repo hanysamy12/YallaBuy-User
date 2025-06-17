@@ -224,15 +224,15 @@ fun MainScreen() {
                 )
             }
 
-            //with null
-            composable(ScreenRoute.ProductsScreen.BASE_ROUTE) {
-                ProductsScreen(
-                    navController,
-                    isFilterBarShown = isShowFilterBarProductsScreen,
-                    vendorName = null,
-                    categoryID = null
-                )
-            }
+//            //with null
+//            composable(ScreenRoute.ProductsScreen.) {
+//                ProductsScreen(
+//                    navController,
+//                    isFilterBarShown = isShowFilterBarProductsScreen,
+//                    vendorName = null,
+//                    categoryID = null
+//                )
+//            }
 
 
             composable<ScreenRoute.ProductsScreen> {

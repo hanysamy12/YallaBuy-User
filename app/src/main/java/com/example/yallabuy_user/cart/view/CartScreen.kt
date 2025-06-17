@@ -174,7 +174,9 @@ fun CartScreen(
                         onCheckOutClicked = {
                             if (draftOrderId != null)
                             navController.navigate(ScreenRoute.OrderCheckOut(draftOrderId))
-                        })
+                        },
+                        itemCount = allLineItems.size
+                    )
 
                         Button(
                             onClick = {

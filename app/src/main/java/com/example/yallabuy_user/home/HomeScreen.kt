@@ -68,7 +68,8 @@ private const val TAG = "HomeScreen"
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    navController: NavController, homeViewModel: HomeViewModel = koinViewModel(),
+    navController: NavController,
+    homeViewModel: HomeViewModel = koinViewModel(),
     setTopBar: (@Composable () -> Unit) -> Unit
 ) {
     LaunchedEffect(Unit) {
@@ -100,18 +101,20 @@ fun HomeScreen(
 
                         when (uiAllCouponsState) {
                             is ApiResponse.Success -> {
-                                val discountCoupons = (uiAllCouponsState as ApiResponse.Success).data
+                                val discountCoupons =
+                                    (uiAllCouponsState as ApiResponse.Success).data
 
-                                val couponItems = discountCoupons.mapIndexed { index, discountCodeCoupon ->
-                                    val imageResId = when (index % 4) {
-                                        0 -> R.drawable.coupon22
-                                        1 -> R.drawable.coupon30
-                                        2 -> R.drawable.coupon20
-                                        3 -> R.drawable.coupon10p
-                                        else -> R.drawable.coupon22
+                                val couponItems =
+                                    discountCoupons.mapIndexed { index, discountCodeCoupon ->
+                                        val imageResId = when (index % 4) {
+                                            0 -> R.drawable.coupon22
+                                            1 -> R.drawable.coupon30
+                                            2 -> R.drawable.coupon20
+                                            3 -> R.drawable.coupon10p
+                                            else -> R.drawable.coupon22
+                                        }
+                                        CouponItem(imageResId, discountCodeCoupon.code)
                                     }
-                                    CouponItem(imageResId, discountCodeCoupon.code)
-                                }
 
                                 HomeContent(
                                     categories = categories,
@@ -119,21 +122,20 @@ fun HomeScreen(
                                     coupons = couponItems,
                                     onCatClicked = { catId ->
                                         navController.navigate(
-                                            ScreenRoute.ProductsScreen.createRoute(
-                                                vendorName = null,
-                                                categoryID = catId
+                                            ScreenRoute.ProductsScreen(
+                                                vendorName = null, categoryID = catId, title = null
                                             )
                                         )
                                     },
                                     onBrandClicked = { brandName ->
                                         navController.navigate(
-                                            ScreenRoute.ProductsScreen.createRoute(
+                                            ScreenRoute.ProductsScreen(
                                                 vendorName = brandName,
-                                                categoryID = null
+                                                categoryID = null,
+                                                title = brandName,
                                             )
                                         )
-                                    }
-                                )
+                                    })
                             }
 
                             is ApiResponse.Failure -> {
@@ -158,26 +160,13 @@ fun HomeScreen(
                             modifier = Modifier.align(Alignment.Center),
                             color = Color.Red,
                             textAlign = TextAlign.Center
-                val categories = (uiCategoriesState as ApiResponse.Success).data
-                HomeContent(categories, brands, onCatClicked = { catId ->
-                    Log.i(TAG, "HomeScreen: Collection ID = $catId")
-                    navController.navigate(
-                        ScreenRoute.ProductsScreen(
-                            vendorName = null,
-                            categoryID = catId,
-                            title = categories.first { it.id == catId }.title
                         )
-                    )
-                }, onBrandClicked = { brandName ->
-                    navController.navigate(
-                        ScreenRoute.ProductsScreen(
-                            vendorName = brandName,
-                            categoryID = null,
-                            title = brands.first { it.title == brandName }.title
-                        )
+
                     }
 
                     ApiResponse.Loading -> ProgressShow()
+
+
                 }
             }
 
@@ -195,6 +184,7 @@ fun HomeScreen(
         }
     }
 }
+
 
 @Composable
 private fun HomeContent(
@@ -278,10 +268,10 @@ private fun HomeContent(
     }
 }
 
+
 @Composable
 fun CouponsCarousel(
-    coupons: List<CouponItem>,
-    onCouponClick: (String) -> Unit
+    coupons: List<CouponItem>, onCouponClick: (String) -> Unit
 ) {
     if (coupons.isEmpty()) {
         Text(
@@ -296,9 +286,7 @@ fun CouponsCarousel(
     }
 
     val pagerState = rememberPagerState(
-        initialPage = 0,
-        pageCount = { coupons.size }
-    )
+        initialPage = 0, pageCount = { coupons.size })
 
     LaunchedEffect(Unit) {
         while (true) {
@@ -316,16 +304,13 @@ fun CouponsCarousel(
             .height(200.dp)
     ) {
         HorizontalPager(
-            state = pagerState,
-            pageSpacing = 8.dp,
-            modifier = Modifier.fillMaxSize()
+            state = pagerState, pageSpacing = 8.dp, modifier = Modifier.fillMaxSize()
         ) { page ->
             val coupon = coupons[page]
             CouponImage(
                 imageResId = coupon.imageResId,
-                couponCode = coupon.code, 
-                onClick = { onCouponClick(coupon.code) }
-            )
+                couponCode = coupon.code,
+                onClick = { onCouponClick(coupon.code) })
         }
 
         Row(
@@ -350,30 +335,25 @@ fun CouponsCarousel(
 
 @Composable
 fun CouponImage(
-    imageResId: Int,
-    couponCode: String, 
-    onClick: () -> Unit
+    imageResId: Int, couponCode: String, onClick: () -> Unit
 ) {
     Box(
         modifier = Modifier
             .height(200.dp)
             .clip(RoundedCornerShape(12.dp))
             .clickable { onClick() }
-            .background(Color.LightGray) 
-    ) {
+            .background(Color.LightGray)) {
         Image(
             painter = painterResource(id = imageResId),
             contentDescription = "Coupon Image",
             modifier = Modifier
                 .fillMaxSize()
                 .clip(RoundedCornerShape(12.dp)),
-            contentScale = ContentScale.FillBounds 
+            contentScale = ContentScale.FillBounds
         )
 
     }
 }
-
-
 
 
 @Composable
