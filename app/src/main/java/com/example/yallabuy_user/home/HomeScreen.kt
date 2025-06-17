@@ -30,10 +30,12 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.carousel.HorizontalMultiBrowseCarousel
 import androidx.compose.material3.carousel.rememberCarouselState
 import androidx.compose.runtime.Composable
@@ -66,9 +68,21 @@ import org.koin.androidx.compose.koinViewModel
 
 private const val TAG = "HomeScreen"
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(navController: NavController, homeViewModel: HomeViewModel = koinViewModel()) {
+fun HomeScreen(
+    navController: NavController, homeViewModel: HomeViewModel = koinViewModel(),
+    setTopBar: (@Composable () -> Unit) -> Unit
+) {
     LaunchedEffect(Unit) {
+        setTopBar {
+            CenterAlignedTopAppBar(
+                title = { Text("Yalla Buy") },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = Color(0xFF3B9A94)
+                )
+            )
+        }
         homeViewModel.getAllCategories()
         homeViewModel.getAllBrands()
     }
@@ -84,16 +98,18 @@ fun HomeScreen(navController: NavController, homeViewModel: HomeViewModel = koin
                 HomeContent(categories, brands, onCatClicked = { catId ->
                     Log.i(TAG, "HomeScreen: Collection ID = $catId")
                     navController.navigate(
-                        ScreenRoute.ProductsScreen.createRoute(
+                        ScreenRoute.ProductsScreen(
                             vendorName = null,
-                            categoryID = catId
+                            categoryID = catId,
+                            title = categories.first { it.id == catId }.title
                         )
                     )
                 }, onBrandClicked = { brandName ->
                     navController.navigate(
-                        ScreenRoute.ProductsScreen.createRoute(
+                        ScreenRoute.ProductsScreen(
                             vendorName = brandName,
-                            categoryID = null
+                            categoryID = null,
+                            title = brands.first { it.title == brandName }.title
                         )
                     )
                 })
@@ -111,6 +127,7 @@ fun HomeScreen(navController: NavController, homeViewModel: HomeViewModel = koin
     }
 
 }
+
 @Composable
 private fun HomeContent(
     categories: List<CustomCollectionsItem>,
@@ -201,6 +218,7 @@ private fun HomeContent(
     }
 
 }
+
 @Composable
 fun CouponsCarousel(
     coupons: List<CouponItem>,
@@ -219,9 +237,10 @@ fun CouponsCarousel(
         }
     }
 
-    Box(modifier = Modifier
-        .fillMaxWidth()
-        .height(200.dp)
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(200.dp)
     ) {
         HorizontalPager(
             state = pagerState,
