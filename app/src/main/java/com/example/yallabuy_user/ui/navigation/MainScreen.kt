@@ -55,6 +55,7 @@ import com.example.yallabuy_user.home.HomeScreen
 import com.example.yallabuy_user.orders.OrderCheckoutScreen
 import com.example.yallabuy_user.orders.OrderItemScreen
 import com.example.yallabuy_user.orders.PreviousOrdersScreen
+import com.example.yallabuy_user.payment.view.PaymentScreen
 import com.example.yallabuy_user.productInfo.ProductInfoScreen
 import com.example.yallabuy_user.products.ProductsScreen
 import com.example.yallabuy_user.profile.ProfileScreen
@@ -214,6 +215,24 @@ fun MainScreen() {
                     country = backStackEntry.arguments?.getString("country")
                 )
             }
+
+            composable<ScreenRoute.Payment> { backStackEntry ->
+                val args = backStackEntry.toRoute<ScreenRoute.Payment>()
+                PaymentScreen(
+                    navController = navController,
+                    totalPrice = args.total
+                )
+            }
+
+//            //with null
+//            composable(ScreenRoute.ProductsScreen.) {
+//                ProductsScreen(
+//                    navController,
+//                    isFilterBarShown = isShowFilterBarProductsScreen,
+//                    vendorName = null,
+//                    categoryID = null
+//                )
+//            }
 
 
             composable<ScreenRoute.ProductsScreen> {

@@ -30,7 +30,8 @@ data class DraftOrderCart(
 
 data class LineItem(
     @SerializedName("variant_id")
-    var variantID: Long,
+    var variantID: Long,  //check quantity of the variant ID if we can increase or not
+
 
     @SerializedName("product_id")
     var productID: Long,
@@ -71,4 +72,16 @@ data class CustomerTagUpdate(
 data class CreateCustomerCart(
     @SerializedName("customer")
     val customer: CustomerTagUpdate
+)
+
+data class ProductVariant(
+    @SerializedName("variant")
+    val variant: VariantDetail
+)
+
+data class VariantDetail(
+    @SerializedName("id")
+    val id: Long,
+    @SerializedName("inventory_quantity")
+    val inventoryQuantity: Int
 )
