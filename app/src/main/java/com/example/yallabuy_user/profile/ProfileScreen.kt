@@ -98,6 +98,16 @@ fun ProfileScreen(
                 )
             )
 
+
+            SettingsListItem(
+                item = SettingsItem(
+                    title = "Previous Orders",
+                    icon = R.drawable.app_icon2,
+                    onClick = {
+                        navController.navigate(ScreenRoute.PreviousOrders.route)                    }
+                )
+            )
+
             Divider(
                 color = Color.LightGray,
                 thickness = 0.5.dp,

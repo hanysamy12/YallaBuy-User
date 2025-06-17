@@ -1,8 +1,8 @@
-package com.example.yallabuy_user.data.models
+package com.example.yallabuy_user.data.models.Coupon
 
 import com.google.gson.annotations.SerializedName
 
-
+//start data //end date //usageCount
 data class PriceRule(
     @SerializedName("id")
     val id: Long,
@@ -13,7 +13,7 @@ data class PriceRule(
     @SerializedName("value")
     val value: String, // "-20.0"
     @SerializedName("usage_limit")
-    val usageLimit: Int?,
+    val usageLimit: Int?,  //?
     @SerializedName("starts_at")
     val startsAt: String,
     @SerializedName("ends_at")
@@ -32,7 +32,7 @@ data class DiscountCodeCoupon(
     @SerializedName("code")
     val code: String,
     @SerializedName("usage_count")
-    val usageCount: Long,
+    val usageCount: Long, //?
     @SerializedName("created_at")
     val createdAt: String,
     @SerializedName("updated_at")
@@ -48,6 +48,14 @@ data class CouponItem(
     val imageResId: Int,
     val code: String //code like "SALE20"
 )
+
+data class CouponValidationResult(
+    val isValid: Boolean,
+    val message: String,
+    val discountValue: Double = 0.0,
+    val valueType: String = "" // "fixed_amount" or "percentage"
+)
+
 
 
 //val coupons = listOf(
