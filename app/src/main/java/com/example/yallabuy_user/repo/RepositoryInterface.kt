@@ -5,14 +5,15 @@ import WishListDraftOrderRequest
 import com.example.yallabuy_user.data.models.BrandResponse
 import com.example.yallabuy_user.data.models.CategoryResponse
 import com.example.yallabuy_user.data.models.CreateOrderRequest
-import com.example.yallabuy_user.data.models.DiscountCode
-import com.example.yallabuy_user.data.models.DiscountCodeCoupon
+import com.example.yallabuy_user.data.models.Coupon.DiscountCodeCoupon
 import com.example.yallabuy_user.data.models.OrderDetailsResponse
 import com.example.yallabuy_user.data.models.OrdersResponse
+import com.example.yallabuy_user.data.models.Coupon.PriceRule
 import com.example.yallabuy_user.data.models.ProductResponse
 import com.example.yallabuy_user.data.models.cart.CreateCustomerCart
 import com.example.yallabuy_user.data.models.cart.DraftOrderBody
 import com.example.yallabuy_user.data.models.cart.DraftOrderResponse
+import com.example.yallabuy_user.data.models.cart.ProductVariant
 import com.example.yallabuy_user.data.models.cart.UpdateCustomerBody
 import com.example.yallabuy_user.data.models.createUser.CreateUserOnShopifyResponse
 import com.example.yallabuy_user.data.models.customer.CustomerDataResponse
@@ -56,7 +57,9 @@ interface RepositoryInterface {
     suspend fun getDraftOrderById(draftOrderId: Long): Flow<DraftOrderBody>
     suspend fun createOrder(order: CreateOrderRequest): Flow<OrderDetailsResponse>
     suspend fun updateCustomerTags(customerId: Long, customerBody: UpdateCustomerBody): Flow<CreateCustomerCart>
-  
-    suspend fun getAllCouponsForRule(priceRuleId: Long): Flow<List<DiscountCodeCoupon>>
+    suspend fun getProductVariantById(variantId: Long): Flow<ProductVariant>
 
+
+    suspend fun getAllCouponsForRule(priceRuleId: Long): Flow<List<DiscountCodeCoupon>>
+    suspend fun fetchPriceRules(): Flow<List<PriceRule>>
 }

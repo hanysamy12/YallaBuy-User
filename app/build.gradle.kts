@@ -145,4 +145,7 @@ dependencies {
     //google
     implementation("com.google.maps.android:maps-compose:6.5.2")
     implementation("com.google.android.libraries.places:places:3.3.0")
+
+    //payment
+    implementation ("com.google.android.gms:play-services-wallet:19.3.0")
 }

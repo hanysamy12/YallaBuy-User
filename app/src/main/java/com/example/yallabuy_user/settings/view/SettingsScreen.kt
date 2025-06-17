@@ -88,13 +88,13 @@ fun SettingsScreen(navController: NavController) {
             }
         ),
 
-        SettingsItem(
-            title = "Previous Orders",
-            icon = R.drawable.app_icon2,
-            onClick = {
-                navController.navigate(ScreenRoute.PreviousOrders.route)
-            }
-        )
+//        SettingsItem(
+//            title = "Previous Orders",
+//            icon = R.drawable.app_icon2,
+//            onClick = {
+//                navController.navigate(ScreenRoute.PreviousOrders.route)
+//            }
+//        )
     )
 
     Scaffold(

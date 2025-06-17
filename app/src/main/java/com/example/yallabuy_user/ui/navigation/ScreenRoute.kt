@@ -93,6 +93,10 @@ sealed class ScreenRoute(val route: String) {
             "address_form?addressId=${addressId}&fullAddress=${Uri.encode(fullAddress)}&city=${Uri.encode(city)}&country=${Uri.encode(country)}"
     }
 
+    @Serializable
+    data class Payment(val total: Double) : ScreenRoute("payment")
+
+
 //@Serializable
 //data class Address(val customerId: Long) : ScreenRoute("address/{customerId}") {
 //    companion object {

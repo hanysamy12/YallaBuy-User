@@ -1,6 +1,8 @@
 package com.example.yallabuy_user.cart.view
 
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -55,6 +57,7 @@ import com.example.yallabuy_user.ui.navigation.ScreenRoute
 import com.example.yallabuy_user.utilities.ApiResponse
 import org.koin.androidx.compose.koinViewModel
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun CartScreen(
     navController: NavController,
@@ -64,9 +67,10 @@ fun CartScreen(
     val cartState by cartViewModel.cartState.collectAsState()
     // val draftOrderId = 123456789L
     val draftOrdersState by cartViewModel.draftOrders.collectAsState()
+    val showOutOfStockDialog by cartViewModel.showOutOfStockDialog.collectAsState()
     val context = LocalContext.current
     val customerId = CustomerIdPreferences.getData(context)
-
+    val couponResult by cartViewModel.couponValidationResult.collectAsState()
     var couponCode by remember { mutableStateOf("") }
 
     LaunchedEffect(Unit) {
@@ -164,15 +168,9 @@ fun CartScreen(
                         )
 
 
-                    CheckoutSection(
-                        total = "${"%.2f".format(totalPrice)} EGP",
-                        onCheckOutClicked = {
-                            navController.navigate(ScreenRoute.OrderCheckOut(1209159713086))//??
-                        })
-
                         Button(
                             onClick = {
-                               // cartViewModel.validateCoupon(couponCode)
+                                cartViewModel.validateCoupon(couponCode, totalPrice)
                             },
                             colors = ButtonDefaults.buttonColors(containerColor = colorResource(R.color.dark_blue)),
                             modifier = Modifier
@@ -181,14 +179,50 @@ fun CartScreen(
                         ) {
                             Text("Apply Coupon", color = Color.White)
                         }
+
+                        couponResult?.let { result ->
+                            Text(
+                                text = result.message,
+                                color = if (result.isValid) Color(0xFF2E7D32) else Color.Red,
+                                fontSize = 14.sp,
+                                modifier = Modifier.padding(top = 4.dp)
+                            )
+                        }
                     }
-                //    CheckoutSection(total = "${"%.2f".format(totalPrice)} EGP")
+                    //    CheckoutSection(total = "${"%.2f".format(totalPrice)} EGP")
+                    val totalItemsCount = allLineItems.sumOf { it.quantity.toInt() }
+
+                    val finalTotal = if (couponResult?.isValid == true)
+                        totalPrice - couponResult!!.discountValue  //why
+                    else totalPrice
+
+                    CheckoutSection(
+                        total = "${"%.2f".format(finalTotal.coerceAtLeast(0.0))} EGP",
+                        itemCount = totalItemsCount,
+                        onCheckOutClicked = {
+                            navController.navigate(ScreenRoute.Payment(finalTotal))
+                            // navController.navigate(ScreenRoute.OrderCheckOut(1209159713086))
+                        }
+                    )
                 }
             }
         }
+        if (showOutOfStockDialog) {
+            AlertDialog(
+                onDismissRequest = { cartViewModel.dismissOutOfStockDialog() },
+                title = { Text("Out of Stock") },
+                text = { Text("Sorry:(\nThe quantity requested exceeds the available stock.") },
+                confirmButton = {
+                    TextButton(
+                        onClick = { cartViewModel.dismissOutOfStockDialog() }
+                    ) {
+                        Text("OK")
+                    }
+                }
+            )
+        }
     }
 }
-
 
 @Composable
 fun CartItemCard(
@@ -338,7 +372,7 @@ fun QuantitySelector(
 }
 
 @Composable
-fun CheckoutSection(total: String, onCheckOutClicked: () -> Unit) {
+fun CheckoutSection(total: String, itemCount: Int, onCheckOutClicked: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -348,7 +382,7 @@ fun CheckoutSection(total: String, onCheckOutClicked: () -> Unit) {
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text("Total (1 item)", fontSize = 14.sp)
+            Text("Total ($itemCount ${if (itemCount == 1) "item" else "items"})", fontSize = 14.sp)
             Text(total, fontSize = 18.sp, fontWeight = FontWeight.Bold)
         }
 
@@ -363,3 +397,4 @@ fun CheckoutSection(total: String, onCheckOutClicked: () -> Unit) {
         }
     }
 }
+
