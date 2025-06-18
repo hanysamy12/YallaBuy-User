@@ -68,7 +68,7 @@ data class CreateShippingAddress(
 
 data class CreateCustomer(
     val id: Long,
-    val email: String
+   // val email: String
 )
 
 data class CreateTransaction(

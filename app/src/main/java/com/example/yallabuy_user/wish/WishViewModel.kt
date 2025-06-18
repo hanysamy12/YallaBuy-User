@@ -22,6 +22,7 @@ class WishViewModel(
     val allWishListProduct = _allWishListProduct.asStateFlow()
 
     private  var deletedList : List<DraftOrderLineItem> = emptyList()
+
     override fun getAllProductFromWishList(wishListId: Long) {
         viewModelScope.launch {
             try {

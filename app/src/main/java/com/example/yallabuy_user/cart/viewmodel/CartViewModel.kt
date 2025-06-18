@@ -1,28 +1,25 @@
 package com.example.yallabuy_user.cart.viewmodel
 
-import android.os.Build
-import android.util.Log
-import androidx.annotation.RequiresApi
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.yallabuy_user.data.models.Coupon.CouponValidationResult
-import com.example.yallabuy_user.data.models.Coupon.DiscountCodeCoupon
 import com.example.yallabuy_user.data.models.cart.DraftOrderBody
 import com.example.yallabuy_user.data.models.cart.DraftOrderCart
 import com.example.yallabuy_user.data.models.cart.DraftOrderResponse
 import com.example.yallabuy_user.data.models.cart.LineItem
 import com.example.yallabuy_user.repo.RepositoryInterface
 import com.example.yallabuy_user.utilities.ApiResponse
+import com.example.yallabuy_user.utilities.Currency
+import com.example.yallabuy_user.utilities.CurrencyConversionManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 
-class CartViewModel(private val cartRepository: RepositoryInterface) : ViewModel() {
+class CartViewModel(private val cartRepository: RepositoryInterface,
+                    private val currencyConversionManager: CurrencyConversionManager
+) : ViewModel() {
 
     private val _cartState = MutableStateFlow<ApiResponse<DraftOrderBody>>(ApiResponse.Loading)
     val cartState: StateFlow<ApiResponse<DraftOrderBody>> = _cartState.asStateFlow()
@@ -37,43 +34,52 @@ class CartViewModel(private val cartRepository: RepositoryInterface) : ViewModel
     private val _showOutOfStockDialog = MutableStateFlow(false)
     val showOutOfStockDialog: StateFlow<Boolean> = _showOutOfStockDialog.asStateFlow()
 
-    private val _couponValidationResult = MutableStateFlow<CouponValidationResult?>(null)
-    val couponValidationResult: StateFlow<CouponValidationResult?> = _couponValidationResult.asStateFlow()
+    val cartTotalInPreferredCurrency = MutableStateFlow<Double?>(null)
+    val convertedPrices = mutableStateMapOf<Long, String>()
 
-    fun fetchCart(customerId: Long) {
+    private val _cartTotalRaw = MutableStateFlow<Double?>(null)
+    val cartTotalRaw: StateFlow<Double?> = _cartTotalRaw.asStateFlow()
+
+    private val _preferredCurrency = MutableStateFlow(Currency.EGP)
+    val preferredCurrency: StateFlow<Currency> = _preferredCurrency
+
+
+    fun fetchCartByDraftOrderId(draftOrderId: Long) {
         viewModelScope.launch {
-            _draftOrders.value = ApiResponse.Loading
+            _cartState.value = ApiResponse.Loading
+            try {
+                cartRepository.getDraftOrderCart(draftOrderId)
+                    .catch { e -> _cartState.value = ApiResponse.Failure(e) }
+                    .collect { draftOrderBody ->
+                        _cartState.value = ApiResponse.Success(draftOrderBody)
 
-            cartRepository.getDraftOrderCart()
-                .catch { e ->
-                    _draftOrders.value = ApiResponse.Failure(e)
-                }
-                .collect { response ->
-                    Log.i("TAG", "fetchCart: our draft orders${response.draftOrderCarts.size} ")
-                    val filteredOrders =
-                        response.draftOrderCarts.filter { it.customer?.id == customerId }
-                    Log.i("TAG", "fetchCart: filtered draft order count = ${filteredOrders.size}")
-
-                    _draftOrders.value =
-                        ApiResponse.Success(DraftOrderResponse(filteredOrders.toMutableList()))
-                    Log.i("TAG", "fetchCart: our draft orders second ${draftOrders.value} ")
-
-                }
+                        _draftOrders.value = ApiResponse.Success(
+                            DraftOrderResponse(mutableListOf(draftOrderBody.draftOrderCart))
+                        )
+                    }
+            } catch (e: Exception) {
+                _cartState.value = ApiResponse.Failure(e)
+            }
         }
     }
 
-    private suspend fun getDraftOrderById(id: Long): DraftOrderCart? {
-        return (_draftOrders.value as? ApiResponse.Success)
-            ?.data?.draftOrderCarts?.firstOrNull { it.id == id }
-            ?: run {
-                var result: DraftOrderCart? = null
-                cartRepository.getDraftOrderCart(id)
-                    .catch { e -> _cartState.value = ApiResponse.Failure(e) }
-                    .collect { response ->
-                        result = response.draftOrderCart
+    fun getCustomerByIdAndFetchCart(customerId: Long) {
+        viewModelScope.launch {
+            try {
+                cartRepository.getUserById(customerId).collect { customerResponse ->
+                    val tag = customerResponse.customer.tags
+                    val draftOrderId = tag.toLongOrNull()
+
+                    if (draftOrderId != null) {
+                        fetchCartByDraftOrderId(draftOrderId)
+                    } else {
+                        _cartState.value = ApiResponse.Failure(Throwable("No cart associated with customer"))
                     }
-                result
+                }
+            } catch (e: Exception) {
+                _cartState.value = ApiResponse.Failure(e)
             }
+        }
     }
 
     fun increaseItemQuantity(draftOrderId: Long, variantId: Long) {
@@ -196,91 +202,15 @@ class CartViewModel(private val cartRepository: RepositoryInterface) : ViewModel
         _draftOrders.value = ApiResponse.Success(DraftOrderResponse(updatedList.toMutableList()))
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
-    fun validateCoupon(
-        code: String,
-        cartTotal: Double,
-        homeCoupons: List<DiscountCodeCoupon>? = null
-    ) {
+    fun convertItemPrices(draftOrders: List<DraftOrderCart>) {
         viewModelScope.launch {
-            try {
-                // Step 1: Match from home coupons
-                val matchedCoupon = homeCoupons?.firstOrNull { it.code.equals(code, ignoreCase = true) }
-
-                // Step 2: If not found in homeCoupons, search backend rules
-                val finalCoupon = matchedCoupon ?: run {
-                    val priceRules = cartRepository.fetchPriceRules().first()
-                    var foundCoupon: DiscountCodeCoupon? = null
-
-                    for (rule in priceRules) {
-                        val discountCodes = cartRepository.getAllCouponsForRule(rule.id).first()
-                        val match = discountCodes.firstOrNull { it.code.equals(code, ignoreCase = true) }
-                        if (match != null) {
-                            foundCoupon = match
-                            break
-                        }
-                    }
-                    foundCoupon
-                }
-
-                if (finalCoupon == null) {
-                    _couponValidationResult.value = CouponValidationResult(
-                        isValid = false,
-                        message = "Invalid coupon code."
-                    )
-                    return@launch
-                }
-
-                // Step 3: Fetch associated PriceRule
-                val priceRules = cartRepository.fetchPriceRules().first()
-                val rule = priceRules.firstOrNull { it.id == finalCoupon.priceRuleId }
-
-                if (rule == null) {
-                    _couponValidationResult.value = CouponValidationResult(
-                        isValid = false,
-                        message = "Coupon rule not found."
-                    )
-                    return@launch
-                }
-
-                // Step 4: Validate start and end dates
-                val formatter = DateTimeFormatter.ISO_DATE_TIME
-                val now = LocalDateTime.now()
-                val startDate = LocalDateTime.parse(rule.startsAt, formatter)
-                val endDate = rule.endsAt?.let { LocalDateTime.parse(it, formatter) }
-
-                if (now.isBefore(startDate) || (endDate != null && now.isAfter(endDate))) {
-                    _couponValidationResult.value = CouponValidationResult(
-                        isValid = false,
-                        message = "Coupon expired or not yet active."
-                    )
-                    return@launch
-                }
-
-                // Step 5: Compute discount amount based on valueType
-                val discountAmount = when (rule.valueType.lowercase()) {
-                    "fixed_amount" -> kotlin.math.abs(rule.value.toDoubleOrNull() ?: 0.0)
-                    "percentage" -> {
-                        val percent = kotlin.math.abs(rule.value.toDoubleOrNull() ?: 0.0)
-                        (percent / 100.0) * cartTotal
-                    }
-                    else -> 0.0
-                }
-
-                _couponValidationResult.value = CouponValidationResult(
-                    isValid = true,
-                    message = "Coupon applied successfully!",
-                    discountValue = discountAmount,
-                    valueType = rule.valueType
-                )
-
-            } catch (e: Exception) {
-                _couponValidationResult.value = CouponValidationResult(
-                    isValid = false,
-                    message = "Error validating coupon: ${e.message ?: "Unknown error"}"
-                )
+            draftOrders.flatMap { it.lineItems }.forEach { item ->
+                val price = item.price.toDoubleOrNull()?.times(item.quantity) ?: 0.0
+                val converted = currencyConversionManager.convertAmount(price)
+                convertedPrices[item.variantID] = "%.2f".format(converted)
             }
         }
     }
+
 
 }

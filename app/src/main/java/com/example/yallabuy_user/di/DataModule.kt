@@ -113,7 +113,7 @@ val dataModule = module {
         ProductsViewModel(get(),get())
     }
     viewModel {
-        CartViewModel(get())
+        CartViewModel(get(), get())
     }
     viewModel {
         ProfileViewModel()
