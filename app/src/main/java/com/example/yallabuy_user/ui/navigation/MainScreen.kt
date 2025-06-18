@@ -25,6 +25,8 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -90,7 +92,7 @@ fun MainScreen() {
     val currentRoute = currentBackStackEntry?.destination?.route
 
     val topBarContent = remember { mutableStateOf<@Composable () -> Unit>({}) }
-
+    val snackBar = remember { SnackbarHostState() }
     var isShowFilterBarProductsScreen by remember { mutableStateOf(false) }
 
     val bottomNavRoutes = listOf(
@@ -100,27 +102,33 @@ fun MainScreen() {
         ScreenRoute.Cart.route,
         ScreenRoute.Profile.route
     )
-    Scaffold(modifier = Modifier.fillMaxSize(), snackbarHost = {}, topBar = {
-        Log.i(TAG, "MainScreen: CurrentRoute  $currentRoute")
-        topBarContent.value()
+    Scaffold(
+        modifier = Modifier.fillMaxSize(),
+        snackbarHost = {
+            SnackbarHost(hostState = snackBar)
+        }, topBar = {
+            Log.i(TAG, "MainScreen: CurrentRoute  $currentRoute")
+            topBarContent.value()
 
-    }, bottomBar = {
-        if (currentRoute in bottomNavRoutes) {
-            Box {
-                BottomNavigationBar((navController))
+        }, bottomBar = {
+            if (currentRoute in bottomNavRoutes) {
+                Box {
+                    BottomNavigationBar((navController))
+                }
             }
-        }
-    }, floatingActionButton = {
-        if (currentRoute != null) {
-            ExpandableFAB(currentRoute = currentRoute, onClothesClick = {
-                onFilterClicked?.invoke("CLOTHES")
-            }, onShoesClick = {
-                onFilterClicked?.invoke("SHOES")
-            })
-        }
+        }, floatingActionButton = {
+            if (currentRoute != null) {
+                ExpandableFAB(currentRoute = currentRoute, onClothesClick = {
+                    onFilterClicked?.invoke("CLOTHES")
+                }, onShoesClick = {
+                    onFilterClicked?.invoke("SHOES")
+                }, onAccessoryClick = {
+                    onFilterClicked?.invoke("ACCESSORIES")
+                })
+            }
 
 
-    }
+        }
 
     ) { contentPadding ->
         NavHost(
@@ -281,6 +289,7 @@ fun ExpandableFAB(
     currentRoute: String,
     onClothesClick: () -> Unit,
     onShoesClick: () -> Unit,
+    onAccessoryClick: () -> Unit
 ) {
     var isExpanded by remember { mutableStateOf(false) }
 
@@ -293,7 +302,27 @@ fun ExpandableFAB(
                 verticalArrangement = Arrangement.spacedBy(16.dp),
                 modifier = Modifier.padding(16.dp)
             ) {
-                //Clothes (top)
+                //Accessory (top)
+                AnimatedVisibility(
+                    visible = isExpanded, enter = slideInVertically(
+                        initialOffsetY = { it }, animationSpec = tween(350)
+                    ) + fadeIn(), exit = slideOutVertically(
+                        targetOffsetY = { it }, animationSpec = tween(350)
+                    ) + fadeOut()
+                ) {
+                    FloatingActionButton(onClick = {
+                        onAccessoryClick()
+                        isExpanded = false
+                    }) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_ring),
+                            contentDescription = "Accessories",
+                            modifier = Modifier.size(32.dp),
+                            tint = Color.Unspecified
+                        )
+                    }
+                }
+                //Clothes (middle)
                 AnimatedVisibility(
                     visible = isExpanded, enter = slideInVertically(
                         initialOffsetY = { it }, animationSpec = tween(300)
