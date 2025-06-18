@@ -134,7 +134,7 @@ fun ProductInfoScreen(
 //                                    draftOrder,
 //                                    customerId = CustomerIdPreferences.getData(context)
                                 productInfoViewModel.getCustomerById(customerId = CustomerIdPreferences.getData(context),
-                                    data = productInfo.data)}
+                                    data = productInfo.data, isWishlist = false)}
                                 )
                             }
 
@@ -606,7 +606,7 @@ fun ProductInfoScreen(
                     isHeartClicked.value = true
                     productInfoViewModel.getCustomerById(
                         CustomerIdPreferences.getData(context),
-                        data
+                        data, isWishlist = true
                     )
                 },
             contentAlignment = Alignment.Center

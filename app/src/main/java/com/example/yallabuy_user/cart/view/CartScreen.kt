@@ -74,10 +74,10 @@ fun CartScreen(
     var couponCode by remember { mutableStateOf("") }
 
     LaunchedEffect(Unit) {
-        Log.i("TAG", "CartScreen: customerId: $customerId ")
-        cartViewModel.fetchCart(customerId)
+        if (customerId != -1L) {
+            cartViewModel.getCustomerByIdAndFetchCart(customerId)
+        }
     }
-
     Column(
         modifier = Modifier
             .fillMaxSize()
