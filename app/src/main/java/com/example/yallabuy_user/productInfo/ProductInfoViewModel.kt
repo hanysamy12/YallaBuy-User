@@ -62,7 +62,7 @@ class ProductInfoViewModel(
         }
     }
 
-    fun getCustomerById(customerId: Long, data: ProductInfoResponse) {
+  /*  fun getCustomerById(customerId: Long, data: ProductInfoResponse) {
         viewModelScope.launch {
             try {
                 val customerResponse = repo.getUserById(customerId)
@@ -96,7 +96,41 @@ class ProductInfoViewModel(
         }
     }
 
+*/
 
+    fun getCustomerById(customerId: Long, data: ProductInfoResponse, isWishlist: Boolean) {
+        viewModelScope.launch {
+            try {
+                val customerResponse = repo.getUserById(customerId)
+                customerResponse.collect { customer ->
+                    val note = customer.customer.note ?: ""
+                    val noteString = note as? String
+                    val tags = customer.customer.tags ?: ""
+
+                    if (isWishlist) {
+                        if (noteString.isNullOrBlank()) {
+                            createWishListDraftOrder(data, customerId)
+                        } else {
+                            addProductToWishList(noteString, data, customerId)
+                        }
+                    } else {
+                        if (tags.isBlank()) {
+                            createDraftOrderCart(data, customerId)
+                        } else {
+                            val draftOrderId = tags.toLongOrNull()
+                            if (draftOrderId != null) {
+                                addProductToCart(draftOrderId, data, customerId)
+                            } else {
+                                Log.e("cart", "Invalid draft order ID in tag: $tags")
+                            }
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                Log.i("customer", "getCustomerById in view model error is ${e.message} ")
+            }
+        }
+    }
     private fun addProductToWishList(
         noteString: String,
         data: ProductInfoResponse,

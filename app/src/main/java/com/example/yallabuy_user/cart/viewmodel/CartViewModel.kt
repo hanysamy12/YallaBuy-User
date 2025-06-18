@@ -40,25 +40,63 @@ class CartViewModel(private val cartRepository: RepositoryInterface) : ViewModel
     private val _couponValidationResult = MutableStateFlow<CouponValidationResult?>(null)
     val couponValidationResult: StateFlow<CouponValidationResult?> = _couponValidationResult.asStateFlow()
 
-    fun fetchCart(customerId: Long) {
+//    fun fetchCart(customerId: Long) {
+//        viewModelScope.launch {
+//            _draftOrders.value = ApiResponse.Loading
+//
+//            cartRepository.getDraftOrderCart()
+//                .catch { e ->
+//                    _draftOrders.value = ApiResponse.Failure(e)
+//                }
+//                .collect { response ->
+//                    Log.i("TAG", "fetchCart: our draft orders${response.draftOrderCarts.size} ")
+//                    val filteredOrders =
+//                        response.draftOrderCarts.filter { it.customer?.id == customerId }
+//                    Log.i("TAG", "fetchCart: filtered draft order count = ${filteredOrders.size}")
+//
+//                    _draftOrders.value =
+//                        ApiResponse.Success(DraftOrderResponse(filteredOrders.toMutableList()))
+//                    Log.i("TAG", "fetchCart: our draft orders second ${draftOrders.value} ")
+//
+//                }
+//        }
+//    }
+
+    fun fetchCartByDraftOrderId(draftOrderId: Long) {
         viewModelScope.launch {
-            _draftOrders.value = ApiResponse.Loading
+            _cartState.value = ApiResponse.Loading
+            try {
+                cartRepository.getDraftOrderCart(draftOrderId)
+                    .catch { e -> _cartState.value = ApiResponse.Failure(e) }
+                    .collect { draftOrderBody ->
+                        _cartState.value = ApiResponse.Success(draftOrderBody)
 
-            cartRepository.getDraftOrderCart()
-                .catch { e ->
-                    _draftOrders.value = ApiResponse.Failure(e)
+                        _draftOrders.value = ApiResponse.Success(
+                            DraftOrderResponse(mutableListOf(draftOrderBody.draftOrderCart))
+                        )
+                    }
+            } catch (e: Exception) {
+                _cartState.value = ApiResponse.Failure(e)
+            }
+        }
+    }
+
+    fun getCustomerByIdAndFetchCart(customerId: Long) {
+        viewModelScope.launch {
+            try {
+                cartRepository.getUserById(customerId).collect { customerResponse ->
+                    val tag = customerResponse.customer.tags
+                    val draftOrderId = tag.toLongOrNull()
+
+                    if (draftOrderId != null) {
+                        fetchCartByDraftOrderId(draftOrderId)
+                    } else {
+                        _cartState.value = ApiResponse.Failure(Throwable("No cart associated with customer"))
+                    }
                 }
-                .collect { response ->
-                    Log.i("TAG", "fetchCart: our draft orders${response.draftOrderCarts.size} ")
-                    val filteredOrders =
-                        response.draftOrderCarts.filter { it.customer?.id == customerId }
-                    Log.i("TAG", "fetchCart: filtered draft order count = ${filteredOrders.size}")
-
-                    _draftOrders.value =
-                        ApiResponse.Success(DraftOrderResponse(filteredOrders.toMutableList()))
-                    Log.i("TAG", "fetchCart: our draft orders second ${draftOrders.value} ")
-
-                }
+            } catch (e: Exception) {
+                _cartState.value = ApiResponse.Failure(e)
+            }
         }
     }
 
