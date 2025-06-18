@@ -179,13 +179,6 @@ fun AddressTopBar(onNavigateBack: () -> Unit) {
 
 
 @Composable
-fun AddAddressFab(onClick: () -> Unit) {
-    FloatingActionButton(onClick = onClick) {
-        Icon(Icons.Default.Add, contentDescription = "Add Address")
-    }
-}
-
-@Composable
 fun AddressScreenContent(
     addressState: ApiResponse<AddressesResponse>,
     viewModel: AddressViewModel,
@@ -235,34 +228,6 @@ fun AddressScreenContent(
     }
 }
 
-@Composable
-fun EmptyAddressList() {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Icon(
-            imageVector = Icons.Outlined.LocationOn,
-            contentDescription = "No addresses",
-            modifier = Modifier.size(64.dp),
-            tint = Color.Gray
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        Text(
-            text = "No addresses saved",
-            style = MaterialTheme.typography.titleMedium,
-            color = Color.Gray
-        )
-        Text(
-            text = "Add your first address by tapping the + button",
-            style = MaterialTheme.typography.bodyMedium,
-            color = Color.Gray
-        )
-    }
-}
 
 @Composable
 fun AddressList(
@@ -303,11 +268,11 @@ fun AddressItem(
         Column(
             modifier = Modifier.padding(16.dp)
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+//            Row(
+//                modifier = Modifier.fillMaxWidth(),
+//                horizontalArrangement = Arrangement.SpaceBetween,
+//                verticalAlignment = Alignment.CenterVertically
+//            ) {
                 Text(
                     text = address.getDetailedDescription(),
                     style = MaterialTheme.typography.titleMedium,
@@ -315,14 +280,20 @@ fun AddressItem(
                 )
 
                 if (address.default) {
-                    Badge(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer,
-                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text("Default")
+                        Badge(
+                            containerColor = MaterialTheme.colorScheme.primaryContainer,
+                            contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                        ) {
+                            Text("Default Address")
+                        }
                     }
                 }
-            }
+
+       //     }
 
             Spacer(modifier = Modifier.height(4.dp))
 
@@ -370,55 +341,6 @@ fun AddressItem(
                 showDeleteDialog = false
             }
         )
-    }
-}
-
-
-@Composable
-fun ExpandableFab(
-    onAddAddressClick: () -> Unit,
-    onAddByMapClick: () -> Unit
-) {
-    var expanded by remember { mutableStateOf(false) }
-
-    Box(
-        modifier = Modifier.wrapContentSize(),
-        contentAlignment = Alignment.BottomEnd
-    ) {
-        Column(horizontalAlignment = Alignment.End) {
-            if (expanded) {
-                FloatingActionButton(
-                    onClick = onAddByMapClick,
-                    modifier = Modifier.padding(bottom = 12.dp),
-                    containerColor = colorResource(R.color.light_gray)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Place,
-                        contentDescription = "Add by Map",
-                        tint = colorResource(id = R.color.dark_blue)
-                    )
-                }
-
-                FloatingActionButton(
-                    onClick = onAddAddressClick,
-                    modifier = Modifier.padding(bottom = 12.dp),
-                    containerColor = Color.LightGray
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Home,
-                        contentDescription = "Add Address",
-                        tint = colorResource(id = R.color.dark_blue)
-                    )
-                }
-            }
-
-            FloatingActionButton(onClick = { expanded = !expanded }) {
-                Icon(
-                    imageVector = if (expanded) Icons.Default.Close else Icons.Default.Add,
-                    contentDescription = "Toggle"
-                )
-            }
-        }
     }
 }
 
@@ -578,6 +500,92 @@ fun EditAddressDialog(
 
     if (showValidationError) {
         MissingFieldsDialog { showValidationError = false }
+    }
+}
+
+
+//@Composable
+//fun AddAddressFab(onClick: () -> Unit) {
+//    FloatingActionButton(onClick = onClick) {
+//        Icon(Icons.Default.Add, contentDescription = "Add Address")
+//    }
+//}
+
+
+@Composable
+fun EmptyAddressList() {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Icon(
+            imageVector = Icons.Outlined.LocationOn,
+            contentDescription = "No addresses",
+            modifier = Modifier.size(64.dp),
+            tint = Color.Gray
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(
+            text = "No addresses saved",
+            style = MaterialTheme.typography.titleMedium,
+            color = Color.Gray
+        )
+        Text(
+            text = "Add your first address by tapping the + button",
+            style = MaterialTheme.typography.bodyMedium,
+            color = Color.Gray
+        )
+    }
+}
+
+@Composable
+fun ExpandableFab(
+    onAddAddressClick: () -> Unit,
+    onAddByMapClick: () -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Box(
+        modifier = Modifier.wrapContentSize(),
+        contentAlignment = Alignment.BottomEnd
+    ) {
+        Column(horizontalAlignment = Alignment.End) {
+            if (expanded) {
+                FloatingActionButton(
+                    onClick = onAddByMapClick,
+                    modifier = Modifier.padding(bottom = 12.dp),
+                    containerColor = colorResource(R.color.light_gray)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Place,
+                        contentDescription = "Add by Map",
+                        tint = colorResource(id = R.color.dark_blue)
+                    )
+                }
+
+                FloatingActionButton(
+                    onClick = onAddAddressClick,
+                    modifier = Modifier.padding(bottom = 12.dp),
+                    containerColor = Color.LightGray
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Home,
+                        contentDescription = "Add Address",
+                        tint = colorResource(id = R.color.dark_blue)
+                    )
+                }
+            }
+
+            FloatingActionButton(onClick = { expanded = !expanded }) {
+                Icon(
+                    imageVector = if (expanded) Icons.Default.Close else Icons.Default.Add,
+                    contentDescription = "Toggle"
+                )
+            }
+        }
     }
 }
 

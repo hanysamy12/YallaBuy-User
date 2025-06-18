@@ -5,7 +5,6 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.util.Log
 import android.widget.Toast
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -13,7 +12,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -24,6 +22,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
@@ -33,7 +32,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.carousel.HorizontalMultiBrowseCarousel
@@ -52,13 +50,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.yallabuy_user.R
-import com.example.yallabuy_user.data.models.CouponItem
+import com.example.yallabuy_user.data.models.Coupon.CouponItem
 import com.example.yallabuy_user.data.models.CustomCollectionsItem
 import com.example.yallabuy_user.data.models.SmartCollectionsItem
 import com.example.yallabuy_user.ui.navigation.ScreenRoute
@@ -71,7 +68,8 @@ private const val TAG = "HomeScreen"
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    navController: NavController, homeViewModel: HomeViewModel = koinViewModel(),
+    navController: NavController,
+    homeViewModel: HomeViewModel = koinViewModel(),
     setTopBar: (@Composable () -> Unit) -> Unit
 ) {
     LaunchedEffect(Unit) {
@@ -85,65 +83,118 @@ fun HomeScreen(
         }
         homeViewModel.getAllCategories()
         homeViewModel.getAllBrands()
+        // Coupons are fetched in ViewModel's init.
     }
+
     val uiCategoriesState by homeViewModel.categories.collectAsState()
     val uiBrandState by homeViewModel.brands.collectAsState()
-    Box(
-        modifier = Modifier.fillMaxSize()
-    ) {
+    val uiAllCouponsState by homeViewModel.allCoupons.collectAsState()
+
+    Box(modifier = Modifier.fillMaxSize()) {
         when (uiBrandState) {
             is ApiResponse.Success -> {
                 val brands = (uiBrandState as ApiResponse.Success).data
-                val categories = (uiCategoriesState as ApiResponse.Success).data
-                HomeContent(categories, brands, onCatClicked = { catId ->
-                    Log.i(TAG, "HomeScreen: Collection ID = $catId")
-                    navController.navigate(
-                        ScreenRoute.ProductsScreen(
-                            vendorName = null,
-                            categoryID = catId,
-                            title = categories.first { it.id == catId }.title
-                        )
-                    )
-                }, onBrandClicked = { brandName ->
-                    navController.navigate(
-                        ScreenRoute.ProductsScreen(
-                            vendorName = brandName,
-                            categoryID = null,
-                            title = brands.first { it.title == brandName }.title
-                        )
-                    )
-                })
 
+                when (uiCategoriesState) {
+                    is ApiResponse.Success -> {
+                        val categories = (uiCategoriesState as ApiResponse.Success).data
+
+                        when (uiAllCouponsState) {
+                            is ApiResponse.Success -> {
+                                val discountCoupons =
+                                    (uiAllCouponsState as ApiResponse.Success).data
+
+                                val couponItems =
+                                    discountCoupons.mapIndexed { index, discountCodeCoupon ->
+                                        val imageResId = when (index % 4) {
+                                            0 -> R.drawable.coupon22
+                                            1 -> R.drawable.coupon30
+                                            2 -> R.drawable.coupon20
+                                            3 -> R.drawable.coupon10p
+                                            else -> R.drawable.coupon22
+                                        }
+                                        CouponItem(imageResId, discountCodeCoupon.code)
+                                    }
+
+                                HomeContent(
+                                    categories = categories,
+                                    brands = brands,
+                                    coupons = couponItems,
+                                    onCatClicked = { catId ->
+                                        navController.navigate(
+                                            ScreenRoute.ProductsScreen(
+                                                vendorName = null, categoryID = catId, title = null
+                                            )
+                                        )
+                                    },
+                                    onBrandClicked = { brandName ->
+                                        navController.navigate(
+                                            ScreenRoute.ProductsScreen(
+                                                vendorName = brandName,
+                                                categoryID = null,
+                                                title = brandName,
+                                            )
+                                        )
+                                    })
+                            }
+
+                            is ApiResponse.Failure -> {
+                                val errorMsg = (uiAllCouponsState as ApiResponse.Failure).toString()
+                                Log.e(TAG, "Coupons Error: $errorMsg")
+                                Text(
+                                    text = "Failed to load coupons: $errorMsg",
+                                    modifier = Modifier.align(Alignment.Center),
+                                    color = Color.Red,
+                                    textAlign = TextAlign.Center
+                                )
+                            }
+
+                            ApiResponse.Loading -> ProgressShow()
+                        }
+                    }
+
+                    is ApiResponse.Failure -> {
+                        val errorMsg = (uiCategoriesState as ApiResponse.Failure).toString()
+                        Text(
+                            text = "Failed to load categories: $errorMsg",
+                            modifier = Modifier.align(Alignment.Center),
+                            color = Color.Red,
+                            textAlign = TextAlign.Center
+                        )
+
+                    }
+
+                    ApiResponse.Loading -> ProgressShow()
+
+
+                }
             }
 
             is ApiResponse.Failure -> {
-                val msg = (uiBrandState as ApiResponse.Failure).toString()
-                println("Home Failure Error $msg")
+                val errorMsg = (uiBrandState as ApiResponse.Failure).toString()
+                Text(
+                    text = "Failed to load brands: $errorMsg",
+                    modifier = Modifier.align(Alignment.Center),
+                    color = Color.Red,
+                    textAlign = TextAlign.Center
+                )
             }
 
             ApiResponse.Loading -> ProgressShow()
         }
-
     }
-
 }
+
 
 @Composable
 private fun HomeContent(
     categories: List<CustomCollectionsItem>,
     brands: List<SmartCollectionsItem>,
+    coupons: List<CouponItem>,
     onCatClicked: (Long?) -> Unit,
     onBrandClicked: (String) -> Unit
 ) {
-
     val context = LocalContext.current
-
-    val coupons = listOf(
-        CouponItem(R.drawable.coupon22, "ZIAD40"),
-        CouponItem(R.drawable.coupon30, "ZIAD30"),
-        CouponItem(R.drawable.coupon20, "ZIAD20"),
-        CouponItem(R.drawable.coupon10, "ZIAD10"),
-    )
     Column {
         Spacer(modifier = Modifier.height(10.dp))
         Text(
@@ -152,7 +203,6 @@ private fun HomeContent(
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp),
             fontSize = 16.sp,
-            //  color = Color.White,
             textAlign = TextAlign.Center,
             fontWeight = FontWeight.Medium
         )
@@ -165,7 +215,7 @@ private fun HomeContent(
 
         Spacer(Modifier.height(20.dp))
 
-        if (categories.size >= 4) { //I added that
+        if (categories.size >= 4) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly,
@@ -207,8 +257,8 @@ private fun HomeContent(
                 .fillMaxWidth()
                 .padding(bottom = 12.dp, start = 6.dp)
         ) {
-            items(brands.size) { index ->
-                RoundedImageWithTitle(brands[index], onBrandClicked = { brandId ->
+            items(brands) { brand ->
+                RoundedImageWithTitle(brand, onBrandClicked = { brandId ->
                     onBrandClicked(brandId)
                     Log.i(TAG, "BrandClicked: $brandId")
                 })
@@ -216,24 +266,35 @@ private fun HomeContent(
             }
         }
     }
-
 }
+
 
 @Composable
 fun CouponsCarousel(
-    coupons: List<CouponItem>,
-    onCouponClick: (String) -> Unit
+    coupons: List<CouponItem>, onCouponClick: (String) -> Unit
 ) {
+    if (coupons.isEmpty()) {
+        Text(
+            text = "No coupons available at the moment.",
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            textAlign = TextAlign.Center,
+            color = Color.Gray
+        )
+        return
+    }
+
     val pagerState = rememberPagerState(
-        initialPage = 0,
-        pageCount = { coupons.size }
-    )
+        initialPage = 0, pageCount = { coupons.size })
 
     LaunchedEffect(Unit) {
         while (true) {
             delay(3000L)
             val nextPage = (pagerState.currentPage + 1) % coupons.size
-            pagerState.animateScrollToPage(nextPage)
+            if (nextPage != pagerState.currentPage) {
+                pagerState.animateScrollToPage(nextPage)
+            }
         }
     }
 
@@ -243,16 +304,13 @@ fun CouponsCarousel(
             .height(200.dp)
     ) {
         HorizontalPager(
-            state = pagerState,
-            contentPadding = PaddingValues(horizontal = 32.dp),
-            pageSpacing = 16.dp,
-            modifier = Modifier.fillMaxSize()
+            state = pagerState, pageSpacing = 8.dp, modifier = Modifier.fillMaxSize()
         ) { page ->
             val coupon = coupons[page]
             CouponImage(
                 imageResId = coupon.imageResId,
-                onClick = { onCouponClick(coupon.code) }
-            )
+                couponCode = coupon.code,
+                onClick = { onCouponClick(coupon.code) })
         }
 
         Row(
@@ -275,47 +333,27 @@ fun CouponsCarousel(
     }
 }
 
-
 @Composable
 fun CouponImage(
-    imageResId: Int,
-    onClick: () -> Unit
+    imageResId: Int, couponCode: String, onClick: () -> Unit
 ) {
     Box(
         modifier = Modifier
             .height(200.dp)
             .clip(RoundedCornerShape(12.dp))
-            .clickable { onClick() } // ← Handle image tap
-            .background(Color.LightGray)
-    ) {
+            .clickable { onClick() }
+            .background(Color.LightGray)) {
         Image(
             painter = painterResource(id = imageResId),
             contentDescription = "Coupon Image",
             modifier = Modifier
                 .fillMaxSize()
                 .clip(RoundedCornerShape(12.dp)),
-            contentScale = ContentScale.Crop
+            contentScale = ContentScale.FillBounds
         )
+
     }
 }
-
-//@Preview(showBackground = true)
-//@Composable
-//fun PreviewCouponsCarousel() {
-//    val previewImages = listOf(
-//        android.R.drawable.ic_menu_gallery,
-//        android.R.drawable.ic_menu_gallery,
-//        android.R.drawable.ic_menu_gallery,
-//        android.R.drawable.ic_menu_gallery,
-//        android.R.drawable.ic_menu_gallery,
-//        android.R.drawable.ic_menu_gallery
-//    )
-//
-//    //https://developer.android.com/develop/ui/compose/components/carousel
-//    MaterialTheme {
-//        CouponsCarousel(imageResIds = previewImages)
-//    }
-//}
 
 
 @Composable

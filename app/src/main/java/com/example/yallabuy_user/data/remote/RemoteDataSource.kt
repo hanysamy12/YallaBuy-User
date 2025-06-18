@@ -5,14 +5,15 @@ import android.util.Log
 import com.example.yallabuy_user.data.models.BrandResponse
 import com.example.yallabuy_user.data.models.CategoryResponse
 import com.example.yallabuy_user.data.models.CreateOrderRequest
-import com.example.yallabuy_user.data.models.DiscountCode
-import com.example.yallabuy_user.data.models.DiscountCodeCoupon
+import com.example.yallabuy_user.data.models.Coupon.DiscountCodeCoupon
 import com.example.yallabuy_user.data.models.OrderDetailsResponse
 import com.example.yallabuy_user.data.models.OrdersResponse
+import com.example.yallabuy_user.data.models.Coupon.PriceRule
 import com.example.yallabuy_user.data.models.ProductResponse
 import com.example.yallabuy_user.data.models.cart.CreateCustomerCart
 import com.example.yallabuy_user.data.models.cart.DraftOrderBody
 import com.example.yallabuy_user.data.models.cart.DraftOrderResponse
+import com.example.yallabuy_user.data.models.cart.ProductVariant
 import com.example.yallabuy_user.data.models.cart.UpdateCustomerBody
 import com.example.yallabuy_user.data.models.createUser.CreateUserOnShopifyResponse
 import com.example.yallabuy_user.data.models.createUser.request.CreateUSerOnShopifyRequest
@@ -214,9 +215,25 @@ class RemoteDataSource(
         return flowOf(response)
     }
 
+    override suspend fun getProductVariantById(variantId: Long): Flow<ProductVariant> {
+        val response = service.getProductVariantById(variantId)
+        return flowOf(response)
+    }
+
     override suspend fun getAllCouponsForRule(priceRuleId: Long): Flow<List<DiscountCodeCoupon>> {
             val response = service.getDiscountCodesForPriceRule(priceRuleId)
             return flowOf(response.discountCodes)
+    }
+
+    override suspend fun fetchPriceRules(): Flow<List<PriceRule>> {
+        val response = service.getAllPriceRules()
+        return flowOf(response.price_rules)
+    }
+
+    override suspend fun completeDraftOrder(draftOrderId: Long): Flow<DraftOrderResponse> {
+        val body = emptyMap<String, Any>()
+        val response = service.completeDraftOrder(draftOrderId, body)
+        return flowOf(response)
     }
 
 
