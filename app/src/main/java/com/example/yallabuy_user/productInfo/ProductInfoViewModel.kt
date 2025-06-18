@@ -142,6 +142,10 @@ class ProductInfoViewModel(
                                 LineItemProperty(
                                     name = "image",
                                     value = data.product.image.src
+                                ) ,
+                                LineItemProperty(
+                                    name = "productId",
+                                    value = productIdGlobal.toString()
                                 )
                             )
                         )
