@@ -16,9 +16,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -26,6 +29,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -38,15 +42,25 @@ import com.example.yallabuy_user.utilities.ApiResponse
 import org.koin.androidx.compose.koinViewModel
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PreviousOrdersScreen(
-    navController: NavController, orderViewModel: OrdersViewModel = koinViewModel()
+    navController: NavController, orderViewModel: OrdersViewModel = koinViewModel(),
+    setTopBar: (@Composable () -> Unit) -> Unit
 ) {
 
     val uiOrdersState by orderViewModel.orders.collectAsState()
-
+    val context = LocalContext.current
     LaunchedEffect(Unit) {
-        orderViewModel.getPreviousOrders(8792449548606)
+        setTopBar {
+            CenterAlignedTopAppBar(
+                title = { Text("Latest Orders") },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = Color(0xFF3B9A94)
+                )
+            )
+        }
+        orderViewModel.getPreviousOrders(context)
     }
     Box {
 
@@ -71,13 +85,13 @@ fun PreviousOrdersScreen(
                     LazyColumn(modifier = Modifier.fillMaxSize()) {
                         items(orders.size) { index ->
                             OrderItem(
-                                orders[index], onOrderClicked = {
+                                orders[index],
+                                onOrderClicked = {
                                     navController.navigate(
-                                        ScreenRoute.PreviousOrderDetails.createRoute(
-                                            it
-                                        )
+                                        ScreenRoute.PreviousOrderDetails(orderId = it)
                                     )
-                                })
+                                },
+                            )
                         }
                     }
                 }

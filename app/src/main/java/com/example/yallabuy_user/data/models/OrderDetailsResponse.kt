@@ -45,7 +45,7 @@ data class CreateOrder(
     val sendReceipt: Boolean,
     @SerializedName("send_fulfillment_receipt")
     val sendFulfillmentReceipt: Boolean,
-    val currency: String
+    //val currency: String
 )
 
 data class CreateLineItem(
@@ -55,14 +55,15 @@ data class CreateLineItem(
 )
 
 data class CreateShippingAddress(
-    @SerializedName("first_name")
-    val firstName: String,
-    @SerializedName("last_name")
-    val lastName: String,
-    val address1: String,
-    val city: String,
-    val country: String,
-    val phone: String
+    val id : Long,
+//    @SerializedName("first_name")
+//    val firstName: String,
+//    @SerializedName("last_name")
+//    val lastName: String,
+//    val address1: String,
+//    val city: String,
+//    val country: String,
+//    val phone: String
 )
 
 data class CreateCustomer(

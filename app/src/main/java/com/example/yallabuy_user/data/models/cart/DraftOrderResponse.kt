@@ -4,14 +4,14 @@ import com.google.gson.annotations.SerializedName
 
 data class DraftOrderBody(
     @SerializedName("draft_order")
-    val draftOrder: DraftOrder
+    val draftOrderCart: DraftOrderCart
 )
 data class DraftOrderResponse(
     @SerializedName("draft_orders")
-    val draftOrders: List<DraftOrder>
+    val draftOrderCarts: List<DraftOrderCart>
 )
 
-data class DraftOrder(
+data class DraftOrderCart(
     @SerializedName("id")
     val id: Long? = null,
 
@@ -30,7 +30,8 @@ data class DraftOrder(
 
 data class LineItem(
     @SerializedName("variant_id")
-    var variantID: Long,
+    var variantID: Long,  //check quantity of the variant ID if we can increase or not
+
 
     @SerializedName("product_id")
     var productID: Long,
@@ -56,4 +57,31 @@ data class Property(
 
 data class Customer(
     val id: Long
+)
+
+data class UpdateCustomerBody(
+    @SerializedName("customer")
+    val customer: CustomerTagUpdate
+)
+
+data class CustomerTagUpdate(
+    val id: Long,
+    val tags: String
+)
+
+data class CreateCustomerCart(
+    @SerializedName("customer")
+    val customer: CustomerTagUpdate
+)
+
+data class ProductVariant(
+    @SerializedName("variant")
+    val variant: VariantDetail
+)
+
+data class VariantDetail(
+    @SerializedName("id")
+    val id: Long,
+    @SerializedName("inventory_quantity")
+    val inventoryQuantity: Int
 )

@@ -5,11 +5,16 @@ import android.util.Log
 import com.example.yallabuy_user.data.models.BrandResponse
 import com.example.yallabuy_user.data.models.CategoryResponse
 import com.example.yallabuy_user.data.models.CreateOrderRequest
+import com.example.yallabuy_user.data.models.Coupon.DiscountCodeCoupon
 import com.example.yallabuy_user.data.models.OrderDetailsResponse
 import com.example.yallabuy_user.data.models.OrdersResponse
+import com.example.yallabuy_user.data.models.Coupon.PriceRule
 import com.example.yallabuy_user.data.models.ProductResponse
+import com.example.yallabuy_user.data.models.cart.CreateCustomerCart
 import com.example.yallabuy_user.data.models.cart.DraftOrderBody
 import com.example.yallabuy_user.data.models.cart.DraftOrderResponse
+import com.example.yallabuy_user.data.models.cart.ProductVariant
+import com.example.yallabuy_user.data.models.cart.UpdateCustomerBody
 import com.example.yallabuy_user.data.models.createUser.CreateUserOnShopifyResponse
 import com.example.yallabuy_user.data.models.createUser.request.CreateUSerOnShopifyRequest
 import com.example.yallabuy_user.data.models.createUser.request.CustomerRequest
@@ -136,13 +141,7 @@ class RemoteDataSource(
             flowOf()
         }
     }
-//    override suspend fun getCustomerAddressById(
-//        customerId: Long,
-//        addressId: Long
-//    ): Flow<NewAddressResponse> = flow {
-//        val response = service.getCustomerAddressById(customerId, addressId)
-//        emit(response)
-//    }
+
 
     override suspend fun getAddresses(
         customerId: Long
@@ -184,8 +183,13 @@ class RemoteDataSource(
     }
 
 
-    override suspend fun getDraftOrder(): Flow<DraftOrderResponse> {
+    override suspend fun getDraftOrders(): Flow<DraftOrderResponse> {
         val response = service.getDraftOrders()
+        return flowOf(response)
+    }
+
+    override suspend fun getDraftOrderCart(draftOrderId: Long): Flow<DraftOrderBody> {
+        val response= service.getDraftOrderCart(draftOrderId)
         return flowOf(response)
     }
 
@@ -196,15 +200,41 @@ class RemoteDataSource(
     ): Flow<DraftOrderBody> {
         val response = service.updateDraftOrder(draftOrderBody, id)
         return flowOf(response)
-
     }
-
 
     override suspend fun deleteDraftOrder(id: Long): Flow<Unit> {
          service.deleteDraftOrder(id)
         return flowOf(Unit)
     }
 
+    override suspend fun updateCustomerTags(
+        customerId: Long,
+        customerBody: UpdateCustomerBody
+    ): Flow<CreateCustomerCart> {
+        val response= service.updateCustomerTags(customerBody,customerId)
+        return flowOf(response)
+    }
+
+    override suspend fun getProductVariantById(variantId: Long): Flow<ProductVariant> {
+        val response = service.getProductVariantById(variantId)
+        return flowOf(response)
+    }
+
+    override suspend fun getAllCouponsForRule(priceRuleId: Long): Flow<List<DiscountCodeCoupon>> {
+            val response = service.getDiscountCodesForPriceRule(priceRuleId)
+            return flowOf(response.discountCodes)
+    }
+
+    override suspend fun fetchPriceRules(): Flow<List<PriceRule>> {
+        val response = service.getAllPriceRules()
+        return flowOf(response.price_rules)
+    }
+
+    override suspend fun completeDraftOrder(draftOrderId: Long): Flow<DraftOrderResponse> {
+        val body = emptyMap<String, Any>()
+        val response = service.completeDraftOrder(draftOrderId, body)
+        return flowOf(response)
+    }
 
 
     override suspend fun creteWishListDraftOrder(wishListDraftOrderRequest: WishListDraftOrderRequest): Flow<WishListDraftOrderResponse> {

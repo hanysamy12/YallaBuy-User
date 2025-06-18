@@ -7,10 +7,15 @@ import com.example.yallabuy_user.data.models.cart.DraftOrderBody
 import com.example.yallabuy_user.data.models.BrandResponse
 import com.example.yallabuy_user.data.models.CategoryResponse
 import com.example.yallabuy_user.data.models.CreateOrderRequest
+import com.example.yallabuy_user.data.models.Coupon.DiscountCodesResponse
 import com.example.yallabuy_user.data.models.OrderDetailsResponse
 import com.example.yallabuy_user.data.models.OrdersResponse
+import com.example.yallabuy_user.data.models.Coupon.PriceRulesResponse
 import com.example.yallabuy_user.data.models.ProductResponse
+import com.example.yallabuy_user.data.models.cart.CreateCustomerCart
 import com.example.yallabuy_user.data.models.cart.DraftOrderResponse
+import com.example.yallabuy_user.data.models.cart.ProductVariant
+import com.example.yallabuy_user.data.models.cart.UpdateCustomerBody
 import com.example.yallabuy_user.data.models.createUser.CreateUserOnShopifyResponse
 import com.example.yallabuy_user.data.models.createUser.request.CreateUSerOnShopifyRequest
 import com.example.yallabuy_user.data.models.customer.CustomerDataResponse
@@ -144,10 +149,13 @@ interface ApiService {
 
 //cart
 
+
     @GET("draft_orders/{draft_order_id}.json")
     suspend fun getCartDraftOrderById(
         @Path("draft_order_id") draftOrderID: Long
     ): DraftOrderBody
+
+
 
     @POST("draft_orders.json")
     suspend fun createDraftOrder(
@@ -157,6 +165,11 @@ interface ApiService {
     @GET("draft_orders.json")
     suspend fun getDraftOrders(
     ): DraftOrderResponse
+
+    @GET("draft_orders/{draft_order_id}.json")
+    suspend fun getDraftOrderCart(
+        @Path("draft_order_id") draftOrderID: Long
+    ): DraftOrderBody
 
 
     @PUT("draft_orders/{draft_order_id}.json")
@@ -171,13 +184,35 @@ interface ApiService {
         @Path("draft_order_id") draftOrderID: Long
     )
 
-    @GET("products/{product_id}.json")
-    suspend fun getProductByID(
-        @Path("product_id") productID: Long
-    ): ProductResponse
+    @PUT("customers/{customer_id}.json")
+    suspend fun updateCustomerTags(
+        @Body customerBody: UpdateCustomerBody,
+        @Path("customer_id") customerID: Long
+    ): CreateCustomerCart
+
+    //cart inventory quantity
+    @GET("variants/{variant_id}.json")
+    suspend fun getProductVariantById(
+        @Path("variant_id") variantId: Long
+    ): ProductVariant
+
+    @GET("price_rules/{price_rule_id}/discount_codes.json")
+    suspend fun getDiscountCodesForPriceRule(
+        @Path("price_rule_id") priceRuleId: Long
+    ): DiscountCodesResponse
+
+    @GET("price_rules.json")
+    suspend fun getAllPriceRules(
+    ): PriceRulesResponse
 
     @POST("orders.json")
     suspend fun createOrder(
         @Body order: CreateOrderRequest
     ): OrderDetailsResponse
+
+    @PUT("draft_orders/{id}/complete.json")
+    suspend fun completeDraftOrder(
+        @Path("id") id: Long,
+        @Body body: Map<String, @JvmSuppressWildcards Any>
+    ): DraftOrderResponse
 }

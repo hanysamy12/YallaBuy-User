@@ -58,25 +58,30 @@ class AddressViewModel(
         }
     }
 
-
-    @SuppressLint("SuspiciousIndentation")
     fun createAddress(addressBody: AddressBody) {
+        if (customerId == 0L) {
+            Log.e("AddressViewModel", "CustomerId not set before creating address!")
+            return
+        }
         viewModelScope.launch {
             Log.i("TAG", "createAddress: $addressBody")
             _createUpdateState.value = ApiResponse.Loading
-            repository.createCustomerAddress(customerId, addressBody)
 
+            repository.createCustomerAddress(customerId, addressBody)
                 .catch { e -> _createUpdateState.value = ApiResponse.Failure(e) }
                 .collect { response ->
-                    run {
-                        //getAddresses()
-                        _addressesList.update {
-                          val mutableList =  it.toMutableList()
-                            mutableList.add(addressBody.address)
-                            mutableList.toList()
+                    val newAddress = response.address
+
+                    _addressesList.update { list ->
+                        val newAddress = response.address
+                        val updatedList = if (newAddress.default) {
+                            list.map { it.copy(default = false) } + newAddress
+                        } else {
+                            list + newAddress
                         }
-                        _createUpdateState.value = ApiResponse.Success(response)
+                        updatedList
                     }
+                    _createUpdateState.value = ApiResponse.Success(response)
                 }
         }
     }
@@ -90,8 +95,10 @@ class AddressViewModel(
                 .collect { response ->
                     response.address.let { updated ->
                         _addressesList.update { list ->
-                            list.map {
-                                if (it.id == addressId) updated else it
+                            if (updated.default) {
+                                list.map { it.copy(default = (it.id == updated.id)) }
+                            } else {
+                                list.map { if (it.id == updated.id) updated else it }
                             }
                         }
                     }
@@ -140,17 +147,6 @@ class AddressViewModel(
                 }
         }
     }
+
 }
 
-//class AddressViewModelFactory(
-//    private val addressRepository: IAddressRepository,
-//    private val customerId: Long
-//) : ViewModelProvider.Factory {
-//    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-//        if (modelClass.isAssignableFrom(AddressViewModel::class.java)) {
-//            @Suppress("UNCHECKED_CAST")
-//            return AddressViewModel(addressRepository, customerId) as T
-//        }
-//        throw IllegalArgumentException("Unknown ViewModel class")
-//    }
-//}

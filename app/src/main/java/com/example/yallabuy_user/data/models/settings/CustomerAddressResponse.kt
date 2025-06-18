@@ -32,7 +32,6 @@ data class Address(
 
     override fun getDetailedDescription(): String = "Recipient Name: $firstName $lastName" +
             "\nRecipient Phone Number: $phone\n$fullAddress"
-
 }
 
 data class AddressBody(

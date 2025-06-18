@@ -1,6 +1,8 @@
 package com.example.yallabuy_user.cart.view
 
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -26,6 +28,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -54,6 +57,7 @@ import com.example.yallabuy_user.ui.navigation.ScreenRoute
 import com.example.yallabuy_user.utilities.ApiResponse
 import org.koin.androidx.compose.koinViewModel
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun CartScreen(
     navController: NavController,
@@ -63,9 +67,12 @@ fun CartScreen(
     val cartState by cartViewModel.cartState.collectAsState()
     // val draftOrderId = 123456789L
     val draftOrdersState by cartViewModel.draftOrders.collectAsState()
-
+    val showOutOfStockDialog by cartViewModel.showOutOfStockDialog.collectAsState()
     val context = LocalContext.current
     val customerId = CustomerIdPreferences.getData(context)
+    val couponResult by cartViewModel.couponValidationResult.collectAsState()
+    var couponCode by remember { mutableStateOf("") }
+
     LaunchedEffect(Unit) {
         Log.i("TAG", "CartScreen: customerId: $customerId ")
         cartViewModel.fetchCart(customerId)
@@ -95,7 +102,7 @@ fun CartScreen(
             }
 
             is ApiResponse.Success -> {
-                val draftOrders = state.data.draftOrders
+                val draftOrders = state.data.draftOrderCarts
                 if (draftOrders.isEmpty()) {
                     Box(
                         modifier = Modifier.fillMaxSize(),
@@ -104,6 +111,7 @@ fun CartScreen(
                         Text(text = "Your cart is empty", fontSize = 18.sp)
                     }
                 } else {
+                    val draftOrderId = draftOrders.first().id
                     val allLineItems = draftOrders.flatMap { it.lineItems }
                     val totalPrice = allLineItems.sumOf { it.getTotalPrice().toDouble() }
 
@@ -111,6 +119,7 @@ fun CartScreen(
                         modifier = Modifier
                             .weight(1f)
                             .fillMaxWidth()
+                            .height(180.dp)
                             .padding(bottom = 8.dp)
                     ) {
                         items(draftOrders) { draftOrder ->
@@ -146,18 +155,84 @@ fun CartScreen(
                             }
                         }
                     }
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 8.dp)
+                    ) {
+                        OutlinedTextField(
+                            value = couponCode,
+                            onValueChange = { couponCode = it },
+                            label = { Text("Enter coupon code") },
+                            modifier = Modifier.fillMaxWidth(),
+                            singleLine = true
+                        )
+
 
                     CheckoutSection(
                         total = "${"%.2f".format(totalPrice)} EGP",
                         onCheckOutClicked = {
-                            navController.navigate(ScreenRoute.OrderCheckOut(1209159713086))//??
-                        })
+                            if (draftOrderId != null)
+                            navController.navigate(ScreenRoute.OrderCheckOut(draftOrderId))
+                        },
+                        itemCount = allLineItems.size
+                    )
+
+                        Button(
+                            onClick = {
+                                cartViewModel.validateCoupon(couponCode, totalPrice)
+                            },
+                            colors = ButtonDefaults.buttonColors(containerColor = colorResource(R.color.dark_blue)),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 8.dp)
+                        ) {
+                            Text("Apply Coupon", color = Color.White)
+                        }
+
+                        couponResult?.let { result ->
+                            Text(
+                                text = result.message,
+                                color = if (result.isValid) Color(0xFF2E7D32) else Color.Red,
+                                fontSize = 14.sp,
+                                modifier = Modifier.padding(top = 4.dp)
+                            )
+                        }
+                    }
+                    //    CheckoutSection(total = "${"%.2f".format(totalPrice)} EGP")
+                    val totalItemsCount = allLineItems.sumOf { it.quantity.toInt() }
+
+                    val finalTotal = if (couponResult?.isValid == true)
+                        totalPrice - couponResult!!.discountValue  //why
+                    else totalPrice
+
+                    CheckoutSection(
+                        total = "${"%.2f".format(finalTotal.coerceAtLeast(0.0))} EGP",
+                        itemCount = totalItemsCount,
+                        onCheckOutClicked = {
+                            navController.navigate(ScreenRoute.Payment(finalTotal))
+                            // navController.navigate(ScreenRoute.OrderCheckOut(1209159713086))
+                        }
+                    )
                 }
             }
         }
+        if (showOutOfStockDialog) {
+            AlertDialog(
+                onDismissRequest = { cartViewModel.dismissOutOfStockDialog() },
+                title = { Text("Out of Stock") },
+                text = { Text("Sorry:(\nThe quantity requested exceeds the available stock.") },
+                confirmButton = {
+                    TextButton(
+                        onClick = { cartViewModel.dismissOutOfStockDialog() }
+                    ) {
+                        Text("OK")
+                    }
+                }
+            )
+        }
     }
 }
-
 
 @Composable
 fun CartItemCard(
@@ -307,7 +382,7 @@ fun QuantitySelector(
 }
 
 @Composable
-fun CheckoutSection(total: String, onCheckOutClicked: () -> Unit) {
+fun CheckoutSection(total: String, itemCount: Int, onCheckOutClicked: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -317,7 +392,7 @@ fun CheckoutSection(total: String, onCheckOutClicked: () -> Unit) {
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text("Total (1 item)", fontSize = 14.sp)
+            Text("Total ($itemCount ${if (itemCount == 1) "item" else "items"})", fontSize = 14.sp)
             Text(total, fontSize = 18.sp, fontWeight = FontWeight.Bold)
         }
 
@@ -332,3 +407,4 @@ fun CheckoutSection(total: String, onCheckOutClicked: () -> Unit) {
         }
     }
 }
+
