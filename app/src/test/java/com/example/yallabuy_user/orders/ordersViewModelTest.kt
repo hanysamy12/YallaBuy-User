@@ -1,5 +1,6 @@
 package com.example.yallabuy_user.orders
 
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.yallabuy_user.data.models.LineItemsItem
 import com.example.yallabuy_user.data.models.Order
@@ -65,7 +66,7 @@ class ordersViewModelTest {
             )
         )
         coEvery { repository.getPreviousOrders(1L) } returns flowOf(mockSimpleOrdersResponse)
-        viewModel.getPreviousOrders(1L)
+        viewModel.getPreviousOrders(ApplicationProvider.getApplicationContext())
         val result = viewModel.orders.value
         val expectedList = mockSimpleOrdersResponse.orders?.filterNotNull()
         val actualList = (result as ApiResponse.Success).data
