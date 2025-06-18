@@ -6,6 +6,7 @@ import com.example.yallabuy_user.data.models.ProductResponse
 import com.example.yallabuy_user.data.models.ProductsItem
 import com.example.yallabuy_user.repo.RepositoryInterface
 import com.example.yallabuy_user.utilities.ApiResponse
+import com.example.yallabuy_user.utilities.CurrencyConversionManager
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.flow.flowOf
@@ -20,11 +21,13 @@ import org.junit.runner.RunWith
 class ProductsViewModelTest {
     private lateinit var repository: RepositoryInterface
     private lateinit var viewModel: ProductsViewModel
+    private lateinit var currencyConversionManager: CurrencyConversionManager
 
     @Before
     fun setUp() {
         repository = mockk(relaxed = true)
-        viewModel = ProductsViewModel(repository)
+        currencyConversionManager = mockk(relaxed = true)
+        viewModel = ProductsViewModel(repository,currencyConversionManager)
     }
 
     @Test

@@ -24,7 +24,7 @@ class HomeViewModelTest {
     @Before
     fun setUp() {
         repository = mockk(relaxed = true)
-        viewModel = HomeViewModel(repository)
+        viewModel = HomeViewModel(repository,)
     }
 
     @Test
