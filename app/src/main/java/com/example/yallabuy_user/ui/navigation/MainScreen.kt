@@ -265,12 +265,13 @@ fun MainScreen() {
                 )
             }
 
-
             composable<ScreenRoute.OrderCheckOut> {
                 val args = it.toRoute<ScreenRoute.OrderCheckOut>()
                 OrderCheckoutScreen(
                     cartId = args.orderId,
-                    setTopBar = { topBarContent.value = it })
+                    passedTotalPrice = args.totalAmount,
+                    setTopBar = { topBarContent.value = it }
+                )
             }
         }
     }

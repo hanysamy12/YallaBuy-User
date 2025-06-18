@@ -85,3 +85,9 @@ data class VariantDetail(
     @SerializedName("inventory_quantity")
     val inventoryQuantity: Int
 )
+
+data class CartState(
+    val lineItems: List<LineItem> = emptyList(),
+    val totalPrice: String = "0.00",
+    val currencySymbol: String = "$"
+)

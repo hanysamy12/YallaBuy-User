@@ -2,6 +2,7 @@ package com.example.yallabuy_user.data.models.settings
 
 import com.google.gson.annotations.SerializedName
 
+
 data class Address(
     @SerializedName("id")
     var id: Long = 0,
