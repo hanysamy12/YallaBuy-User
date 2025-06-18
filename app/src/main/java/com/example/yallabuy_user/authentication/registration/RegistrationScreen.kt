@@ -456,7 +456,7 @@ fun OrDivider(
             modifier = Modifier
                 .weight(1f)
                 .height(1.dp),
-            color = Color.Gray
+            color = Color.Black
         )
         Text(
             text = text,
@@ -468,7 +468,7 @@ fun OrDivider(
             modifier = Modifier
                 .weight(1f)
                 .height(1.dp),
-            color = Color.Gray
+            color = Color.Black
         )
     }
 }
