@@ -22,9 +22,7 @@ import com.example.yallabuy_user.repo.RepositoryInterface
 import com.example.yallabuy_user.utilities.ApiResponse
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
 
@@ -43,6 +41,9 @@ class ProductInfoViewModel(
 
     private val _isFirstProductInWishList = MutableStateFlow(false)
     val isFirstProductInWishList = _isFirstProductInWishList.asStateFlow()
+
+    private val _resetWishListSharedPreference = MutableStateFlow(false)
+    val resetWishListSharedPreference = _resetWishListSharedPreference.asStateFlow()
 
     private var wishListDraftOrderIdGlobal: Long = 0L
     private var productIdGlobal: Long = 0L
@@ -63,42 +64,6 @@ class ProductInfoViewModel(
         }
     }
 
-  /*  fun getCustomerById(customerId: Long, data: ProductInfoResponse) {
-        viewModelScope.launch {
-            try {
-                val customerResponse = repo.getUserById(customerId)
-                customerResponse.collect { customer ->
-                    val note = customer.customer.note
-                    val noteString = note as? String
-                    val tags = customer.customer.tags
-                    if (noteString.isNullOrBlank()) {
-                        Log.i("customer", "Note is empty or null.")
-                        createWishListDraftOrder(data, customerId)
-                    } else {
-                        Log.i("customer", "Note is not empty: $note")
-                        addProductToWishList(noteString, data, customerId)
-                    }
-                    if (tags.isBlank()) {
-                        Log.i("customer", "tag is empty or null.")
-                        createDraftOrderCart(data, customerId)
-                    } else {
-                        Log.i("customer", "tag is not empty: $tags")
-                        val draftOrderId = tags.toLongOrNull()
-                        if (draftOrderId != null) {
-                            addProductToCart(draftOrderId, data, customerId)
-                        } else {
-                            Log.e("cart", "Invalid draft order ID in tag: $tags")
-                        }
-                    }
-                }
-            } catch (e: Exception) {
-                Log.i("customer", "getCustomerById in view model error is ${e.message} ")
-            }
-        }
-    }
-
-*/
-
     fun getCustomerById(customerId: Long, data: ProductInfoResponse, isWishlist: Boolean) {
         viewModelScope.launch {
             try {
@@ -109,7 +74,7 @@ class ProductInfoViewModel(
                     val tags = customer.customer.tags ?: ""
 
                     if (isWishlist) {
-                        if (noteString.isNullOrBlank()) {
+                        if (noteString.isNullOrBlank() || noteString == "") {
                             createWishListDraftOrder(data, customerId)
                         } else {
                             addProductToWishList(noteString, data, customerId)
@@ -132,6 +97,7 @@ class ProductInfoViewModel(
             }
         }
     }
+
     private fun addProductToWishList(
         noteString: String,
         data: ProductInfoResponse,
@@ -145,41 +111,36 @@ class ProductInfoViewModel(
                     .collect { response ->
                         val lineItems = response.draft_order.line_items
 
-                        val alreadyExists = isAlreadySaved(lineItems, data.product.title)
-                        if (alreadyExists) {
-                            _productIsAlreadySaved.emit(true)
-                        } else {
-                            val updatedLineItems = lineItems.toMutableList().apply {
-                                add(
-                                    DraftOrderLineItem(
-                                        title = data.product.title,
-                                        price = data.product.variants[0].price.takeIf { it.isNotEmpty() }
-                                            ?: "0.00",
-                                        quantity = 1,
-                                        properties = listOf(
-                                            LineItemProperty(
-                                                name = "image",
-                                                value = data.product.image.src
-                                            ),
-                                            LineItemProperty(
-                                                name = "productId",
-                                                value = productIdGlobal.toString()
-                                            )
+                        val updatedLineItems = lineItems.toMutableList().apply {
+                            add(
+                                DraftOrderLineItem(
+                                    title = data.product.title,
+                                    price = data.product.variants[0].price.takeIf { it.isNotEmpty() }
+                                        ?: "0.00",
+                                    quantity = 1,
+                                    properties = listOf(
+                                        LineItemProperty(
+                                            name = "image",
+                                            value = data.product.image.src
+                                        ),
+                                        LineItemProperty(
+                                            name = "productId",
+                                            value = productIdGlobal.toString()
                                         )
                                     )
                                 )
-                            }
-
-                            val draftOrder = DraftOrder(
-                                line_items = updatedLineItems,
-                                customer = DraftCustomer(customerId)
-                            )
-
-                            repo.updateDraftOrder(
-                                wishListDraftOrderId,
-                                WishListDraftOrderRequest(draftOrder)
                             )
                         }
+
+                        val draftOrder = DraftOrder(
+                            line_items = updatedLineItems,
+                            customer = DraftCustomer(customerId)
+                        )
+
+                        repo.updateDraftOrder(
+                            wishListDraftOrderId,
+                            WishListDraftOrderRequest(draftOrder)
+                        )
                     }
             } catch (e: Exception) {
                 Log.i("wishList", "addProductToWishList error in viewmodel ${e.message} ")
@@ -201,6 +162,10 @@ class ProductInfoViewModel(
                                 LineItemProperty(
                                     name = "image",
                                     value = data.product.image.src
+                                ),
+                                LineItemProperty(
+                                    name = "productId",
+                                    value = productIdGlobal.toString()
                                 )
                             )
                         )
@@ -211,7 +176,7 @@ class ProductInfoViewModel(
                 val wishListDraftOrderResponse = repo.creteWishListDraftOrder(draftOrderRequest)
                 wishListDraftOrderResponse.collect { wishListResponse ->
                     val wishListDraftOrderId = wishListResponse.draft_order.id
-                    updateNoteInCustomer(wishListDraftOrderId, customerId)
+                    updateNoteInCustomer(wishListDraftOrderId.toString(), customerId)
                     _isFirstProductInWishList.emit(true)
                     wishListDraftOrderIdGlobal = wishListDraftOrderId
                     getWishListDraftOrderId()
@@ -230,7 +195,8 @@ class ProductInfoViewModel(
                     lineItems = mutableListOf(
                         LineItem(
                             title = data.product.title,
-                            price = data.product.variants[0].price.takeIf { it.isNotEmpty() } ?: "0.00",
+                            price = data.product.variants[0].price.takeIf { it.isNotEmpty() }
+                                ?: "0.00",
                             quantity = 1,
                             variantID = data.product.variants[0].id,
                             productID = data.product.id,
@@ -258,7 +224,10 @@ class ProductInfoViewModel(
                         )
                     )
                     repo.updateCustomerTags(customerId, updateTagsBody).collect {
-                        Log.i("cart", "Successfully created cart and updated customer tags with $draftOrderId")
+                        Log.i(
+                            "cart",
+                            "Successfully created cart and updated customer tags with $draftOrderId"
+                        )
                     }
                 }
 
@@ -288,7 +257,8 @@ class ProductInfoViewModel(
                             add(
                                 LineItem(
                                     title = data.product.title,
-                                    price = data.product.variants[0].price.takeIf { it.isNotEmpty() } ?: "0.00",
+                                    price = data.product.variants[0].price.takeIf { it.isNotEmpty() }
+                                        ?: "0.00",
                                     quantity = 1,
                                     variantID = data.product.variants[0].id,
                                     productID = data.product.id,
@@ -324,13 +294,13 @@ class ProductInfoViewModel(
     }
 
 
-    private fun updateNoteInCustomer(wishListDraftOrderId: Long, customerId: Long) {
+    private fun updateNoteInCustomer(wishListDraftOrderId: String, customerId: Long) {
         viewModelScope.launch {
             try {
                 val updateNoteInCustomer = UpdateNoteInCustomer(
                     CustomerNoteUpdate(
-                        wishListDraftOrderId,
-                        wishListDraftOrderId.toString()
+                        wishListDraftOrderId.toLong(),
+                        wishListDraftOrderId
                     )
                 )
                 repo.updateNoteInCustomer(customerId, updateNoteInCustomer)
@@ -346,14 +316,25 @@ class ProductInfoViewModel(
         }
     }
 
-    private fun isAlreadySaved(lineItems: List<DraftOrderLineItem>, title: String): Boolean {
-        for (product in lineItems) {
-            if (product.title == title) {
-                return true
+     fun isAlreadySaved(wishListId : Long , productId : Long) {
+        viewModelScope.launch {
+            if (wishListId != 0L) {
+                try {
+                      repo.getWishListDraftById(wishListId).collect{
+                     val response =    it.draft_order.line_items.filter {product ->
+                         product.properties?.get(1)?.value == productId.toString()
+                        }
+                         if(response.isNotEmpty()) _productIsAlreadySaved.emit(true)
+                    }
+                } catch (e: Exception) {
+                    Log.i("info", "isAlreadySaved error in viewModel is ${e.message} ")
+                }
+            }else {
+                _productIsAlreadySaved.emit(false)
             }
         }
-        return false
     }
+
     private fun isAlreadySavedInCart(lineItems: List<LineItem>, title: String): Boolean {
         for (product in lineItems) {
             if (product.title == title) {
@@ -362,6 +343,7 @@ class ProductInfoViewModel(
         }
         return false
     }
+
     fun getWishListDraftOrderId(): Long {
         return wishListDraftOrderIdGlobal
     }
@@ -381,7 +363,10 @@ class ProductInfoViewModel(
                         )
 
                         repo.updateCustomerTags(customerId, updateRequest).collect { updated ->
-                            Log.i("customer", "Successfully updated tag to: ${updated.customer.tags}")
+                            Log.i(
+                                "customer",
+                                "Successfully updated tag to: ${updated.customer.tags}"
+                            )
                         }
                     } else {
                         Log.i("customer", "Tag already up-to-date: $currentTag")
@@ -392,5 +377,42 @@ class ProductInfoViewModel(
             }
         }
     }
+
+    fun deleteProductFromWishList(customerId : Long , productTitle : String , wishListId : Long){
+        viewModelScope.launch {
+            Log.i("wishList", " inside deleteProductFromWishList ")
+            Log.i("saved", "deleteProductFromWishList title $productTitle ")
+            try {
+                repo.getWishListDraftById(wishListId).collect{ response ->
+
+                    if(response.draft_order.line_items.size == 1){
+                        Log.i("saved", "deleteProductFromWishList in viewModel list < 1  ")
+                        repo.deleteDraftOrderCart(wishListId)
+                        updateNoteInCustomer("" ,customerId )
+                        _resetWishListSharedPreference.emit(true)
+                    }else {
+                        Log.i("saved", "deleteProductFromWishList in viewModel list > 1  ")
+                        val listBeforeDelete = response.draft_order.line_items.toMutableList()
+                        for (product in listBeforeDelete){
+                            if(product.title.equals(productTitle)){
+                                listBeforeDelete.remove(product)
+                            }
+                        }
+                     val wishListDraftOrderRequest = WishListDraftOrderRequest(
+                         DraftOrder(listBeforeDelete.toList() , DraftCustomer(customerId))
+                     )
+                     repo.updateDraftOrder(wishListId , wishListDraftOrderRequest )
+                     _productIsAlreadySaved.emit(false)
+                     _resetWishListSharedPreference.emit(false)
+                    }
+                }
+            }catch (e : Exception){
+                Log.i("saved", "deleteProductFromWishList error in viewModel ${e.localizedMessage} ")
+            }
+
+        }
+
+    }
+
 
 }

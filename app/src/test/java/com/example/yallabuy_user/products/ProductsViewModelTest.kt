@@ -26,98 +26,100 @@ class ProductsViewModelTest {
     @Before
     fun setUp() {
         repository = mockk(relaxed = true)
+        currencyConversionManager = mockk (relaxed = true)
+        viewModel = ProductsViewModel(repository, currencyConversionManager)
         currencyConversionManager = mockk(relaxed = true)
         viewModel = ProductsViewModel(repository,currencyConversionManager)
     }
 
-    @Test
-    fun getProducts_returnVendorProducts() = runTest {
-        val fakeProductResponse = ProductResponse(
-            products = listOf(
-                ProductsItem(
-                    id = 1L,
-                    title = "Nike Air Max",
-                    vendor = "Nike",
-                    productType = "Shoes",
-                    image = ProductImage(src = "https://example.com/nike.jpg"),
-                    status = "active"
-                ), ProductsItem(
-                    id = 2L,
-                    title = "Adidas Ultra Boost",
-                    vendor = "Adidas",
-                    productType = "Shoes",
-                    image = ProductImage(src = "https://example.com/adidas.jpg"),
-                    status = "active"
-                ), ProductsItem(
-                    id = 3L,
-                    title = "Puma RS-X",
-                    vendor = "Puma",
-                    productType = "Shoes",
-                    image = ProductImage(src = "https://example.com/puma.jpg"),
-                    status = "active"
-                )
+@Test
+fun getProducts_returnVendorProducts() = runTest {
+    val fakeProductResponse = ProductResponse(
+        products = listOf(
+            ProductsItem(
+                id = 1L,
+                title = "Nike Air Max",
+                vendor = "Nike",
+                productType = "Shoes",
+                image = ProductImage(src = "https://example.com/nike.jpg"),
+                status = "active"
+            ), ProductsItem(
+                id = 2L,
+                title = "Adidas Ultra Boost",
+                vendor = "Adidas",
+                productType = "Shoes",
+                image = ProductImage(src = "https://example.com/adidas.jpg"),
+                status = "active"
+            ), ProductsItem(
+                id = 3L,
+                title = "Puma RS-X",
+                vendor = "Puma",
+                productType = "Shoes",
+                image = ProductImage(src = "https://example.com/puma.jpg"),
+                status = "active"
             )
         )
-        coEvery { repository.getAllProducts() } returns flowOf(
-            ProductResponse(
-                products = fakeProductResponse.products?.filter { it?.vendor == "Nike" })
-        )
+    )
+    coEvery { repository.getAllProducts() } returns flowOf(
+        ProductResponse(
+            products = fakeProductResponse.products?.filter { it?.vendor == "Nike" })
+    )
 
-        viewModel.getProducts(vendorName = "Nike")
-        val result = viewModel.products.value
-        val expectedList = fakeProductResponse.products?.filter { it?.vendor == "Nike" }
-        val actualList = (result as ApiResponse.Success).data
-        assertThat(actualList, `is`(expectedList))
-    }
+    viewModel.getProducts(vendorName = "Nike")
+    val result = viewModel.products.value
+    val expectedList = fakeProductResponse.products?.filter { it?.vendor == "Nike" }
+    val actualList = (result as ApiResponse.Success).data
+    assertThat(actualList, `is`(expectedList))
+}
 
-    @Test
-    fun getCategoryProducts_returnCorrectCategoryProducts() = runTest {
-        val fakeProductResponse = ProductResponse(
-            products = listOf(
-                ProductsItem(
-                    id = 1L,
-                    title = "Nike Air Max",
-                    vendor = "Men",
-                    productType = "Shoes",
-                    image = ProductImage(src = "https://example.com/nike.jpg"),
-                    status = "active"
-                ), ProductsItem(
-                    id = 2L,
-                    title = "Adidas Ultra Boost",
-                    vendor = "Women",
-                    productType = "Shoes",
-                    image = ProductImage(src = "https://example.com/adidas.jpg"),
-                    status = "active"
-                ), ProductsItem(
-                    id = 3L,
-                    title = "Puma RS-X",
-                    vendor = "Puma",
-                    productType = "Shoes",
-                    image = ProductImage(src = "https://example.com/puma.jpg"),
-                    status = "active"
-                )
+@Test
+fun getCategoryProducts_returnCorrectCategoryProducts() = runTest {
+    val fakeProductResponse = ProductResponse(
+        products = listOf(
+            ProductsItem(
+                id = 1L,
+                title = "Nike Air Max",
+                vendor = "Men",
+                productType = "Shoes",
+                image = ProductImage(src = "https://example.com/nike.jpg"),
+                status = "active"
+            ), ProductsItem(
+                id = 2L,
+                title = "Adidas Ultra Boost",
+                vendor = "Women",
+                productType = "Shoes",
+                image = ProductImage(src = "https://example.com/adidas.jpg"),
+                status = "active"
+            ), ProductsItem(
+                id = 3L,
+                title = "Puma RS-X",
+                vendor = "Puma",
+                productType = "Shoes",
+                image = ProductImage(src = "https://example.com/puma.jpg"),
+                status = "active"
             )
         )
-        val fakeCategoryProducts = ProductResponse(
-            products = listOf(
-                ProductsItem(
-                    id = 1L,
-                    title = "Nike Air Max",
-                    vendor = "Men",
-                    productType = "Shoes",
-                    image = ProductImage(src = "https://example.com/nike.jpg"),
-                    status = "active"
-                )
+    )
+    val fakeCategoryProducts = ProductResponse(
+        products = listOf(
+            ProductsItem(
+                id = 1L,
+                title = "Nike Air Max",
+                vendor = "Men",
+                productType = "Shoes",
+                image = ProductImage(src = "https://example.com/nike.jpg"),
+                status = "active"
             )
         )
-        coEvery { repository.getAllProducts() } returns flowOf(fakeProductResponse)
-        coEvery { repository.getCategoryProducts(1L) } returns flowOf(fakeCategoryProducts)
+    )
+    coEvery { repository.getAllProducts() } returns flowOf(fakeProductResponse)
+    coEvery { repository.getCategoryProducts(1L) } returns flowOf(fakeCategoryProducts)
 
-        viewModel.getCategoryProducts(1L)
-        val result = viewModel.products.value
-        val expectedList = fakeProductResponse.products?.filter { it?.vendor == "Men" }
-        val actualList = (result as ApiResponse.Success).data
-        assertThat(actualList, `is`(expectedList))
+    viewModel.getCategoryProducts(1L)
+    val result = viewModel.products.value
+    val expectedList = fakeProductResponse.products?.filter { it?.vendor == "Men" }
+    val actualList = (result as ApiResponse.Success).data
+    assertThat(actualList, `is`(expectedList))
 
-    }
+}
 }

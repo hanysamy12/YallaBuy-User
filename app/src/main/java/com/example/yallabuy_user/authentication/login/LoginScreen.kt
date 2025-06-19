@@ -1,7 +1,7 @@
 package com.example.yallabuy_user.authentication.login
 
-import android.app.Activity
 import android.util.Log
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -42,6 +43,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -51,6 +53,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.DialogProperties
+import androidx.compose.ui.zIndex
 import androidx.navigation.NavHostController
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
@@ -91,7 +94,7 @@ fun LoginScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Black),
+            .background(Color.White),
         contentAlignment = Alignment.BottomCenter
     ) {
         Column(
@@ -101,30 +104,42 @@ fun LoginScreen(
         ) {
             Text(
                 text = "Hello",
-                color = Color.White,
+                color = Color(0xFF3B9A94),
                 fontSize = 25.sp,
                 fontWeight = FontWeight.Bold,
                 fontFamily = emblemaoneregilarFont,
             )
             Text(
                 text = "again",
-                color = Color.White,
+                color = Color(0xFF3B9A94),
                 fontSize = 25.sp,
                 fontWeight = FontWeight.Bold,
                 fontFamily = emblemaoneregilarFont,
 
                 )
+
         }
+            Image(
+                painter = painterResource(R.drawable.yalla_buy_login_logo),
+                contentDescription = "logo",
+                alignment = Alignment.TopCenter,
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .offset(y = (-410).dp) // Push upward from bottom
+                    .zIndex(1f)
+                    .size(250.dp)
+            )
 
         Card(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(500.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.White),
+            colors = CardDefaults.cardColors(containerColor =  Color(0xFF3B9A94)),
             shape = RoundedCornerShape(topStart = 15.dp, topEnd = 15.dp)
         ) {
+
             Column(
-                modifier = Modifier.padding(16.dp),
+                modifier = Modifier.padding(top = 80.dp, start = 16.dp, end = 16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 LoginTextFeilds(email, password, validationError)
@@ -146,7 +161,9 @@ fun LoginScreen(
                         }
                     ) {
                         Text(
-                            "Register", fontFamily = sigmarRegularFont, textAlign = TextAlign.End
+                            "Register", fontFamily = sigmarRegularFont,
+                            textAlign = TextAlign.End,
+                            color = Color.White
                         )
                     }
                 }
@@ -187,10 +204,10 @@ fun LoginScreen(
         }
         if (loginUser) {
             Log.i("customer", "LoginScreen id = ${customerData?.customers?.get(0)?.id} ")
-                if (customerData != null) {
-                    CustomerIdPreferences.saveCustomerID(context, customerData.customers[0].id)
-                    navController.navigate(ScreenRoute.Home.route)
-                }
+            if (customerData != null) {
+                CustomerIdPreferences.saveCustomerID(context, customerData.customers[0].id)
+                navController.navigate(ScreenRoute.Home.route)
+            }
         }
         if (showErrorDialog.value) {
             LoginAlert(showErrorDialog, onConfirmation = {
@@ -214,14 +231,16 @@ fun LoginTextFeilds(
             onValueChange = {
                 email.value = it
             },
-            placeholder = { Text("Email@gmail.com") },
-            label = { Text("Email") },
+            placeholder = {
+                Text(text = "Email@gmail.com", color = Color.White)
+            },
+            label = { Text("Email", color = Color.White) },
             leadingIcon = {
                 Icon(imageVector = Icons.Default.Email, contentDescription = "Lock Icon")
             },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
             modifier = Modifier.fillMaxWidth(),
-             isError = validationError?.contains("Email") ?: false
+            isError = validationError?.contains("Email") ?: false
         )
         if (validationError?.contains("Email") == true) {
             Text(
@@ -241,7 +260,7 @@ fun LoginTextFeilds(
             },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
             visualTransformation = PasswordVisualTransformation(),
-            modifier = Modifier.fillMaxWidth() ,
+            modifier = Modifier.fillMaxWidth(),
             isError = validationError?.contains("Password") ?: false
         )
         if (validationError?.contains("Password") == true) {
@@ -272,8 +291,8 @@ fun LoginAlert(
         iterations = LottieConstants.IterateForever
     )
 
-        title.value = "Fail"
-        description.value = loginErrorText.value
+    title.value = "Fail"
+    description.value = loginErrorText.value
 
     val icon: @Composable () -> Unit = {
         LottieAnimation(
