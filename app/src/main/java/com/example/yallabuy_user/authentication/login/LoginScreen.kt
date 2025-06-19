@@ -1,6 +1,7 @@
 package com.example.yallabuy_user.authentication.login
 
 import android.util.Log
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -26,6 +27,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CardElevation
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -134,8 +136,10 @@ fun LoginScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(500.dp),
-            colors = CardDefaults.cardColors(containerColor =  Color(0xFF3B9A94)),
-            shape = RoundedCornerShape(topStart = 15.dp, topEnd = 15.dp)
+            colors = CardDefaults.cardColors(containerColor =  Color.White),
+            shape = RoundedCornerShape(topStart = 15.dp, topEnd = 15.dp) ,
+            border = BorderStroke(2.dp ,Color(0xFF3B9A94) )  ,
+            elevation = CardDefaults.cardElevation(10.dp)
         ) {
 
             Column(
@@ -153,7 +157,8 @@ fun LoginScreen(
                 ) {
                     Text(
                         "Don't have an Account ?",
-                        textAlign = TextAlign.Start
+                        textAlign = TextAlign.Start ,
+                        color = Color.Black
                     )
                     TextButton(
                         onClick = {
@@ -163,7 +168,7 @@ fun LoginScreen(
                         Text(
                             "Register", fontFamily = sigmarRegularFont,
                             textAlign = TextAlign.End,
-                            color = Color.White
+                            color =  Color(0xFF3B9A94)
                         )
                     }
                 }
@@ -178,7 +183,7 @@ fun LoginScreen(
                         .shadow(8.dp, RoundedCornerShape(50))
                         .clip(RoundedCornerShape(50)),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.Black,
+                        containerColor =  Color(0xFF3B9A94),
                         contentColor = Color.White
                     ),
                     elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp)
@@ -198,7 +203,9 @@ fun LoginScreen(
                     },
                     modifier = Modifier.fillMaxWidth(),
                 ) {
-                    Text("Sign In as A Guest", fontSize = 20.sp, fontFamily = sigmarRegularFont)
+                    Text("Sign In as A Guest",
+                        fontSize = 20.sp, fontFamily = sigmarRegularFont ,
+                        color =  Color(0xFF3B9A94))
                 }
             }
         }
@@ -232,9 +239,9 @@ fun LoginTextFeilds(
                 email.value = it
             },
             placeholder = {
-                Text(text = "Email@gmail.com", color = Color.White)
+                Text(text = "Email@gmail.com", color = Color.Black)
             },
-            label = { Text("Email", color = Color.White) },
+            label = { Text("Email", color = Color.Black) },
             leadingIcon = {
                 Icon(imageVector = Icons.Default.Email, contentDescription = "Lock Icon")
             },
