@@ -3,6 +3,7 @@ package com.example.yallabuy_user.wish
 import DraftOrderLineItem
 import android.util.Log
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -75,7 +76,9 @@ fun WishScreen(
     setTopBar: (@Composable () -> Unit) -> Unit
 ) {
 
+
     val allWishListProduct = wishListViewModel.allWishListProduct.collectAsState().value
+    val resetWishListSharedPreference = wishListViewModel.resetWishListSharedPreference.collectAsState().value
     val context = LocalContext.current
     val showLoading = remember { mutableStateOf(false) }
     LaunchedEffect(allWishListProduct) {
@@ -99,17 +102,34 @@ fun WishScreen(
         }
     }
 
+    if(resetWishListSharedPreference){
+        WishListIdPref.saveWishListID(context , 0)
+    }
+    Log.i("wishList", "WishScreen id  ${WishListIdPref.getWishListId(context)} ")
     when (allWishListProduct) {
         is ApiResponse.Failure -> {
-            Log.i("TAG", "WishScreen fail")
+            Log.i("wishList", "WishScreen fail")
         }
 
         ApiResponse.Loading -> {
+            Log.i("wishList", "WishScreen fail")
             showLoading.value = true
         }
 
         is ApiResponse.Success -> {
-            WishListItems(allWishListProduct.data, navController, wishListViewModel)
+            if (allWishListProduct.data.isNotEmpty()) {
+                WishListItems(allWishListProduct.data, navController, wishListViewModel)
+            }else {
+                Column(
+                    modifier = Modifier.fillMaxSize()
+                    , verticalArrangement = Arrangement.Center
+                    ,horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Image(
+                        painterResource(R.drawable.empty_wish_list)
+                        , contentDescription = "empty" , modifier =  Modifier.size(250.dp))
+                }
+            }
         }
     }
 }
