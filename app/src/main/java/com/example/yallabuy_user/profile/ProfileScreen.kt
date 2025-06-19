@@ -14,8 +14,12 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.TabRowDefaults.Divider
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -38,7 +42,8 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun ProfileScreen(
     navController: NavController,
-    viewModel: ProfileViewModel = koinViewModel()
+    viewModel: ProfileViewModel = koinViewModel(),
+    setTopBar: ((@Composable () -> Unit)) -> Unit
 ) {
 
     val context = LocalContext.current
@@ -51,81 +56,86 @@ fun ProfileScreen(
                 popUpTo(0) { inclusive = true } // Clear entire back stack
             }
         }
-    }
-
-    Scaffold(
-//        topBar = {
-//            TopAppBar(
-//                title = {
-//                    Text("My Account", color = Color.White, fontWeight = FontWeight.Bold)
-//                },
-//                colors = TopAppBarDefaults.topAppBarColors(
-//                    containerColor = colorResource(R.color.dark_blue)
-//                )
-//            )
-//        },
-        containerColor = Color.White
-    ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .padding(paddingValues)
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .background(Color.White)
-                .padding(horizontal = 24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Spacer(modifier = Modifier.height(32.dp))
-
-            Image(
-                painter = painterResource(id = R.drawable.person_pin_circle),
-                contentDescription = "Profile Picture",
-                modifier = Modifier
-                    .size(120.dp)
-                    .clip(CircleShape),
-                contentScale = ContentScale.Crop
-            )
-
-            Spacer(modifier = Modifier.height(32.dp))
-
-            SettingsListItem(
-                item = SettingsItem(
-                    title = "Settings",
-                    icon = R.drawable.settings,
-                    onClick = {
-                        navController.navigate(ScreenRoute.Settings.route)
-                    }
-                )
-            )
-
-
-            SettingsListItem(
-                item = SettingsItem(
-                    title = "Previous Orders",
-                    icon = R.drawable.app_icon2,
-                    onClick = {
-                        navController.navigate(ScreenRoute.PreviousOrders.route)                    }
-                )
-            )
-
-            Divider(
-                color = Color.LightGray,
-                thickness = 0.5.dp,
-                modifier = Modifier.padding(vertical = 8.dp)
-            )
-
-            SettingsListItem(
-                item = SettingsItem(
-                    title = "Logout",
-                    icon = R.drawable.location_on,  // I will replace with actual icon
-                    onClick = {
-                        viewModel.logout(context)
-                        navController.navigate(ScreenRoute.Login.route) {
-                            popUpTo(ScreenRoute.Profile.route) { inclusive = true }
-                        }
-                    }
-                )
+        setTopBar {
+            CenterAlignedTopAppBar(
+                title = { Text("Profile") },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = Color(0xFF3B9A94)
+                ),
+                navigationIcon = {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_app),
+                        contentDescription = "App Icon",
+                        tint = Color.Unspecified, // Optional: set tint if needed
+                        modifier = Modifier.padding(start = 12.dp)
+                    )
+                }
             )
         }
     }
+
+
+    Column(
+        modifier = Modifier
+            .padding(6.dp)
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .background(Color.White)
+            .padding(horizontal = 24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Spacer(modifier = Modifier.height(32.dp))
+
+        Image(
+            painter = painterResource(id = R.drawable.person_pin_circle),
+            contentDescription = "Profile Picture",
+            modifier = Modifier
+                .size(120.dp)
+                .clip(CircleShape),
+            contentScale = ContentScale.Crop
+        )
+
+        Spacer(modifier = Modifier.height(32.dp))
+
+        SettingsListItem(
+            item = SettingsItem(
+                title = "Settings",
+                icon = R.drawable.settings,
+                onClick = {
+                    navController.navigate(ScreenRoute.Settings.route)
+                }
+            )
+        )
+
+
+        SettingsListItem(
+            item = SettingsItem(
+                title = "Previous Orders",
+                icon = R.drawable.ic_app,
+                onClick = {
+                    navController.navigate(ScreenRoute.PreviousOrders.route)
+                }
+            )
+        )
+
+        Divider(
+            color = Color.LightGray,
+            thickness = 0.5.dp,
+            modifier = Modifier.padding(vertical = 8.dp)
+        )
+
+        SettingsListItem(
+            item = SettingsItem(
+                title = "Logout",
+                icon = R.drawable.location_on,  // I will replace with actual icon
+                onClick = {
+                    viewModel.logout(context)
+                    navController.navigate(ScreenRoute.Login.route) {
+                        popUpTo(ScreenRoute.Profile.route) { inclusive = true }
+                    }
+                }
+            )
+        )
+    }
+
 }

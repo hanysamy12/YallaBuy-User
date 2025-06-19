@@ -11,4 +11,10 @@
     <color name="light_gray">#DBD9D9</color>
     <color name="medium_gray">#898787</color>
     <color name="mustard">#FDD600</color>
+
+    <color name="teal_80">#3B9A94</color>
+    <color name="coral_80">#EF8F7C</color>
+    <color name="beige_80">#F8EBD9</color>
+    <color name="slate_blue_80">#315C61</color>
+    <color name="off_white_80">#FFF9F5</color>
 </resources>

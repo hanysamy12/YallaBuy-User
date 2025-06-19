@@ -1,12 +1,15 @@
 package com.example.yallabuy_user.collections
 
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
@@ -20,6 +23,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -35,11 +39,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
+import com.example.yallabuy_user.R
 import com.example.yallabuy_user.data.models.CustomCollectionsItem
 import com.example.yallabuy_user.data.models.ProductsItem
 import com.example.yallabuy_user.home.ProgressShow
@@ -52,10 +58,11 @@ import org.koin.compose.koinInject
 
 private const val TAG = "CollectionsScreen"
 
+@RequiresApi(Build.VERSION_CODES.P)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CollectionsScreen(
-    navController: NavController ,
+    navController: NavController,
     setFilterMeth: (filter: (String) -> Unit) -> Unit,
     viewModel: ProductsViewModel = koinInject(),
     setTopBar: (@Composable () -> Unit) -> Unit
@@ -67,7 +74,15 @@ fun CollectionsScreen(
                 title = { Text("Categories") },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                     containerColor = Color(0xFF3B9A94)
-                )
+                ),
+                navigationIcon = {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_app),
+                        contentDescription = "App Icon",
+                        tint = Color.Unspecified, // Optional: set tint if needed
+                        modifier = Modifier.padding(start = 12.dp)
+                    )
+                }
             )
         }
         viewModel.getAllCategories()
@@ -76,8 +91,8 @@ fun CollectionsScreen(
     val uiCategoriesState by viewModel.categories.collectAsState()
     val uiProductsState by viewModel.products.collectAsState()
 
-    setFilterMeth{
-        subCategory -> viewModel.showSubCategoryProduct(subCategory)
+    setFilterMeth { subCategory ->
+        viewModel.showSubCategoryProduct(subCategory)
     }
 
     Column(modifier = Modifier.padding(8.dp)) {
@@ -89,7 +104,13 @@ fun CollectionsScreen(
 
                 }
                 CategoriesChips(categories, onChipClicked = { categoryId ->
-                    coroutineScope.launch { categoryId?.let { viewModel.getCategoryProducts(categoryId)} }
+                    coroutineScope.launch {
+                        categoryId?.let {
+                            viewModel.getCategoryProducts(
+                                categoryId
+                            )
+                        }
+                    }
                 })
             }
 
@@ -167,7 +188,7 @@ fun Product(product: ProductsItem, navController: NavController) {
             .fillMaxSize(),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp) ,
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         onClick = {
             navController.navigate(ScreenRoute.ProductInfo(product.id ?: 0))
         }
@@ -182,20 +203,27 @@ fun Product(product: ProductsItem, navController: NavController) {
         ) {
             ///Image for the first product may not changes (log the right image url )
             AsyncImage(
-                model = product.image?.src, contentDescription = product.title, modifier = Modifier
+                model = product.image?.src,
+                contentDescription = product.title,
+                modifier = Modifier
+                    .height(150.dp)
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(16.dp)),
-                contentScale = ContentScale.Fit
+                contentScale = ContentScale.Fit,
+                placeholder = painterResource(R.drawable.ic_app)
             )
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(product.title ?:"No Title", fontSize = 18.sp, maxLines = 2)
+                Text(product.title ?: "No Title", fontSize = 18.sp, maxLines = 2)
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.Center
                 ) {
                     Text(Common.currencyCode.getCurrencyCode())
                     Spacer(Modifier.width(3.dp))
-                    Text(product.variants?.get(0)?.price ?: "NO Price", fontWeight = FontWeight.Bold)
+                    Text(
+                        product.variants?.get(0)?.price ?: "NO Price",
+                        fontWeight = FontWeight.Bold
+                    )
                 }
             }
 

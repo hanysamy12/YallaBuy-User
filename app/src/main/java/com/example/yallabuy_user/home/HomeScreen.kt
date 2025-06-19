@@ -3,8 +3,10 @@ package com.example.yallabuy_user.home
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.os.Build
 import android.util.Log
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -30,12 +32,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.carousel.HorizontalMultiBrowseCarousel
-import androidx.compose.material3.carousel.rememberCarouselState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -46,6 +47,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -65,6 +67,7 @@ import org.koin.androidx.compose.koinViewModel
 
 private const val TAG = "HomeScreen"
 
+@RequiresApi(Build.VERSION_CODES.P)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
@@ -78,7 +81,15 @@ fun HomeScreen(
                 title = { Text("Yalla Buy") },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                     containerColor = Color(0xFF3B9A94)
-                )
+                ),
+                navigationIcon = {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_app),
+                        contentDescription = "App Icon",
+                        tint = Color.Unspecified, // Optional: set tint if needed
+                        modifier = Modifier.padding(start = 12.dp)
+                    )
+                }
             )
         }
         homeViewModel.getAllCategories()
@@ -120,10 +131,10 @@ fun HomeScreen(
                                     categories = categories,
                                     brands = brands,
                                     coupons = couponItems,
-                                    onCatClicked = { catId ->
+                                    onCatClicked = { catId,title ->
                                         navController.navigate(
                                             ScreenRoute.ProductsScreen(
-                                                vendorName = null, categoryID = catId, title = null
+                                                vendorName = null, categoryID = catId, title = title
                                             )
                                         )
                                     },
@@ -191,7 +202,7 @@ private fun HomeContent(
     categories: List<CustomCollectionsItem>,
     brands: List<SmartCollectionsItem>,
     coupons: List<CouponItem>,
-    onCatClicked: (Long?) -> Unit,
+    onCatClicked: (Long?,String?) -> Unit,
     onBrandClicked: (String) -> Unit
 ) {
     val context = LocalContext.current
@@ -243,9 +254,9 @@ private fun HomeContent(
                 .padding(start = 6.dp)
                 .clickable {
                     Log.i(TAG, "All Products Clicked")
-                    onCatClicked(null)
+                    onCatClicked(null,null)
                 },
-            color = Color.DarkGray,
+            color = colorResource(R.color.teal_80),
             fontSize = 20.sp,
             textDecoration = TextDecoration.Underline
         )
@@ -337,12 +348,11 @@ fun CouponsCarousel(
 fun CouponImage(
     imageResId: Int, couponCode: String, onClick: () -> Unit
 ) {
-    Box(
-        modifier = Modifier
-            .height(200.dp)
-            .clip(RoundedCornerShape(12.dp))
-            .clickable { onClick() }
-            .background(Color.LightGray)) {
+    Box(modifier = Modifier
+        .height(200.dp)
+        .clip(RoundedCornerShape(12.dp))
+        .clickable { onClick() }
+        .background(Color.LightGray)) {
         Image(
             painter = painterResource(id = imageResId),
             contentDescription = "Coupon Image",
@@ -358,11 +368,11 @@ fun CouponImage(
 
 @Composable
 fun CircularImageWithTitle(
-    category: CustomCollectionsItem, imgId: Int, onCatClicked: (Long) -> Unit
+    category: CustomCollectionsItem, imgId: Int, onCatClicked: (Long,String) -> Unit
 ) {
     Column(
         modifier = Modifier.clickable {
-            category.id?.let { onCatClicked(it) }
+            category.id?.let { onCatClicked(it,category.title?:"") }
         }, horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Image(
@@ -426,6 +436,7 @@ fun RoundedImageWithTitle(brand: SmartCollectionsItem, onBrandClicked: (String) 
 
 @Composable
 fun ProgressShow() {
+
     Column(
         Modifier
             .fillMaxSize()
@@ -433,9 +444,8 @@ fun ProgressShow() {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Spacer(Modifier.height(350.dp))
-        LinearProgressIndicator()
-        Text("Waiting", fontSize = 22.sp)
+        CircularProgressIndicator()
+        Text("Loading", fontSize = 22.sp)
     }
 
 }

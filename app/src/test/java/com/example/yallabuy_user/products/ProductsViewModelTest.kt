@@ -23,12 +23,13 @@ class ProductsViewModelTest {
     private lateinit var viewModel: ProductsViewModel
     private lateinit var currencyConversionManager: CurrencyConversionManager
 
-
     @Before
     fun setUp() {
         repository = mockk(relaxed = true)
         currencyConversionManager = mockk (relaxed = true)
         viewModel = ProductsViewModel(repository, currencyConversionManager)
+        currencyConversionManager = mockk(relaxed = true)
+        viewModel = ProductsViewModel(repository,currencyConversionManager)
     }
 
 @Test

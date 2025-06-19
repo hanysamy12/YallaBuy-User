@@ -17,16 +17,11 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -76,7 +71,7 @@ private const val TAG = "MainScreen"
 @Composable
 fun MainScreen() {
     var onFilterClicked: ((String) -> Unit)? by remember { mutableStateOf(null) }
-    var startDestination = remember { mutableStateOf(ScreenRoute.Registration.route) }
+    val startDestination = remember { mutableStateOf(ScreenRoute.Registration.route) }
     val context = LocalContext.current
 
     val customerId = CustomerIdPreferences.getData(context)
@@ -90,8 +85,7 @@ fun MainScreen() {
     val currentRoute = currentBackStackEntry?.destination?.route
 
     val topBarContent = remember { mutableStateOf<@Composable () -> Unit>({}) }
-
-    var isShowFilterBarProductsScreen by remember { mutableStateOf(false) }
+    val snackBar = remember { SnackbarHostState() }
 
     val bottomNavRoutes = listOf(
         ScreenRoute.Home.route,
@@ -100,27 +94,33 @@ fun MainScreen() {
         ScreenRoute.Cart.route,
         ScreenRoute.Profile.route
     )
-    Scaffold(modifier = Modifier.fillMaxSize(), snackbarHost = {}, topBar = {
-        Log.i(TAG, "MainScreen: CurrentRoute  $currentRoute")
-        topBarContent.value()
+    Scaffold(
+        modifier = Modifier.fillMaxSize(),
+        snackbarHost = {
+            SnackbarHost(hostState = snackBar)
+        }, topBar = {
+            Log.i(TAG, "MainScreen: CurrentRoute  $currentRoute")
+            topBarContent.value()
 
-    }, bottomBar = {
-        if (currentRoute in bottomNavRoutes) {
-            Box {
-                BottomNavigationBar((navController))
+        }, bottomBar = {
+            if (currentRoute in bottomNavRoutes) {
+                Box {
+                    BottomNavigationBar((navController))
+                }
             }
-        }
-    }, floatingActionButton = {
-        if (currentRoute != null) {
-            ExpandableFAB(currentRoute = currentRoute, onClothesClick = {
-                onFilterClicked?.invoke("CLOTHES")
-            }, onShoesClick = {
-                onFilterClicked?.invoke("SHOES")
-            })
-        }
+        }, floatingActionButton = {
+            if (currentRoute != null) {
+                ExpandableFAB(currentRoute = currentRoute, onClothesClick = {
+                    onFilterClicked?.invoke("CLOTHES")
+                }, onShoesClick = {
+                    onFilterClicked?.invoke("SHOES")
+                }, onAccessoryClick = {
+                    onFilterClicked?.invoke("ACCESSORIES")
+                })
+            }
 
 
-    }
+        }
 
     ) { contentPadding ->
         NavHost(
@@ -138,7 +138,7 @@ fun MainScreen() {
                 HomeScreen(navController, setTopBar = { topBarContent.value = it })
             }
             composable(route = ScreenRoute.WishList.route) {
-                WishScreen(navController)
+                WishScreen(navController, setTopBar = {topBarContent.value = it})
             }
             composable(route = ScreenRoute.Collections.route) {
                 CollectionsScreen(navController, setFilterMeth = {
@@ -146,24 +146,24 @@ fun MainScreen() {
                 }, setTopBar = { topBarContent.value = it })
             }
             composable(route = ScreenRoute.Cart.route) {
-                CartScreen(navController)
+                CartScreen(navController, setTopBar = { topBarContent.value = it })
             }
             composable(route = ScreenRoute.Profile.route) {
-                ProfileScreen(navController)
+                ProfileScreen(navController,setTopBar = {topBarContent.value = it})
             }
 
             composable(ScreenRoute.Settings.route) {
-                SettingsScreen(navController)
+                SettingsScreen(navController,setTopBar = {topBarContent.value = it})
             }
             composable(ScreenRoute.AboutUs.route) {
-                AboutUsScreen(onNavigateBack = { navController.popBackStack() })
+                AboutUsScreen(onNavigateBack = { navController.popBackStack() },setTopBar = {topBarContent.value = it})
             }
             composable(ScreenRoute.ContactUs.route) {
-                ContactUsScreen(onNavigateBack = { navController.popBackStack() })
+                ContactUsScreen(onNavigateBack = { navController.popBackStack() },setTopBar = {topBarContent.value = it})
             }
             composable(ScreenRoute.Currency.route) {
                 CurrencyScreen(
-                    onNavigateBack = { navController.popBackStack() })
+                    onNavigateBack = { navController.popBackStack() },setTopBar = {topBarContent.value = it})
             }
             composable(ScreenRoute.Address.route) {
                 val context = LocalContext.current
@@ -172,7 +172,7 @@ fun MainScreen() {
                     customerId = CustomerIdPreferences.getData(context), //8805732188478,
                     onNavigateBack = { navController.popBackStack() }, onNavigateToMap = {
                         navController.navigate(ScreenRoute.Map.route)
-                    })
+                    },setTopBar = {topBarContent.value = it})
             }
 
             composable(ScreenRoute.Map.route) {
@@ -184,7 +184,7 @@ fun MainScreen() {
                 MapLocationScreen(
                     locationPermissionManager = locationPermissionManager,
                     navController = navController,
-                    onNavigateBack = { navController.popBackStack() })
+                    onNavigateBack = { navController.popBackStack() },setTopBar = {topBarContent.value = it})
             }
 
             //question about that
@@ -224,22 +224,12 @@ fun MainScreen() {
                 )
             }
 
-//            //with null
-//            composable(ScreenRoute.ProductsScreen.) {
-//                ProductsScreen(
-//                    navController,
-//                    isFilterBarShown = isShowFilterBarProductsScreen,
-//                    vendorName = null,
-//                    categoryID = null
-//                )
-//            }
 
 
             composable<ScreenRoute.ProductsScreen> {
                 val args = it.toRoute<ScreenRoute.ProductsScreen>()
                 ProductsScreen(
                     navController,
-                    isFilterBarShown = isShowFilterBarProductsScreen,
                     vendorName = args.vendorName,
                     categoryID = args.categoryID,
                     setTopBar = { topBarContent.value = it },
@@ -248,7 +238,7 @@ fun MainScreen() {
             }
             composable<ScreenRoute.ProductInfo> {
                 val args = it.toRoute<ScreenRoute.ProductInfo>()
-                ProductInfoScreen(args.productId, navController)
+                ProductInfoScreen(args.productId, navController, setTopBar = { topBarContent.value = it })
             }
             composable(ScreenRoute.PreviousOrders.route) {
                 PreviousOrdersScreen(
@@ -265,12 +255,14 @@ fun MainScreen() {
                 )
             }
 
-
             composable<ScreenRoute.OrderCheckOut> {
                 val args = it.toRoute<ScreenRoute.OrderCheckOut>()
                 OrderCheckoutScreen(
                     cartId = args.orderId,
-                    setTopBar = { topBarContent.value = it })
+                    passedTotalPrice = args.totalAmount,
+                    setTopBar = { topBarContent.value = it },
+                    navController = navController
+                )
             }
         }
     }
@@ -281,6 +273,7 @@ fun ExpandableFAB(
     currentRoute: String,
     onClothesClick: () -> Unit,
     onShoesClick: () -> Unit,
+    onAccessoryClick: () -> Unit
 ) {
     var isExpanded by remember { mutableStateOf(false) }
 
@@ -293,7 +286,27 @@ fun ExpandableFAB(
                 verticalArrangement = Arrangement.spacedBy(16.dp),
                 modifier = Modifier.padding(16.dp)
             ) {
-                //Clothes (top)
+                //Accessory (top)
+                AnimatedVisibility(
+                    visible = isExpanded, enter = slideInVertically(
+                        initialOffsetY = { it }, animationSpec = tween(350)
+                    ) + fadeIn(), exit = slideOutVertically(
+                        targetOffsetY = { it }, animationSpec = tween(350)
+                    ) + fadeOut()
+                ) {
+                    FloatingActionButton(onClick = {
+                        onAccessoryClick()
+                        isExpanded = false
+                    }) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_ring),
+                            contentDescription = "Accessories",
+                            modifier = Modifier.size(32.dp),
+                            tint = Color.Unspecified
+                        )
+                    }
+                }
+                //Clothes (middle)
                 AnimatedVisibility(
                     visible = isExpanded, enter = slideInVertically(
                         initialOffsetY = { it }, animationSpec = tween(300)

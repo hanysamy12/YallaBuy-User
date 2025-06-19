@@ -47,6 +47,7 @@ class ProductInfoViewModel(
 
     private var wishListDraftOrderIdGlobal: Long = 0L
     private var productIdGlobal: Long = 0L
+
     fun getProductInfoById(productId: Long) {
         viewModelScope.launch {
             try {

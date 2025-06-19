@@ -27,6 +27,7 @@ class WishViewModel(
     val resetWishListSharedPreference = _resetWishListSharedPreference.asStateFlow()
 
     private  var deletedList : List<DraftOrderLineItem> = emptyList()
+
     override fun getAllProductFromWishList(wishListId: Long) {
         viewModelScope.launch {
             try {

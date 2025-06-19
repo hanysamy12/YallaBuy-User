@@ -1,7 +1,6 @@
 package com.example.yallabuy_user.cart.view
 
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -26,11 +25,13 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -44,6 +45,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -55,14 +57,17 @@ import com.example.yallabuy_user.cart.viewmodel.CartViewModel
 import com.example.yallabuy_user.home.HomeViewModel
 import com.example.yallabuy_user.ui.navigation.ScreenRoute
 import com.example.yallabuy_user.utilities.ApiResponse
+import com.example.yallabuy_user.utilities.Common
 import org.koin.androidx.compose.koinViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun CartScreen(
     navController: NavController,
     homeViewModel: HomeViewModel = koinViewModel(),
     cartViewModel: CartViewModel = koinViewModel()
+    , setTopBar: (@Composable () -> Unit) -> Unit
 ) {
     val cartState by cartViewModel.cartState.collectAsState()
     // val draftOrderId = 123456789L
@@ -70,12 +75,32 @@ fun CartScreen(
     val showOutOfStockDialog by cartViewModel.showOutOfStockDialog.collectAsState()
     val context = LocalContext.current
     val customerId = CustomerIdPreferences.getData(context)
-    val couponResult by cartViewModel.couponValidationResult.collectAsState()
-    var couponCode by remember { mutableStateOf("") }
+    val convertedTotal by cartViewModel.cartTotalInPreferredCurrency.collectAsState()
+    val preferredCurrency by cartViewModel.preferredCurrency.collectAsState()
+    val currencySymbol = Common.currencyCode.getCurrencyCode()
+
+
+
 
     LaunchedEffect(Unit) {
         if (customerId != -1L) {
             cartViewModel.getCustomerByIdAndFetchCart(customerId)
+        }
+        setTopBar {
+            CenterAlignedTopAppBar(
+                title = { Text("Cart") },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = colorResource(R.color.teal_80)
+                ),
+                navigationIcon = {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_app),
+                        contentDescription = "App Icon",
+                        tint = Color.Unspecified, // Optional: set tint if needed
+                        modifier = Modifier.padding(start = 12.dp)
+                    )
+                }
+            )
         }
     }
     Column(
@@ -103,6 +128,9 @@ fun CartScreen(
 
             is ApiResponse.Success -> {
                 val draftOrders = state.data.draftOrderCarts
+                LaunchedEffect(Unit) {
+                    cartViewModel.convertItemPrices(draftOrders)
+                }
                 if (draftOrders.isEmpty()) {
                     Box(
                         modifier = Modifier.fillMaxSize(),
@@ -113,8 +141,10 @@ fun CartScreen(
                 } else {
                     val draftOrderId = draftOrders.first().id
                     val allLineItems = draftOrders.flatMap { it.lineItems }
-                    val totalPrice = allLineItems.sumOf { it.getTotalPrice().toDouble() }
-
+                    val totalPrice = allLineItems.sumOf {
+                        val converted = cartViewModel.convertedPrices[it.variantID]
+                        converted?.toDoubleOrNull() ?: it.getTotalPrice().toDouble()
+                    }
                     LazyColumn(
                         modifier = Modifier
                             .weight(1f)
@@ -128,8 +158,8 @@ fun CartScreen(
                                     draftOrderId = draftOrder.id ?: -1L,
                                     variantId = item.variantID,
                                     title = item.title,
-                                    price = item.price,
-                                    quantity = item.quantity.toInt(),
+                                    price = cartViewModel.convertedPrices[item.variantID] ?: item.price,
+                                    currencySymbol = Common.currencyCode.getCurrencyCode(),                                    quantity = item.quantity.toInt(),
                                     imageUrl = item.properties.find {
                                         it.name.lowercase() == "image"
                                     }?.value ?: "",
@@ -155,66 +185,33 @@ fun CartScreen(
                             }
                         }
                     }
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 8.dp)
-                    ) {
-                        OutlinedTextField(
-                            value = couponCode,
-                            onValueChange = { couponCode = it },
-                            label = { Text("Enter coupon code") },
-                            modifier = Modifier.fillMaxWidth(),
-                            singleLine = true
-                        )
-
 
                     CheckoutSection(
-                        total = "${"%.2f".format(totalPrice)} EGP",
+                        total = "$currencySymbol ${"%.2f".format(totalPrice)} ",
                         onCheckOutClicked = {
                             if (draftOrderId != null)
-                            navController.navigate(ScreenRoute.OrderCheckOut(draftOrderId))
+                                navController.navigate(ScreenRoute.OrderCheckOut(draftOrderId, totalPrice))
                         },
                         itemCount = allLineItems.size
                     )
 
-                        Button(
-                            onClick = {
-                                cartViewModel.validateCoupon(couponCode, totalPrice)
-                            },
-                            colors = ButtonDefaults.buttonColors(containerColor = colorResource(R.color.dark_blue)),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(top = 8.dp)
-                        ) {
-                            Text("Apply Coupon", color = Color.White)
-                        }
-
-                        couponResult?.let { result ->
-                            Text(
-                                text = result.message,
-                                color = if (result.isValid) Color(0xFF2E7D32) else Color.Red,
-                                fontSize = 14.sp,
-                                modifier = Modifier.padding(top = 4.dp)
-                            )
-                        }
                     }
                     //    CheckoutSection(total = "${"%.2f".format(totalPrice)} EGP")
-                    val totalItemsCount = allLineItems.sumOf { it.quantity.toInt() }
+//                    val totalItemsCount = allLineItems.sumOf { it.quantity.toInt() }
+//
+//                    val finalTotal = if (couponResult?.isValid == true)
+//                        totalPrice - couponResult!!.discountValue
+//                    else totalPrice
 
-                    val finalTotal = if (couponResult?.isValid == true)
-                        totalPrice - couponResult!!.discountValue  //why
-                    else totalPrice
-
-                    CheckoutSection(
-                        total = "${"%.2f".format(finalTotal.coerceAtLeast(0.0))} EGP",
-                        itemCount = totalItemsCount,
-                        onCheckOutClicked = {
-                            navController.navigate(ScreenRoute.Payment(finalTotal))
-                            // navController.navigate(ScreenRoute.OrderCheckOut(1209159713086))
-                        }
-                    )
-                }
+//                    CheckoutSection(
+//                        total = "$currencySymbol ${"%.2f".format(finalTotal.coerceAtLeast(0.0))}",
+//                        itemCount = totalItemsCount,
+//                        onCheckOutClicked = {
+//                            navController.navigate(ScreenRoute.Payment(finalTotal))
+//                            // navController.navigate(ScreenRoute.OrderCheckOut(1209159713086))
+//                        }
+//                    )
+//                }
             }
         }
         if (showOutOfStockDialog) {
@@ -242,6 +239,7 @@ fun CartItemCard(
     price: String,
     quantity: Int,
     imageUrl: String,
+    currencySymbol: String,
     onIncrease: () -> Unit,
     onDecrease: () -> Unit,
     onDelete: () -> Unit
@@ -275,7 +273,7 @@ fun CartItemCard(
         modifier = Modifier
             .padding(16.dp)
             .fillMaxWidth()
-            .height(160.dp),
+            .height(180.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
@@ -310,7 +308,7 @@ fun CartItemCard(
                 Spacer(modifier = Modifier.height(2.dp))
 
                 Text(
-                    text = "Price: $price",
+                    text = "Price: $currencySymbol $price",
                     fontSize = 12.sp,
                     color = colorResource(R.color.dark_blue)
                 )
@@ -398,7 +396,7 @@ fun CheckoutSection(total: String, itemCount: Int, onCheckOutClicked: () -> Unit
 
         Button(
             onClick = { onCheckOutClicked() },
-            colors = ButtonDefaults.buttonColors(containerColor = colorResource(R.color.dark_blue)),
+            colors = ButtonDefaults.buttonColors(containerColor = colorResource(R.color.teal_80)),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 8.dp)

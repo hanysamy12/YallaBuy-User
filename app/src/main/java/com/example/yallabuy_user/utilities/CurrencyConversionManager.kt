@@ -5,7 +5,7 @@ import com.example.yallabuy_user.data.local.CurrencyPreferenceManager
 import com.example.yallabuy_user.repo.ICurrencyRepository
 
 class CurrencyConversionManager(
-    private val currencyRepository: ICurrencyRepository
+    val currencyRepository: ICurrencyRepository
 ) {
 
     private var cachedRates: Map<String, Double>? = null

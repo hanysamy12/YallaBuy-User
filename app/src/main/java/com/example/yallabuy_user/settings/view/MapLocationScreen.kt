@@ -2,7 +2,6 @@ package com.example.yallabuy_user.settings.view
 
 import android.Manifest
 import android.content.Intent
-import android.location.Address
 import android.location.Geocoder
 import android.net.Uri
 import android.os.Build
@@ -11,17 +10,16 @@ import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.LocationOn
@@ -30,6 +28,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -53,8 +52,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -76,7 +75,6 @@ import org.koin.androidx.compose.koinViewModel
 import java.util.Locale
 
 
-
 //Permissions
 //check location enabled or not and do it as we did in climate app
 //move the camera to user location
@@ -90,9 +88,41 @@ fun MapLocationScreen(
     viewModel: AddressViewModel= koinViewModel(),
     locationPermissionManager: LocationPermissionManager,
     onNavigateBack: () -> Unit,
-    navController: NavController
+    navController: NavController,
+    setTopBar: ((@Composable () -> Unit)) -> Unit,
    // onLocationConfirmed: (Address) -> Unit
 ) {
+    LaunchedEffect(Unit) {
+        setTopBar {
+            CenterAlignedTopAppBar(
+                title = { Text("Map") },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = colorResource(R.color.teal_80)
+                ),
+                navigationIcon = {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Start
+                    ) {
+                        IconButton(onClick = onNavigateBack) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
+                                contentDescription = "Back"
+
+                            )
+                        }
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_app),
+                            contentDescription = "App Icon",
+                            tint = Color.Unspecified,
+                            //modifier = Modifier.padding(start = 5.dp)
+                        )
+                    }
+                }
+
+            )
+        }
+    }
     val context = LocalContext.current
     val activity = LocalActivity.current
     val lifecycleOwner = LocalLifecycleOwner.current
