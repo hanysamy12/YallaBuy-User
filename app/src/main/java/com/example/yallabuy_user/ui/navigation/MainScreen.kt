@@ -238,7 +238,7 @@ fun MainScreen() {
             }
             composable<ScreenRoute.ProductInfo> {
                 val args = it.toRoute<ScreenRoute.ProductInfo>()
-                ProductInfoScreen(args.productId, navController)
+                ProductInfoScreen(args.productId, navController, setTopBar = { topBarContent.value = it })
             }
             composable(ScreenRoute.PreviousOrders.route) {
                 PreviousOrdersScreen(

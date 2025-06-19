@@ -39,12 +39,15 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -84,12 +87,14 @@ import com.example.yallabuy_user.data.models.cart.Property
 import com.example.yallabuy_user.ui.navigation.ScreenRoute
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProductInfoScreen(
     productId: Long,
     navController: NavHostController,
     productInfoViewModel: ProductInfoViewModel = koinViewModel(),
-    cartViewModel: CartViewModel = koinViewModel()
+    cartViewModel: CartViewModel = koinViewModel(),
+    setTopBar: (@Composable () -> Unit) -> Unit
 ) {
 
 //    WishListIdPref.saveWishListID(LocalContext.current, 1208624218430)
@@ -100,6 +105,22 @@ fun ProductInfoScreen(
     val context = LocalContext.current
     LaunchedEffect(productId) {
         productInfoViewModel.getProductInfoById(productId)
+        setTopBar {
+            CenterAlignedTopAppBar(
+                title = { Text("Product Details") },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = Color(0xFF3B9A94)
+                ),
+                navigationIcon = {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_app),
+                        contentDescription = "App Icon",
+                        tint = Color.Unspecified, // Optional: set tint if needed
+                        modifier = Modifier.padding(start = 12.dp)
+                    )
+                }
+            )
+        }
     }
 
     when (productInfo) {
