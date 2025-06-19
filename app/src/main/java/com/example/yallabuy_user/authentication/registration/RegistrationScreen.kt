@@ -1,6 +1,8 @@
 package com.example.yallabuy_user.authentication.registration
 
 import android.util.Log
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -11,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -44,6 +47,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -53,6 +57,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.DialogProperties
+import androidx.compose.ui.zIndex
 import androidx.navigation.NavHostController
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
@@ -122,7 +127,7 @@ fun RegistrationScreen(
     ) {
         Text(
             text = "Let's Start",
-            color = Color.White,
+            color =  Color(0xFF3B9A94),
             fontSize = 25.sp,
             fontWeight = FontWeight.Bold,
             fontFamily = emblemaoneregilarFont,
@@ -130,15 +135,15 @@ fun RegistrationScreen(
                 .align(Alignment.TopStart)
                 .padding(start = 16.dp, top = 30.dp)
         )
-        Text(
-            text = "Sign Up",
-            color = Color.White,
-            fontSize = 25.sp,
-            fontWeight = FontWeight.Bold,
-            fontFamily = sigmarRegularFont,
+        Image(
+            painter = painterResource(R.drawable.yalla_buy_login_logo),
+            contentDescription = "logo",
+            alignment = Alignment.TopCenter,
             modifier = Modifier
-                .align(Alignment.TopStart)
-                .padding(start = 140.dp, top = 150.dp)
+                .align(Alignment.BottomCenter)
+                .offset(y = (-515).dp) // Push upward from bottom
+                .zIndex(1f)
+                .size(250.dp)
         )
 
         Card(
@@ -146,7 +151,8 @@ fun RegistrationScreen(
                 .fillMaxWidth()
                 .height(600.dp),
             colors = CardDefaults.cardColors(containerColor = Color.White),
-            shape = RoundedCornerShape(topStart = 15.dp, topEnd = 15.dp)
+            shape = RoundedCornerShape(topStart = 15.dp, topEnd = 15.dp) ,
+            border = BorderStroke(2.dp ,  Color(0xFF3B9A94))
         ) {
             Column(
                 modifier = Modifier.padding(16.dp),
@@ -165,7 +171,8 @@ fun RegistrationScreen(
                 ) {
                     Text(
                         "Already have an Account ?",
-                        textAlign = TextAlign.Start
+                        textAlign = TextAlign.Start ,
+                        color = Color.Black
                     )
                     TextButton(
                         onClick = {
@@ -173,7 +180,8 @@ fun RegistrationScreen(
                         }
                     ) {
                         Text(
-                            "Login", fontFamily = sigmarRegularFont, textAlign = TextAlign.End
+                            "Login", fontFamily = sigmarRegularFont, textAlign = TextAlign.End ,
+                            color =  Color(0xFF3B9A94)
                         )
                     }
                 }
@@ -195,7 +203,7 @@ fun RegistrationScreen(
                         .shadow(8.dp, RoundedCornerShape(50))
                         .clip(RoundedCornerShape(50)),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.Black,
+                        containerColor =  Color(0xFF3B9A94),
                         contentColor = Color.White
                     ),
                     elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp)
@@ -217,7 +225,8 @@ fun RegistrationScreen(
                     },
                     modifier = Modifier.fillMaxWidth(),
                 ) {
-                    Text("Sign Up as A Guest", fontSize = 20.sp, fontFamily = sigmarRegularFont)
+                    Text("Sign Up as A Guest", fontSize = 20.sp, fontFamily = sigmarRegularFont
+                    , color =  Color(0xFF3B9A94))
                 }
             }
         }
