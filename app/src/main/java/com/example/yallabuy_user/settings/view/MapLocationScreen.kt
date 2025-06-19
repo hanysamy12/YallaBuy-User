@@ -357,23 +357,23 @@ fun MapLocationScreen(
     }
 
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Select delivery location", color = Color.White) },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                            contentDescription = "Back",
-                            tint = Color.White
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = colorResource(id = R.color.dark_blue)
-                )
-            )
-        }
+//        topBar = {
+//            TopAppBar(
+//                title = { Text("Select delivery location", color = Color.White) },
+//                navigationIcon = {
+//                    IconButton(onClick = onNavigateBack) {
+//                        Icon(
+//                            imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
+//                            contentDescription = "Back",
+//                            tint = Color.White
+//                        )
+//                    }
+//                },
+//                colors = TopAppBarDefaults.topAppBarColors(
+//                    containerColor = colorResource(id = R.color.dark_blue)
+//                )
+//            )
+//        }
     ) { paddingValues ->
         Box(
             modifier = Modifier.fillMaxSize()

@@ -126,15 +126,31 @@ fun AddressScreen(
             )
         }
     }
+    Scaffold(
+        //topBar = { AddressTopBar(onNavigateBack = onNavigateBack) },
 
+        floatingActionButton = {
+            ExpandableFab(
+                onAddAddressClick = {
+                    addressToEdit = null
+                    showDialog = true
+                },
+                onAddByMapClick = {
+                    onNavigateToMap()
+                }
+            )
+        }
+    ) { paddingValues ->
         AddressScreenContent(
             addressState = addressState,
             viewModel = viewModel,
+            paddingValues = paddingValues,
             onEditAddress = { address ->
                 addressToEdit = address
                 showEditConfirmation = true
             }
         )
+    }
 
     if (showEditConfirmation) {
         EditConfirmationDialog(
@@ -166,37 +182,13 @@ fun AddressScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun AddressTopBar(onNavigateBack: () -> Unit) {
-    TopAppBar(
-        title = {
-            Text(
-                text = "My Addresses",
-                color = Color.White,
-                fontWeight = FontWeight.Bold
-            )
-        },
-        navigationIcon = {
-            IconButton(onClick = onNavigateBack) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                    contentDescription = "Back",
-                    tint = Color.White
-                )
-            }
-        },
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = colorResource(id = R.color.dark_blue)
-        )
-    )
-}
 
 
 @Composable
 fun AddressScreenContent(
     addressState: ApiResponse<AddressesResponse>,
     viewModel: AddressViewModel,
+    paddingValues: PaddingValues,
     onEditAddress: (Address) -> Unit,
 ) {
 
@@ -205,7 +197,7 @@ fun AddressScreenContent(
 
     Column(
         modifier = Modifier
-            .padding(6.dp)
+            .padding(paddingValues)
             .fillMaxSize()
     ) {
 
@@ -287,27 +279,27 @@ fun AddressItem(
 //                horizontalArrangement = Arrangement.SpaceBetween,
 //                verticalAlignment = Alignment.CenterVertically
 //            ) {
-                Text(
-                    text = address.getDetailedDescription(),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
-                )
+            Text(
+                text = address.getDetailedDescription(),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
+            )
 
-                if (address.default) {
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
+            if (address.default) {
+                Spacer(modifier = Modifier.height(4.dp))
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Badge(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer
                     ) {
-                        Badge(
-                            containerColor = MaterialTheme.colorScheme.primaryContainer,
-                            contentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                        ) {
-                            Text("Default Address")
-                        }
+                        Text("Default Address")
                     }
                 }
+            }
 
-       //     }
+            //     }
 
             Spacer(modifier = Modifier.height(4.dp))
 
@@ -667,3 +659,5 @@ fun DeleteConfirmationDialog(
         }
     )
 }
+
+
