@@ -37,7 +37,6 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavType
@@ -127,7 +126,7 @@ fun MainScreen() {
         }, floatingActionButton = {
             if (currentRoute != null) {
                 ExpandableFAB(currentRoute = currentRoute, onClothesClick = {
-                    onFilterClicked?.invoke("CLOTHES")
+                    onFilterClicked?.invoke("T-SHIRTS")
                 }, onShoesClick = {
                     onFilterClicked?.invoke("SHOES")
                 }, onAccessoryClick = {
@@ -387,7 +386,7 @@ fun ExpandableFAB(
     }
 }
 
-@Preview
+//@Preview
 @Composable
 fun NOInternetScreen() {
     Column(
