@@ -67,8 +67,7 @@ fun ProductsScreen(
     var maxPrice by remember { mutableFloatStateOf(0f) }
     var minPrice by remember { mutableFloatStateOf(0f) }
     var currentPrice by remember { mutableFloatStateOf(0f) }
-    var priceUnit by remember { mutableStateOf("EG") }
-    val currencyOptions = listOf("EGP", "$", "€", "SAR")
+
 
 
     var isPriceSet by remember { mutableStateOf(false) }
