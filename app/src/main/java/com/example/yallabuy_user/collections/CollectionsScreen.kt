@@ -1,8 +1,6 @@
 package com.example.yallabuy_user.collections
 
-import android.os.Build
 import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -58,7 +56,7 @@ import org.koin.compose.koinInject
 
 private const val TAG = "CollectionsScreen"
 
-@RequiresApi(Build.VERSION_CODES.P)
+//@RequiresApi(Build.VERSION_CODES.P)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CollectionsScreen(
@@ -141,6 +139,7 @@ fun CollectionsScreen(
 
             is ApiResponse.Failure -> {
                 val msg = (uiProductsState as ApiResponse.Failure).toString()
+                Log.i(TAG, "CollectionsScreen: $msg")
             }
 
             ApiResponse.Loading -> {

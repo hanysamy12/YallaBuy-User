@@ -14,7 +14,9 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.FloatingActionButton
@@ -22,6 +24,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -30,9 +33,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -40,6 +47,15 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.navigation.toRoute
+import coil.compose.AsyncImage
+import com.airbnb.lottie.LottieProperty
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.LottieConstants
+import com.airbnb.lottie.compose.animateLottieCompositionAsState
+import com.airbnb.lottie.compose.rememberLottieComposition
+import com.airbnb.lottie.compose.rememberLottieDynamicProperties
+import com.airbnb.lottie.compose.rememberLottieDynamicProperty
 import com.example.yallabuy_user.R
 import com.example.yallabuy_user.authentication.login.CustomerIdPreferences
 import com.example.yallabuy_user.authentication.login.LoginScreen
@@ -138,7 +154,7 @@ fun MainScreen() {
                 HomeScreen(navController, setTopBar = { topBarContent.value = it })
             }
             composable(route = ScreenRoute.WishList.route) {
-                WishScreen(navController, setTopBar = {topBarContent.value = it})
+                WishScreen(navController, setTopBar = { topBarContent.value = it })
             }
             composable(route = ScreenRoute.Collections.route) {
                 CollectionsScreen(navController, setFilterMeth = {
@@ -149,21 +165,26 @@ fun MainScreen() {
                 CartScreen(navController, setTopBar = { topBarContent.value = it })
             }
             composable(route = ScreenRoute.Profile.route) {
-                ProfileScreen(navController,setTopBar = {topBarContent.value = it})
+                ProfileScreen(navController, setTopBar = { topBarContent.value = it })
             }
 
             composable(ScreenRoute.Settings.route) {
-                SettingsScreen(navController,setTopBar = {topBarContent.value = it})
+                SettingsScreen(navController, setTopBar = { topBarContent.value = it })
             }
             composable(ScreenRoute.AboutUs.route) {
-                AboutUsScreen(onNavigateBack = { navController.popBackStack() },setTopBar = {topBarContent.value = it})
+                AboutUsScreen(
+                    onNavigateBack = { navController.popBackStack() },
+                    setTopBar = { topBarContent.value = it })
             }
             composable(ScreenRoute.ContactUs.route) {
-                ContactUsScreen(onNavigateBack = { navController.popBackStack() },setTopBar = {topBarContent.value = it})
+                ContactUsScreen(
+                    onNavigateBack = { navController.popBackStack() },
+                    setTopBar = { topBarContent.value = it })
             }
             composable(ScreenRoute.Currency.route) {
                 CurrencyScreen(
-                    onNavigateBack = { navController.popBackStack() },setTopBar = {topBarContent.value = it})
+                    onNavigateBack = { navController.popBackStack() },
+                    setTopBar = { topBarContent.value = it })
             }
             composable(ScreenRoute.Address.route) {
                 val context = LocalContext.current
@@ -172,7 +193,7 @@ fun MainScreen() {
                     customerId = CustomerIdPreferences.getData(context), //8805732188478,
                     onNavigateBack = { navController.popBackStack() }, onNavigateToMap = {
                         navController.navigate(ScreenRoute.Map.route)
-                    },setTopBar = {topBarContent.value = it})
+                    }, setTopBar = { topBarContent.value = it })
             }
 
             composable(ScreenRoute.Map.route) {
@@ -184,7 +205,8 @@ fun MainScreen() {
                 MapLocationScreen(
                     locationPermissionManager = locationPermissionManager,
                     navController = navController,
-                    onNavigateBack = { navController.popBackStack() },setTopBar = {topBarContent.value = it})
+                    onNavigateBack = { navController.popBackStack() },
+                    setTopBar = { topBarContent.value = it })
             }
 
             //question about that
@@ -238,7 +260,10 @@ fun MainScreen() {
             }
             composable<ScreenRoute.ProductInfo> {
                 val args = it.toRoute<ScreenRoute.ProductInfo>()
-                ProductInfoScreen(args.productId, navController, setTopBar = { topBarContent.value = it })
+                ProductInfoScreen(
+                    args.productId,
+                    navController,
+                    setTopBar = { topBarContent.value = it })
             }
             composable(ScreenRoute.PreviousOrders.route) {
                 PreviousOrdersScreen(
@@ -358,6 +383,47 @@ fun ExpandableFAB(
                     )
                 }
             }
+        }
+    }
+}
+
+@Preview
+@Composable
+fun NOInternetScreen() {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        val successComposition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.no_internet))
+        val successProgress by animateLottieCompositionAsState(
+            composition = successComposition,
+            iterations = LottieConstants.IterateForever
+        )
+        val tealColor = Color(0xFF26A69A)
+        val dynamicProperties = rememberLottieDynamicProperties(
+            rememberLottieDynamicProperty(
+                property = LottieProperty.COLOR,
+                value = tealColor.toArgb(), // important: use ARGB format
+                keyPath = arrayOf("**", "Fill 1") // adjust this to match your JSON structure
+            )
+        )
+        AsyncImage(
+            model = R.drawable.ic_app,
+            contentDescription = "App Icon",
+            modifier = Modifier.size(200.dp)
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            LottieAnimation(
+                composition = successComposition,
+                progress = { successProgress },
+                dynamicProperties = dynamicProperties,
+                modifier = Modifier.size(100.dp)
+            )
+            Text(text = "No Internet", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(text = "Please Check Your Connection", fontSize = 20.sp, color = Color.Gray)
         }
     }
 }
