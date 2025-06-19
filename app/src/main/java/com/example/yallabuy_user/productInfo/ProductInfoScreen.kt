@@ -97,14 +97,18 @@ fun ProductInfoScreen(
 
     val productInfo = productInfoViewModel.productInfo.collectAsState().value
     val showSignUpDialog = cartViewModel.showSignUpDialog.collectAsState()
-
+    val resetWishListSharedPreference = productInfoViewModel.resetWishListSharedPreference.collectAsState().value
     val context = LocalContext.current
+
     LaunchedEffect(productId) {
         Log.i("info", "ProductInfoScreen in the launchedEffect ")
         productInfoViewModel.getProductInfoById(productId)
         productInfoViewModel.isAlreadySaved(WishListIdPref.getWishListId(context), productId)
     }
 
+    if (resetWishListSharedPreference){
+        WishListIdPref.saveWishListID(context , 0)
+    }
     when (productInfo) {
         is ApiResponse.Failure -> {
             Log.i("TAG", "getProductInfoById error ")

@@ -22,9 +22,7 @@ import com.example.yallabuy_user.repo.RepositoryInterface
 import com.example.yallabuy_user.utilities.ApiResponse
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
 
@@ -43,6 +41,9 @@ class ProductInfoViewModel(
 
     private val _isFirstProductInWishList = MutableStateFlow(false)
     val isFirstProductInWishList = _isFirstProductInWishList.asStateFlow()
+
+    private val _resetWishListSharedPreference = MutableStateFlow(false)
+    val resetWishListSharedPreference = _resetWishListSharedPreference.asStateFlow()
 
     private var wishListDraftOrderIdGlobal: Long = 0L
     private var productIdGlobal: Long = 0L
@@ -72,7 +73,7 @@ class ProductInfoViewModel(
                     val tags = customer.customer.tags ?: ""
 
                     if (isWishlist) {
-                        if (noteString.isNullOrBlank()) {
+                        if (noteString.isNullOrBlank() || noteString == "") {
                             createWishListDraftOrder(data, customerId)
                         } else {
                             addProductToWishList(noteString, data, customerId)
@@ -378,7 +379,7 @@ class ProductInfoViewModel(
 
     fun deleteProductFromWishList(customerId : Long , productTitle : String , wishListId : Long){
         viewModelScope.launch {
-            Log.i("saved", " inside deleteProductFromWishList ")
+            Log.i("wishList", " inside deleteProductFromWishList ")
             Log.i("saved", "deleteProductFromWishList title $productTitle ")
             try {
                 repo.getWishListDraftById(wishListId).collect{ response ->
@@ -387,6 +388,7 @@ class ProductInfoViewModel(
                         Log.i("saved", "deleteProductFromWishList in viewModel list < 1  ")
                         repo.deleteDraftOrderCart(wishListId)
                         updateNoteInCustomer("" ,customerId )
+                        _resetWishListSharedPreference.emit(true)
                     }else {
                         Log.i("saved", "deleteProductFromWishList in viewModel list > 1  ")
                         val listBeforeDelete = response.draft_order.line_items.toMutableList()
@@ -400,6 +402,7 @@ class ProductInfoViewModel(
                      )
                      repo.updateDraftOrder(wishListId , wishListDraftOrderRequest )
                      _productIsAlreadySaved.emit(false)
+                     _resetWishListSharedPreference.emit(false)
                     }
                 }
             }catch (e : Exception){
