@@ -1,5 +1,6 @@
 package com.example.yallabuy_user.ui.navigation
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -24,6 +25,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.yallabuy_user.R
 
+@SuppressLint("SuspiciousIndentation")
 @Composable
 fun BottomNavigationBar(navController: NavController) {
     val navigationItems = listOf(
@@ -47,15 +49,6 @@ fun BottomNavigationBar(navController: NavController) {
     }
 
     val middleIndex = 2
-
-//    val shouldShowBottomNav = currentRoute !in listOf(
-//        ScreenRoute.ProductDetails.route,
-//        ScreenRoute.CreateProduct.route,
-//        ScreenRoute.AboutUs.route,
-//        ScreenRoute.ContactUs.route
-//    )
-
-//    if (shouldShowBottomNav)
 
         Box {
             NavigationBar(containerColor = Color.White) {

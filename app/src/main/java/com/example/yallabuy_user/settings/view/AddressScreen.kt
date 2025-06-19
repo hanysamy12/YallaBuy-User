@@ -31,6 +31,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenuItem
@@ -58,6 +59,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -70,12 +72,13 @@ import com.example.yallabuy_user.settings.viewmodel.AddressViewModel
 import com.example.yallabuy_user.utilities.ApiResponse
 import org.koin.androidx.compose.koinViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddressScreen(
-    //viewModel: AddressViewModel = koinViewModel(),
     customerId: Long,
     onNavigateBack: () -> Unit = {},
-    onNavigateToMap:() -> Unit
+    onNavigateToMap:() -> Unit,
+    setTopBar: ((@Composable () -> Unit)) -> Unit
 ) {
     val viewModel: AddressViewModel = koinViewModel()// remember { AddressViewModel(getKoin(), customerId) }
     viewModel.setCustomerId(customerId)
@@ -93,33 +96,45 @@ fun AddressScreen(
 
     LaunchedEffect(customerId) {
         viewModel.getAddresses()
-    }
+        setTopBar {
+            CenterAlignedTopAppBar(
+                title = { Text("Address") },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = colorResource(R.color.teal_80)
+                ),
+                navigationIcon = {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Start
+                    ) {
+                        IconButton(onClick = onNavigateBack) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
+                                contentDescription = "Back"
 
-    Scaffold(
-        topBar = { AddressTopBar(onNavigateBack = onNavigateBack) },
-
-        floatingActionButton = {
-            ExpandableFab(
-                onAddAddressClick = {
-                    addressToEdit = null
-                    showDialog = true
-                },
-                onAddByMapClick = {
-                    onNavigateToMap()
+                            )
+                        }
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_app),
+                            contentDescription = "App Icon",
+                            tint = Color.Unspecified,
+                            //modifier = Modifier.padding(start = 5.dp)
+                        )
+                    }
                 }
+
             )
         }
-    ) { paddingValues ->
+    }
+
         AddressScreenContent(
             addressState = addressState,
             viewModel = viewModel,
-            paddingValues = paddingValues,
             onEditAddress = { address ->
                 addressToEdit = address
                 showEditConfirmation = true
             }
         )
-    }
 
     if (showEditConfirmation) {
         EditConfirmationDialog(
@@ -182,7 +197,6 @@ fun AddressTopBar(onNavigateBack: () -> Unit) {
 fun AddressScreenContent(
     addressState: ApiResponse<AddressesResponse>,
     viewModel: AddressViewModel,
-    paddingValues: PaddingValues,
     onEditAddress: (Address) -> Unit,
 ) {
 
@@ -191,7 +205,7 @@ fun AddressScreenContent(
 
     Column(
         modifier = Modifier
-            .padding(paddingValues)
+            .padding(6.dp)
             .fillMaxSize()
     ) {
 

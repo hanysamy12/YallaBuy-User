@@ -1,7 +1,6 @@
 package com.example.yallabuy_user.cart.view
 
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -26,11 +25,13 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -44,6 +45,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -58,12 +60,14 @@ import com.example.yallabuy_user.utilities.ApiResponse
 import com.example.yallabuy_user.utilities.Common
 import org.koin.androidx.compose.koinViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun CartScreen(
     navController: NavController,
     homeViewModel: HomeViewModel = koinViewModel(),
     cartViewModel: CartViewModel = koinViewModel()
+    , setTopBar: (@Composable () -> Unit) -> Unit
 ) {
     val cartState by cartViewModel.cartState.collectAsState()
     // val draftOrderId = 123456789L
@@ -81,6 +85,22 @@ fun CartScreen(
     LaunchedEffect(Unit) {
         if (customerId != -1L) {
             cartViewModel.getCustomerByIdAndFetchCart(customerId)
+        }
+        setTopBar {
+            CenterAlignedTopAppBar(
+                title = { Text("Cart") },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = colorResource(R.color.teal_80)
+                ),
+                navigationIcon = {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_app),
+                        contentDescription = "App Icon",
+                        tint = Color.Unspecified, // Optional: set tint if needed
+                        modifier = Modifier.padding(start = 12.dp)
+                    )
+                }
+            )
         }
     }
     Column(
@@ -376,7 +396,7 @@ fun CheckoutSection(total: String, itemCount: Int, onCheckOutClicked: () -> Unit
 
         Button(
             onClick = { onCheckOutClicked() },
-            colors = ButtonDefaults.buttonColors(containerColor = colorResource(R.color.dark_blue)),
+            colors = ButtonDefaults.buttonColors(containerColor = colorResource(R.color.teal_80)),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 8.dp)

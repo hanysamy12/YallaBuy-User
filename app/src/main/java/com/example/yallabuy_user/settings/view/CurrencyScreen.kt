@@ -2,7 +2,9 @@ package com.example.yallabuy_user.settings.view
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -11,6 +13,7 @@ import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -30,9 +33,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.yallabuy_user.R
@@ -45,42 +50,45 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun CurrencyScreen(
     viewModel: CurrencyViewModel = koinViewModel(),
-    onNavigateBack: () -> Unit
+    onNavigateBack: () -> Unit,
+    setTopBar: @Composable (content: @Composable () -> Unit) -> Unit
 ) {
     val selectedCurrency by viewModel.selectedCurrency.collectAsState()
     val currencyState by viewModel.currencyState.collectAsState()
     val availableCurrencies = listOf("USD", "EUR", "EGP", "SAR")
-
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        "Currency Preference",
-                        color = Color.White,
-                        fontWeight = FontWeight.Bold
-                    )
-                },
-                navigationIcon = {
+    setTopBar {
+        CenterAlignedTopAppBar(
+            title = { Text("Currency") },
+            colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                containerColor = colorResource(R.color.teal_80)
+            ),
+            navigationIcon = {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Start
+                ) {
                     IconButton(onClick = onNavigateBack) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                            contentDescription = "Back",
-                            tint = Color.White
+                            contentDescription = "Back"
+
                         )
                     }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = colorResource(R.color.dark_blue)
-                )
-            )
-        },
-        containerColor = Color.White
-    ) {  paddingValues ->
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_app),
+                        contentDescription = "App Icon",
+                        tint = Color.Unspecified,
+                        //modifier = Modifier.padding(start = 5.dp)
+                    )
+                }
+            }
+
+        )
+    }
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(paddingValues)
+                .padding(6.dp)
                 .padding(horizontal = 16.dp, vertical = 8.dp)
         ) {
             Text(
@@ -98,7 +106,7 @@ fun CurrencyScreen(
             )
         }
     }
-}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CurrencyPreferenceDropdown(

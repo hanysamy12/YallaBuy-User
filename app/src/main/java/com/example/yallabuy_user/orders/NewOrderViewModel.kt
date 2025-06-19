@@ -19,7 +19,6 @@ import com.example.yallabuy_user.data.models.CreateTransaction
 import com.example.yallabuy_user.data.models.DiscountCode
 import com.example.yallabuy_user.data.models.cart.DraftOrderCart
 import com.example.yallabuy_user.data.models.settings.Address
-import com.example.yallabuy_user.repo.ICurrencyRepository
 import com.example.yallabuy_user.repo.RepositoryInterface
 import com.example.yallabuy_user.utilities.ApiResponse
 import com.example.yallabuy_user.utilities.CurrencyConversionManager
@@ -44,7 +43,6 @@ class NewOrderViewModel(
     val cartOrder: MutableStateFlow<ApiResponse<DraftOrderCart>> = _cartOrder
     private var _address = MutableStateFlow<ApiResponse<List<Address>>>(ApiResponse.Loading)
     val address: MutableStateFlow<ApiResponse<List<Address>>> = _address
-    private var _currency = MutableStateFlow<ApiResponse<String>>(ApiResponse.Loading)
 
     val convertedPrices = mutableStateMapOf<Long, String>()
     val cartTotalInPreferredCurrency = MutableStateFlow<Double?>(null)
@@ -95,7 +93,7 @@ class NewOrderViewModel(
                     )
                 ),
                 financialStatus = financialStatus,
-                fulfillmentStatus = "fulfilled",
+                //fulfillmentStatus = "fulfilled",
                 sendReceipt = true,
                 sendFulfillmentReceipt = true,
                 //currency = "EGP" //from Prefs or OrderCheckoutScreen

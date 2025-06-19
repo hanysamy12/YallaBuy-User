@@ -137,6 +137,9 @@ dependencies {
 
     //Async image
     implementation("io.coil-kt:coil-compose:2.4.0")
+    implementation("io.coil-kt:coil:2.5.0")
+    implementation("io.coil-kt:coil-gif:2.5.0")
+
 
     //json
     implementation ("com.airbnb.android:lottie-compose:6.1.0")
