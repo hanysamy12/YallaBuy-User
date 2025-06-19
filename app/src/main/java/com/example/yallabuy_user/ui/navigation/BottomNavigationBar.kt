@@ -48,15 +48,6 @@ fun BottomNavigationBar(navController: NavController) {
 
     val middleIndex = 2
 
-//    val shouldShowBottomNav = currentRoute !in listOf(
-//        ScreenRoute.ProductDetails.route,
-//        ScreenRoute.CreateProduct.route,
-//        ScreenRoute.AboutUs.route,
-//        ScreenRoute.ContactUs.route
-//    )
-
-//    if (shouldShowBottomNav)
-
         Box {
             NavigationBar(containerColor = Color.White) {
                 navigationItems.forEachIndexed { index, item ->

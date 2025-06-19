@@ -95,7 +95,7 @@ class NewOrderViewModel(
                     )
                 ),
                 financialStatus = financialStatus,
-                fulfillmentStatus = "fulfilled",
+                //fulfillmentStatus = "fulfilled",
                 sendReceipt = true,
                 sendFulfillmentReceipt = true,
                 //currency = "EGP" //from Prefs or OrderCheckoutScreen

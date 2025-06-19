@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -50,11 +51,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.DialogProperties
+import androidx.navigation.NavController
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.LottieConstants
+import com.airbnb.lottie.compose.animateLottieCompositionAsState
+import com.airbnb.lottie.compose.rememberLottieComposition
+import com.example.yallabuy_user.R
 import com.example.yallabuy_user.data.models.CreateLineItem
 import com.example.yallabuy_user.data.models.CreateShippingAddress
 import com.example.yallabuy_user.data.models.cart.LineItem
@@ -79,9 +89,10 @@ private const val TAG = "OrderCheckoutScreen"
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OrderCheckoutScreen(
-    viewModel: NewOrderViewModel = koinViewModel(), cartId: Long, passedTotalPrice: Double,
-
-    setTopBar: (@Composable () -> Unit) -> Unit
+    viewModel: NewOrderViewModel = koinViewModel(),
+    cartId: Long, passedTotalPrice: Double,
+    setTopBar: (@Composable () -> Unit) -> Unit,
+    navController: NavController
 ) {
 
     val context = LocalContext.current
@@ -92,27 +103,16 @@ fun OrderCheckoutScreen(
     val currencySymbol = Common.currencyCode.getCurrencyCode()
     var showCashLimitDialog by remember { mutableStateOf(false) }
     var showSuccessDialog by remember { mutableStateOf(false) }
-
-
     //data
     var errorMessage by remember { mutableStateOf("") }
     val couponResult by viewModel.couponValidationResult.collectAsState()
     val coroutineScope = rememberCoroutineScope()
-
     var createLineItems: List<CreateLineItem> = listOf()
     var couponCode by remember { mutableStateOf("") }
     var shippingAddress = CreateShippingAddress(id = -1L)
     var totalCost by remember { mutableStateOf("") }
     var isCash by remember { mutableStateOf(true) }
 
-    var getWay by remember { mutableStateOf("") }
-    var currency by remember { mutableStateOf("EGP") }
-    var paymentStatus by remember { mutableStateOf("pending") }
-    var totalPayment by remember { mutableStateOf("") }
-
-//    LaunchedEffect(passedTotalPrice) {
-//        viewModel.convertTotalAmount(passedTotalPrice)
-//    }
 
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartIntentSenderForResult()
@@ -149,7 +149,7 @@ fun OrderCheckoutScreen(
             CenterAlignedTopAppBar(
                 title = { Text("Checkout") },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = Color(0xFF3B9A94)
+                    containerColor = colorResource(R.color.teal_80)
                 )
             )
         }
@@ -172,15 +172,9 @@ fun OrderCheckoutScreen(
             LaunchedEffect(Unit) {
                 viewModel.convertItemPrices(order)
             }
-//            val cartTotal = order.lineItems.sumOf {
-//                (it.price.toDoubleOrNull() ?: 0.0) * it.quantity
-//            }
 
             val cartTotal = passedTotalPrice
-            val CASH_LIMIT_EGP = 5000.0
 
-            //createLineItems = mapLineItemToCreateLineItem(order.lineItems)
-            //currency = order.currency ?: "EGP"
             val discount = couponResult?.takeIf { it.isValid }?.discountValue ?: 0.0
             val discountedTotal = (cartTotal - discount).coerceAtLeast(0.0)
 
@@ -199,16 +193,10 @@ fun OrderCheckoutScreen(
                 modifier = Modifier
                     //.fillMaxWidth()
                     .fillMaxSize()
-                    .padding(vertical = 12.dp, horizontal = 6.dp)
+                    .padding(vertical = 12.dp, horizontal = 12.dp)
                     .verticalScroll(rememberScrollState())
             ) {
 
-                order.lineItems.forEach { lineItem ->
-                    OrderCheckoutItem(lineItem = lineItem, currency = currency ?: "$")
-                    HorizontalDivider()
-                }
-
-                HorizontalDivider()
                 Spacer(modifier = Modifier.height(10.dp))
                 Text("Shipping Address", fontWeight = FontWeight.Bold, fontSize = 22.sp)
                 when (uiAddressState.value) {
@@ -264,7 +252,7 @@ fun OrderCheckoutScreen(
                         }, modifier = Modifier, shape = RoundedCornerShape(8.dp)
 
                     ) {
-                        Text("Validate Coupon")
+                        Text("Validate")
                     }
                 }
                 couponResult?.let { result ->
@@ -305,11 +293,7 @@ fun OrderCheckoutScreen(
                             fontWeight = FontWeight.Bold
                         )
                     }
-//                    Text(
-//                        "${order.totalPrice} $currency",
-//                        fontSize = 22.sp,
-//                        fontWeight = FontWeight.Bold
-//                    )
+
                 }
 
                 HorizontalDivider()
@@ -357,10 +341,10 @@ fun OrderCheckoutScreen(
                         //check if cash exceeded 5000 show him a dialog you have
 
                         val totalValue = convertedTotal ?: discountedTotal
-                   //     val totalValue = displayedTotal
+                        //     val totalValue = displayedTotal
 
-                  //      val egpToPreferredRate = viewModel.getConversionRate("EGP") ?: 1.0
-                    //    val cashLimit = 5000.0 * egpToPreferredRate
+                        //      val egpToPreferredRate = viewModel.getConversionRate("EGP") ?: 1.0
+                        //    val cashLimit = 5000.0 * egpToPreferredRate
 
                         if (isCash && totalValue > 5000.0) {
                             showCashLimitDialog = true
@@ -384,7 +368,7 @@ fun OrderCheckoutScreen(
                                         PaymentsUtil.getGooglePayRequest(totalCost)
                                     val request =
                                         PaymentDataRequest.fromJson(paymentRequestJson.toString())
-                                    if (request != null && activity != null) {
+                                    if (activity != null) {
                                         val paymentsClient =
                                             PaymentsUtil.PaymentsClientFactory.getPaymentsClient(
                                                 context
@@ -461,46 +445,31 @@ fun OrderCheckoutScreen(
                 }
 
                 if (showSuccessDialog) {
-                    AlertDialog(
+                    OrderSuccessDialog(
                         onDismissRequest = { showSuccessDialog = false },
-                        confirmButton = {
-                            TextButton(onClick = {
-                                showSuccessDialog = false
-                                //We need to delete that from draft order
-                            }) {
-                                Text("OK")
-                            }
-                        },
-                        title = { Text("Order Placed") },
-                        text = { Text("You have successfully placed your order.\nThank you for shopping with us!") }
-                    )
+                        onConfirmation = {
+                            showSuccessDialog = false
+                            navController.popBackStack()
+                        })
+//                    AlertDialog(
+//                        onDismissRequest = { showSuccessDialog = false },
+//                        confirmButton = {
+//                            TextButton(onClick = {
+//                                showSuccessDialog = false
+//                                //We need to delete that from draft order
+//                            }) {
+//                                Text("OK")
+//                            }
+//                        },
+//                        title = { Text("Order Placed") },
+//                        text = { Text("You have successfully placed your order.\nThank you for shopping with us!") }
+//                    )
                 }
             }
         }
     }
 }
 
-
-@Composable
-fun OrderCheckoutItem(lineItem: LineItem, currency: String) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp)
-    ) {
-        Text(lineItem.title, fontWeight = FontWeight.Bold)
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            Text("Quantity")
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(lineItem.quantity.toString(), fontSize = 22.sp)
-        }
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            Text("Price")
-            Spacer(modifier = Modifier.width(8.dp))
-            Text("${lineItem.price} $currency")
-        }
-    }
-}
 
 @Composable
 fun CouponTextField(
@@ -558,6 +527,61 @@ fun DropdownField(
         }
     }
 }
+
+@Composable
+fun OrderSuccessDialog(
+    onDismissRequest: () -> Unit,
+    onConfirmation: () -> Unit
+) {
+    val successComposition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.successanimation))
+    val successProgress by animateLottieCompositionAsState(
+        composition = successComposition,
+        iterations = LottieConstants.IterateForever
+    )
+
+    AlertDialog(
+        onDismissRequest = onDismissRequest,
+        confirmButton = {
+            Button(
+                onClick = onConfirmation,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF3B9A94),
+                    contentColor = Color.White
+                )
+            ) {
+                Text("Continue Shopping")
+            }
+        },
+        icon = {
+            LottieAnimation(
+                composition = successComposition,
+                progress = { successProgress },
+                modifier = Modifier.size(100.dp)
+            )
+        },
+        title = {
+            Text("Order Placed!", color = Color.Black)
+        },
+        text = {
+            Text(
+                text = "Your order has been placed successfully.",
+                color = Color.DarkGray
+            )
+        },
+        modifier = Modifier.padding(16.dp),
+        shape = RoundedCornerShape(16.dp),
+        containerColor = Color.White,
+        iconContentColor = Color(0xFF4CAF50), // green
+        titleContentColor = Color.Black,
+        textContentColor = Color.DarkGray,
+        tonalElevation = 8.dp,
+        properties = DialogProperties(
+            dismissOnBackPress = false,
+            dismissOnClickOutside = false
+        )
+    )
+}
+
 
 private fun mapLineItemToCreateLineItem(lineItems: List<LineItem>): List<CreateLineItem> {
     return lineItems.map { lineItem ->

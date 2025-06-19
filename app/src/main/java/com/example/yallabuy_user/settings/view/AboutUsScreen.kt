@@ -2,16 +2,20 @@ package com.mariammuhammad.yallabuy.View.Settings
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -33,17 +37,41 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.yallabuy_user.R
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AboutUsScreen(
-    onNavigateBack: () -> Unit = {}
+    onNavigateBack: () -> Unit = {},
+    setTopBar: ((@Composable () -> Unit)) -> Unit
 ) {
-    Scaffold(
-        topBar = {
-            AboutUsTopAppBar(onNavigateBack = onNavigateBack)
-        },
-        containerColor = Color.White
-    ) { paddingValues ->
-        AboutUsContent(paddingValues = paddingValues, function = {
+    setTopBar {
+        CenterAlignedTopAppBar(
+            title = { Text("About Us") },
+            colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                containerColor = colorResource(R.color.teal_80)
+            ),
+            navigationIcon = {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Start
+                ) {
+                    IconButton(onClick = onNavigateBack) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
+                            contentDescription = "Back"
+                        )
+                    }
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_app),
+                        contentDescription = "App Icon",
+                        tint = Color.Unspecified,
+                        //modifier = Modifier.padding(start = 5.dp)
+                    )
+                }
+            }
+
+        )
+    }
+        AboutUsContent( function = {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -55,34 +83,13 @@ fun AboutUsScreen(
             }
         })
     }
-}
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun AboutUsTopAppBar(onNavigateBack: () -> Unit) {
-    TopAppBar(
-        title = { Text("About Us", color = Color.White, fontWeight = FontWeight.Bold) },
-        navigationIcon = {
-            IconButton(onClick = onNavigateBack) {
-                Icon(
-                    imageVector = Icons.Filled.ArrowBack,
-                    contentDescription = "Back",
-                    tint = Color.White
-                )
-            }
-        },
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = colorResource(R.color.dark_blue)
-        )
-    )
-}
 
 @Composable
-fun AboutUsContent(paddingValues: PaddingValues, function: @Composable () -> Unit) {
+fun AboutUsContent( function: @Composable () -> Unit) {
     Column(
         modifier = Modifier
-            .padding(paddingValues)
-            //.padding(16.dp)
+            .padding(6.dp)
             .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally 
     ) {
@@ -121,25 +128,3 @@ fun AboutUsContent(paddingValues: PaddingValues, function: @Composable () -> Uni
 }
 
 
-@Preview(showBackground = true, name = "About Us Preview")
-@Composable
-fun AboutUsScreenPreview() {
-    Scaffold(
-        topBar = {
-            AboutUsTopAppBar(onNavigateBack = {})
-        },
-        containerColor = Color.White
-    ) { paddingValues ->
-        AboutUsContent(paddingValues = paddingValues) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(200.dp)
-                    .background(Color.LightGray),
-                contentAlignment = Alignment.Center
-            ) {
-                Text("Image Placeholder", color = Color.DarkGray)
-            }
-        }
-    }
-}

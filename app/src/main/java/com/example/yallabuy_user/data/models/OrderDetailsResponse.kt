@@ -39,8 +39,8 @@ data class CreateOrder(
     val transactions: List<CreateTransaction>,
     @SerializedName("financial_status")
     val financialStatus: String,
-    @SerializedName("fulfillment_status")
-    val fulfillmentStatus: String,
+//    @SerializedName("fulfillment_status")
+//    val fulfillmentStatus: String,
     @SerializedName("send_receipt")
     val sendReceipt: Boolean,
     @SerializedName("send_fulfillment_receipt")
