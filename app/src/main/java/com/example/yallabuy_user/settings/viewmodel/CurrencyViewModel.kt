@@ -13,13 +13,13 @@ import kotlinx.coroutines.launch
 
 class CurrencyViewModel(
     private val repository: ICurrencyRepository
-) : ViewModel() {
+) : ViewModel(), ICurrencyViewModel {
 
     private val _currencyState = MutableStateFlow<ApiResponse<Double>>(ApiResponse.Loading)
-    val currencyState: StateFlow<ApiResponse<Double>> = _currencyState
+    override val currencyState: StateFlow<ApiResponse<Double>> = _currencyState
 
     private val _selectedCurrency = MutableStateFlow(CurrencyPreferenceManager.DEFAULT_CURRENCY)
-    val selectedCurrency: StateFlow<String> = _selectedCurrency
+    override val selectedCurrency: StateFlow<String> = _selectedCurrency
 
     init {
         viewModelScope.launch {
@@ -33,7 +33,7 @@ class CurrencyViewModel(
         }
     }
 
-    fun selectCurrency(currencyCode: String) {
+    override fun selectCurrency(currencyCode: String) {
         viewModelScope.launch {
             _currencyState.value = ApiResponse.Loading
             try {

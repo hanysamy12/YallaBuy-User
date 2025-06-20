@@ -19,32 +19,32 @@ import kotlinx.coroutines.launch
 
 class AddressViewModel(
     private val repository: RepositoryInterface,
-    ) : ViewModel() {
+    ) : ViewModel(), IAddressViewModel {
 
     private val _addressState = MutableStateFlow<ApiResponse<AddressesResponse>>(ApiResponse.Loading)
-    val addressState: StateFlow<ApiResponse<AddressesResponse>> = _addressState.asStateFlow()
+    override val addressState: StateFlow<ApiResponse<AddressesResponse>> = _addressState.asStateFlow()
 
-    private val _addressesList = MutableStateFlow<List<Address>>(emptyList())
-     val addressesList = _addressesList.asStateFlow()
+    val _addressesList = MutableStateFlow<List<Address>>(emptyList())
+     override val addressesList = _addressesList.asStateFlow()
 
     private val _singleAddressState = MutableStateFlow<ApiResponse<NewAddressResponse>>(ApiResponse.Loading)
-    val singleAddressState: StateFlow<ApiResponse<NewAddressResponse>> = _singleAddressState.asStateFlow()
+    override val singleAddressState: StateFlow<ApiResponse<NewAddressResponse>> = _singleAddressState.asStateFlow()
 
     private val _createUpdateState = MutableStateFlow<ApiResponse<NewAddressResponse>>(ApiResponse.Loading)
-    val createUpdateState: StateFlow<ApiResponse<NewAddressResponse>> = _createUpdateState.asStateFlow()
+    override val createUpdateState: StateFlow<ApiResponse<NewAddressResponse>> = _createUpdateState.asStateFlow()
 
     private val _deleteState = MutableStateFlow<ApiResponse<Unit>>(ApiResponse.Loading)
-    val deleteState: StateFlow<ApiResponse<Unit>> = _deleteState.asStateFlow()
+    override val deleteState: StateFlow<ApiResponse<Unit>> = _deleteState.asStateFlow()
 
     private var customerId: Long =0L
 
-      fun  setCustomerId(id: Long) {
+      override fun  setCustomerId(id: Long) {
             customerId = id
         }
 
-    fun getCustomerId() = customerId
+    override fun getCustomerId() = customerId
 
-    fun getAddresses() {
+    override fun getAddresses() {
         viewModelScope.launch {
             _addressState.value = ApiResponse.Loading
             repository.getAddresses(customerId)
@@ -58,13 +58,13 @@ class AddressViewModel(
         }
     }
 
-    fun createAddress(addressBody: AddressBody) {
+    override fun createAddress(addressBody: AddressBody) {
         if (customerId == 0L) {
-            Log.e("AddressViewModel", "CustomerId not set before creating address!")
+            //Log.e("AddressViewModel", "CustomerId not set before creating address!")
             return
         }
         viewModelScope.launch {
-            Log.i("TAG", "createAddress: $addressBody")
+            //Log.i("TAG", "createAddress: $addressBody")
             _createUpdateState.value = ApiResponse.Loading
 
             repository.createCustomerAddress(customerId, addressBody)
@@ -86,7 +86,7 @@ class AddressViewModel(
         }
     }
 
-    fun updateAddress( addressId: Long, updatedAddressBody: AddressBody) {
+    override fun updateAddress(addressId: Long, updatedAddressBody: AddressBody) {
         viewModelScope.launch {
             _createUpdateState.value = ApiResponse.Loading
             repository.updateCustomerAddress(customerId, addressId, updatedAddressBody)
@@ -107,7 +107,7 @@ class AddressViewModel(
         }
     }
 
-    fun deleteAddress(addressId: Long) {
+    override fun deleteAddress(addressId: Long) {
         viewModelScope.launch {
             _deleteState.value = ApiResponse.Loading
             try {
@@ -121,7 +121,7 @@ class AddressViewModel(
             }
         }
     }
-    fun setDefaultAddress(selectedAddress: Address) {
+    override fun setDefaultAddress(selectedAddress: Address) {
         viewModelScope.launch {
             if (selectedAddress.default) return@launch
 
