@@ -222,6 +222,7 @@ class Repository(private val remoteDataSource: RemoteDataSourceInterface) : Repo
     }
 
     override suspend fun deleteDraftOrderCart(id: Long): Flow<Unit> {
+        Log.i("newOrder", "deleteDraftOrderCart in repo  ")
         return remoteDataSource.deleteDraftOrder(id)
     }
 
