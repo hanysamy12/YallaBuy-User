@@ -3,10 +3,12 @@ package com.example.yallabuy_user.cart.viewmodel
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.yallabuy_user.data.models.cart.CustomerTagUpdate
 import com.example.yallabuy_user.data.models.cart.DraftOrderBody
 import com.example.yallabuy_user.data.models.cart.DraftOrderCart
 import com.example.yallabuy_user.data.models.cart.DraftOrderResponse
 import com.example.yallabuy_user.data.models.cart.LineItem
+import com.example.yallabuy_user.data.models.cart.UpdateCustomerBody
 import com.example.yallabuy_user.repo.RepositoryInterface
 import com.example.yallabuy_user.utilities.ApiResponse
 import com.example.yallabuy_user.utilities.Currency
@@ -44,7 +46,7 @@ class CartViewModel(private val cartRepository: RepositoryInterface,
     val preferredCurrency: StateFlow<Currency> = _preferredCurrency
 
 
-    fun fetchCartByDraftOrderId(draftOrderId: Long) {
+    private fun fetchCartByDraftOrderId(draftOrderId: Long) {
         viewModelScope.launch {
             _cartState.value = ApiResponse.Loading
             try {
@@ -73,7 +75,8 @@ class CartViewModel(private val cartRepository: RepositoryInterface,
                     if (draftOrderId != null) {
                         fetchCartByDraftOrderId(draftOrderId)
                     } else {
-                        _cartState.value = ApiResponse.Failure(Throwable("No cart associated with customer"))
+                      // _cartState.emit(ApiResponse.Success(data = ))
+                        _draftOrders.emit(ApiResponse.Success(DraftOrderResponse(emptyList())))
                     }
                 }
             } catch (e: Exception) {
@@ -148,22 +151,22 @@ class CartViewModel(private val cartRepository: RepositoryInterface,
         }
     }
 
-    fun removeItemFromCart(draftOrderId: Long, variantId: Long) {
+    fun removeItemFromCart(draftOrderId: Long, variantId: Long , customerId : Long) {
         viewModelScope.launch {
             val currentDraft =
                 (_draftOrders.value as? ApiResponse.Success)?.data?.draftOrderCarts?.firstOrNull { it.id == draftOrderId }
             currentDraft?.let { draft ->
                 val updatedLineItems =
                     draft.lineItems.filter { it.variantID != variantId }.toMutableList()
-
-                _cartState.value = ApiResponse.Loading
-
                 if (updatedLineItems.isEmpty()) {
                     cartRepository.deleteDraftOrderCart(draftOrderId)
                         .catch { e -> _cartState.value = ApiResponse.Failure(e) }
                         .collect {
                             _cartState.value = ApiResponse.Success(DraftOrderBody(draft))
                             removeLocalDraftOrder(draftOrderId)
+                            cartRepository.updateCustomerTags(customerId , UpdateCustomerBody(
+                                CustomerTagUpdate(customerId , "")
+                            ))
                         }
                 } else {
                     val updatedDraftOrder = DraftOrderBody(draft.copy(lineItems = updatedLineItems))

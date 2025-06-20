@@ -2,6 +2,7 @@ package com.example.yallabuy_user.cart.view
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -65,25 +66,19 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun CartScreen(
     navController: NavController,
-    homeViewModel: HomeViewModel = koinViewModel(),
-    cartViewModel: CartViewModel = koinViewModel()
-    , setTopBar: (@Composable () -> Unit) -> Unit
+    cartViewModel: CartViewModel = koinViewModel(), setTopBar: (@Composable () -> Unit) -> Unit
 ) {
-    val cartState by cartViewModel.cartState.collectAsState()
-    // val draftOrderId = 123456789L
     val draftOrdersState by cartViewModel.draftOrders.collectAsState()
     val showOutOfStockDialog by cartViewModel.showOutOfStockDialog.collectAsState()
     val context = LocalContext.current
     val customerId = CustomerIdPreferences.getData(context)
-    val convertedTotal by cartViewModel.cartTotalInPreferredCurrency.collectAsState()
-    val preferredCurrency by cartViewModel.preferredCurrency.collectAsState()
     val currencySymbol = Common.currencyCode.getCurrencyCode()
 
 
 
 
     LaunchedEffect(Unit) {
-        if (customerId != -1L) {
+        if (customerId != 0L) {
             cartViewModel.getCustomerByIdAndFetchCart(customerId)
         }
         setTopBar {
@@ -136,7 +131,8 @@ fun CartScreen(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(text = "Your cart is empty", fontSize = 18.sp)
+                        Image(painterResource(R.drawable.empty_cart) , contentDescription = "logo"
+                        , modifier = Modifier.size(250.dp))
                     }
                 } else {
                     val draftOrderId = draftOrders.first().id
@@ -158,8 +154,10 @@ fun CartScreen(
                                     draftOrderId = draftOrder.id ?: -1L,
                                     variantId = item.variantID,
                                     title = item.title,
-                                    price = cartViewModel.convertedPrices[item.variantID] ?: item.price,
-                                    currencySymbol = Common.currencyCode.getCurrencyCode(),                                    quantity = item.quantity.toInt(),
+                                    price = cartViewModel.convertedPrices[item.variantID]
+                                        ?: item.price,
+                                    currencySymbol = Common.currencyCode.getCurrencyCode(),
+                                    quantity = item.quantity.toInt(),
                                     imageUrl = item.properties.find {
                                         it.name.lowercase() == "image"
                                     }?.value ?: "",
@@ -178,7 +176,8 @@ fun CartScreen(
                                     onDelete = {
                                         cartViewModel.removeItemFromCart(
                                             draftOrder.id ?: -1L,
-                                            item.variantID
+                                            item.variantID ,
+                                            customerId
                                         )
                                     }
                                 )
@@ -190,28 +189,17 @@ fun CartScreen(
                         total = "$currencySymbol ${"%.2f".format(totalPrice)} ",
                         onCheckOutClicked = {
                             if (draftOrderId != null)
-                                navController.navigate(ScreenRoute.OrderCheckOut(draftOrderId, totalPrice))
+                                navController.navigate(
+                                    ScreenRoute.OrderCheckOut(
+                                        draftOrderId,
+                                        totalPrice
+                                    )
+                                )
                         },
                         itemCount = allLineItems.size
                     )
 
-                    }
-                    //    CheckoutSection(total = "${"%.2f".format(totalPrice)} EGP")
-//                    val totalItemsCount = allLineItems.sumOf { it.quantity.toInt() }
-//
-//                    val finalTotal = if (couponResult?.isValid == true)
-//                        totalPrice - couponResult!!.discountValue
-//                    else totalPrice
-
-//                    CheckoutSection(
-//                        total = "$currencySymbol ${"%.2f".format(finalTotal.coerceAtLeast(0.0))}",
-//                        itemCount = totalItemsCount,
-//                        onCheckOutClicked = {
-//                            navController.navigate(ScreenRoute.Payment(finalTotal))
-//                            // navController.navigate(ScreenRoute.OrderCheckOut(1209159713086))
-//                        }
-//                    )
-//                }
+                }
             }
         }
         if (showOutOfStockDialog) {
@@ -296,7 +284,7 @@ fun CartItemCard(
                     text = title,
                     fontWeight = FontWeight.Bold,
                     fontSize = 14.sp,
-                    color = colorResource(R.color.dark_blue)
+                    color = Color.Black
                 )
                 Spacer(modifier = Modifier.height(4.dp))
 
@@ -310,7 +298,7 @@ fun CartItemCard(
                 Text(
                     text = "Price: $currencySymbol $price",
                     fontSize = 12.sp,
-                    color = colorResource(R.color.dark_blue)
+                    color = Color.Black
                 )
             }
 
@@ -348,7 +336,7 @@ fun QuantitySelector(
 ) {
     Row(
         modifier = Modifier
-            .background(color = colorResource(R.color.dark_blue), RoundedCornerShape(8.dp))
+            .background(color = Color(0xFF3B9A94), RoundedCornerShape(8.dp))
             .padding(horizontal = 6.dp, vertical = 2.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {

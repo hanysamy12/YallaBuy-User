@@ -42,10 +42,14 @@ class ProductInfoViewModel(
     private val _isFirstProductInWishList = MutableStateFlow(false)
     val isFirstProductInWishList = _isFirstProductInWishList.asStateFlow()
 
+    private val _isFirstProductInCart = MutableStateFlow(false)
+    val isFirstProductInCart = _isFirstProductInCart.asStateFlow()
+
     private val _resetWishListSharedPreference = MutableStateFlow(false)
     val resetWishListSharedPreference = _resetWishListSharedPreference.asStateFlow()
 
     private var wishListDraftOrderIdGlobal: Long = 0L
+    private var cartDraftOrderIdGlobal: Long = 0L
     private var productIdGlobal: Long = 0L
 
     fun getProductInfoById(productId: Long) {
@@ -83,6 +87,7 @@ class ProductInfoViewModel(
                         if (tags.isBlank()) {
                             createDraftOrderCart(data, customerId)
                         } else {
+                            _isFirstProductInCart.emit(false)
                             val draftOrderId = tags.toLongOrNull()
                             if (draftOrderId != null) {
                                 addProductToCart(draftOrderId, data, customerId)
@@ -223,6 +228,9 @@ class ProductInfoViewModel(
                             tags = draftOrderId.toString()
                         )
                     )
+                    _isFirstProductInCart.emit(true)
+                    cartDraftOrderIdGlobal = draftOrderId ?: 0L
+                    Log.i("newOrder", "createDraftOrderCart id = $cartDraftOrderIdGlobal")
                     repo.updateCustomerTags(customerId, updateTagsBody).collect {
                         Log.i(
                             "cart",
@@ -414,5 +422,9 @@ class ProductInfoViewModel(
 
     }
 
+    fun getCartDraftOrderId(): Long {
+        Log.i("newOrder", "getCartDraftOrderId in view model cart id $cartDraftOrderIdGlobal ")
+        return cartDraftOrderIdGlobal
+    }
 
 }

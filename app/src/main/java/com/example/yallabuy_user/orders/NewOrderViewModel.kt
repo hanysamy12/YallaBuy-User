@@ -17,7 +17,9 @@ import com.example.yallabuy_user.data.models.CreateOrderRequest
 import com.example.yallabuy_user.data.models.CreateShippingAddress
 import com.example.yallabuy_user.data.models.CreateTransaction
 import com.example.yallabuy_user.data.models.DiscountCode
+import com.example.yallabuy_user.data.models.cart.CustomerTagUpdate
 import com.example.yallabuy_user.data.models.cart.DraftOrderCart
+import com.example.yallabuy_user.data.models.cart.UpdateCustomerBody
 import com.example.yallabuy_user.data.models.settings.Address
 import com.example.yallabuy_user.repo.RepositoryInterface
 import com.example.yallabuy_user.utilities.ApiResponse
@@ -114,10 +116,6 @@ class NewOrderViewModel(
          customerId = CustomerIdPreferences.getData(context)
          customerEmail = "honi76034@gmail.com"
         Log.i(TAG, "getCustomerData: $customerId")
-    }
-
-    private suspend fun getCurrency(context: Context) {
-        //currencyRepository.getCurrencyRate()
     }
 
     suspend fun getCustomerAddress(context: Context) {
@@ -231,40 +229,30 @@ class NewOrderViewModel(
         cartTotalInPreferredCurrency.value = converted
         return converted
     }
-}
 
-//
-//val orderRequest = CreateOrderRequest(
-//    order = CreateOrder(
-//        lineItems = listOf( //from OrderCheckoutScreen
-//            CreateLineItem(variantId = 51762978160958, quantity = 2),
-//            CreateLineItem(variantId = 51762995659070, quantity = 1)
-//        ),
-//        discountCodes = listOf(DiscountCode(code = "ZIAD40")),///from OrderCheckoutScreen
-//        shippingAddress = CreateShippingAddress( //from OrderCheckoutScreen
-//            firstName = "Hany",
-//            lastName = "Samy",
-//            address1 = "Sinoris",
-//            city = "Fayoum",
-//            country = "Egypt",
-//            phone = "+1557500033"
-//        ),
-//        customer = CreateCustomer(
-//            id = 8792449548606,
-//            email = "honi76034@gmail.com"
-//        ),//from Prefs
-//        transactions = listOf(
-//            CreateTransaction(
-//                kind = "sale",
-//                status = "success",
-//                amount = "464.00",//from OrderCheckoutScreen
-//                gateway = "credit_card"//from OrderCheckoutScreen
-//            )
-//        ),
-//        financialStatus = "paid",
-//        fulfillmentStatus = "fulfilled",
-//        sendReceipt = true,
-//        sendFulfillmentReceipt = true,
-//        currency = "EGP" //from Prefs or OrderCheckoutScreen
-//    )
-//)
+    fun removeCartDraftOrder(cartId : Long , customerId : Long){
+
+        Log.i("newOrder", "removeCartDraftOrder cart id = $cartId ")
+        Log.i("newOrder", "removeCartDraftOrder customer  id = $customerId ")
+        viewModelScope.launch {
+            try {
+                repository.deleteDraftOrderCart(cartId).catch {
+                    Log.i("newOrder", "removeCartDraftOrder in viewmodel error is ${it.message} ")
+                }.collect {
+                    Log.i("newOrder", "removeCartDraftOrder collected success ")
+                    repository.updateCustomerTags(
+                        customerId, UpdateCustomerBody(
+                            CustomerTagUpdate(
+                                customerId, ""
+                            )
+                        )
+                    ).catch {
+                        Log.i("newOrder", "updateTage in viewmodel error is ${it.message} ")
+                    }
+                }
+            }catch (e : Exception){
+                Log.i("newOrder", "removeCartDraftOrder error in view model is ${e.message} ")
+            }
+        }
+    }
+}
