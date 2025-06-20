@@ -53,6 +53,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -85,17 +87,23 @@ import java.util.Locale
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MapLocationScreen(
-    viewModel: AddressViewModel= koinViewModel(),
+    viewModel: AddressViewModel = koinViewModel(),
     locationPermissionManager: LocationPermissionManager,
     onNavigateBack: () -> Unit,
     navController: NavController,
     setTopBar: ((@Composable () -> Unit)) -> Unit,
-   // onLocationConfirmed: (Address) -> Unit
+    // onLocationConfirmed: (Address) -> Unit
 ) {
     LaunchedEffect(Unit) {
         setTopBar {
             CenterAlignedTopAppBar(
-                title = { Text("Map") },
+                title = {
+                    Text(
+                        "Map", color = Color.White,
+                        fontFamily = FontFamily(Font(R.font.caprasimo_regular)),
+                        fontWeight = FontWeight.Bold
+                    )
+                },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                     containerColor = colorResource(R.color.teal_80)
                 ),
@@ -228,7 +236,7 @@ fun MapLocationScreen(
     }
 
     LaunchedEffect(Unit) {
-        if (!PermissionUtils.checkPermission(context)){
+        if (!PermissionUtils.checkPermission(context)) {
             launcher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
         }
     }
@@ -357,26 +365,11 @@ fun MapLocationScreen(
     }
 
     Scaffold(
-//        topBar = {
-//            TopAppBar(
-//                title = { Text("Select delivery location", color = Color.White) },
-//                navigationIcon = {
-//                    IconButton(onClick = onNavigateBack) {
-//                        Icon(
-//                            imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-//                            contentDescription = "Back",
-//                            tint = Color.White
-//                        )
-//                    }
-//                },
-//                colors = TopAppBarDefaults.topAppBarColors(
-//                    containerColor = colorResource(id = R.color.dark_blue)
-//                )
-//            )
-//        }
+
     ) { paddingValues ->
         Box(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                .fillMaxSize()
                 .padding(paddingValues)
         ) {
 
@@ -458,7 +451,7 @@ fun MapLocationScreen(
                                 "&city=${Uri.encode(city)}" +
                                 "&country=${Uri.encode(country)}"
                     )
-                          },
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp)

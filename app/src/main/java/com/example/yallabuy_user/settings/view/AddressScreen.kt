@@ -60,6 +60,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -77,10 +79,11 @@ import org.koin.androidx.compose.koinViewModel
 fun AddressScreen(
     customerId: Long,
     onNavigateBack: () -> Unit = {},
-    onNavigateToMap:() -> Unit,
+    onNavigateToMap: () -> Unit,
     setTopBar: ((@Composable () -> Unit)) -> Unit
 ) {
-    val viewModel: AddressViewModel = koinViewModel()// remember { AddressViewModel(getKoin(), customerId) }
+    val viewModel: AddressViewModel =
+        koinViewModel()// remember { AddressViewModel(getKoin(), customerId) }
     viewModel.setCustomerId(customerId)
 
     val addressState by viewModel.addressState.collectAsState()
@@ -98,7 +101,13 @@ fun AddressScreen(
         viewModel.getAddresses()
         setTopBar {
             CenterAlignedTopAppBar(
-                title = { Text("Address") },
+                title = {
+                    Text(
+                        "Address", color = Color.White,
+                        fontFamily = FontFamily(Font(R.font.caprasimo_regular)),
+                        fontWeight = FontWeight.Bold
+                    )
+                },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                     containerColor = colorResource(R.color.teal_80)
                 ),
@@ -183,7 +192,6 @@ fun AddressScreen(
 }
 
 
-
 @Composable
 fun AddressScreenContent(
     addressState: ApiResponse<AddressesResponse>,
@@ -224,9 +232,9 @@ fun AddressScreenContent(
 
                     AddressList(
                         addresses = viewModel.addressesList.collectAsState().value,
-                        onEditAddress =  onEditAddress ,
+                        onEditAddress = onEditAddress,
                         onDeleteAddress = { viewModel.deleteAddress(it) },
-                        onSetDefault = {  address -> viewModel.setDefaultAddress(address)  }
+                        onSetDefault = { address -> viewModel.setDefaultAddress(address) }
                     )
                 }
             }
@@ -369,7 +377,7 @@ fun EditAddressDialog(
         "Red Sea", "Fayoum", "Beni Suef", "Minya", "Assiut", "Sohag",
         "Qena", "Luxor", "Aswan", "New Valley (El Wadi El Gedid)", "Matrouh"
     )
-    var country= "Egypt" //by remember { mutableStateOf(address?.country ?: "") }
+    var country = "Egypt" //by remember { mutableStateOf(address?.country ?: "") }
     var fullAddress by remember { mutableStateOf(address?.fullAddress ?: "") }
     var isDefault by remember { mutableStateOf(address?.default ?: false) }
 
