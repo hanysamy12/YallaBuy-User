@@ -210,9 +210,9 @@ fun LoginScreen(
             }
         }
         if (loginUser) {
-            Log.i("customer", "LoginScreen id = ${customerData?.customers?.get(0)?.id} ")
             if (customerData != null) {
                 CustomerIdPreferences.saveCustomerID(context, customerData.customers[0].id)
+                CustomerIdPreferences.saveCustomerName(context , customerData.customers[0].first_name)
                 navController.navigate(ScreenRoute.Home.route)
             }
         }

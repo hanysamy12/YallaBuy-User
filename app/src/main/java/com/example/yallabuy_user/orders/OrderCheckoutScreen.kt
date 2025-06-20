@@ -40,6 +40,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -58,6 +59,9 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.DialogProperties
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
@@ -65,6 +69,8 @@ import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.yallabuy_user.R
+import com.example.yallabuy_user.authentication.login.CustomerIdPreferences
+import com.example.yallabuy_user.cart.viewmodel.CartSharedPreference
 import com.example.yallabuy_user.data.models.CreateLineItem
 import com.example.yallabuy_user.data.models.CreateShippingAddress
 import com.example.yallabuy_user.data.models.cart.LineItem
@@ -112,6 +118,8 @@ fun OrderCheckoutScreen(
     var shippingAddress = CreateShippingAddress(id = -1L)
     var totalCost by remember { mutableStateOf("") }
     var isCash by remember { mutableStateOf(true) }
+  //  val newOrdersViewModel = LocalOrdersViewModel.current
+    val customerId = CustomerIdPreferences.getData(context)
 
 
     val launcher = rememberLauncherForActivityResult(
@@ -186,284 +194,269 @@ fun OrderCheckoutScreen(
             totalCost = "%.2f".format(displayedTotal)
             createLineItems = mapLineItemToCreateLineItem(order.lineItems)
 
-            // getWay = if (isCash) "cash" else "online" // Name of Provider
-            // paymentStatus = if (isCash) "pending" else "paid"
-            // totalPayment = if (!isCash) totalCost else "00.01"
-            Column(
-                modifier = Modifier
-                    //.fillMaxWidth()
-                    .fillMaxSize()
-                    .padding(vertical = 12.dp, horizontal = 12.dp)
-                    .verticalScroll(rememberScrollState())
-            ) {
+            CompositionLocalProvider(LocalOrdersViewModel provides viewModel) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(vertical = 12.dp, horizontal = 12.dp)
+                        .verticalScroll(rememberScrollState())
+                ) {
 
-                Spacer(modifier = Modifier.height(10.dp))
-                Text("Shipping Address", fontWeight = FontWeight.Bold, fontSize = 22.sp)
-                when (uiAddressState.value) {
-                    is ApiResponse.Failure -> {
-                        Text((uiAddressState.value as ApiResponse.Failure).toString())
-                        shippingAddress = CreateShippingAddress(id = -1L)
-                    }
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Text("Shipping Address", fontWeight = FontWeight.Bold, fontSize = 22.sp)
+                    when (uiAddressState.value) {
+                        is ApiResponse.Failure -> {
+                            Text((uiAddressState.value as ApiResponse.Failure).toString())
+                            shippingAddress = CreateShippingAddress(id = -1L)
+                        }
 
-                    ApiResponse.Loading -> {
-                        shippingAddress = CreateShippingAddress(id = -1L)
-                    }
+                        ApiResponse.Loading -> {
+                            shippingAddress = CreateShippingAddress(id = -1L)
+                        }
 
-                    is ApiResponse.Success -> {
-                        val addresses = (uiAddressState.value as ApiResponse.Success).data
-                        Log.i(TAG, "OrderCheckoutScreen: $addresses")
-                        shippingAddress = CreateShippingAddress(id = addresses.first().id)
-                        DropdownField(
-                            label = "Select Address",
-                            selected = addresses.first().city,
-                            options = addresses
-                        ) {
-                            shippingAddress = CreateShippingAddress(id = it)
+                        is ApiResponse.Success -> {
+                            val addresses = (uiAddressState.value as ApiResponse.Success).data
+                            Log.i(TAG, "OrderCheckoutScreen: $addresses")
+                            shippingAddress = CreateShippingAddress(id = addresses.first().id)
+                            DropdownField(
+                                label = "Select Address",
+                                selected = addresses.first().city,
+                                options = addresses
+                            ) {
+                                shippingAddress = CreateShippingAddress(id = it)
+                            }
                         }
                     }
-                }
 
-                Spacer(modifier = Modifier.height(10.dp))
-                Text("Coupons", fontWeight = FontWeight.Bold, fontSize = 22.sp)
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    CouponTextField(
-                        value = couponCode,
-                        onValueChange = { couponCode = it },
-                        errorMessage = errorMessage
-                    )
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Text("Coupons", fontWeight = FontWeight.Bold, fontSize = 22.sp)
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        CouponTextField(
+                            value = couponCode,
+                            onValueChange = { couponCode = it },
+                            errorMessage = errorMessage
+                        )
 
-                    Button(
-                        onClick = {
-                            if (couponCode.isBlank()) {
-                                errorMessage = "Coupon code cannot be empty"
-                            } else {
-                                errorMessage = ""
-                                Log.i(TAG, "OrderCheckoutScreen: $couponCode")
-                                // call verification
-                                viewModel.validateCoupon(
-                                    code = couponCode,
-                                    cartTotal = cartTotal
+                        Button(
+                            onClick = {
+                                if (couponCode.isBlank()) {
+                                    errorMessage = "Coupon code cannot be empty"
+                                } else {
+                                    errorMessage = ""
+                                    Log.i(TAG, "OrderCheckoutScreen: $couponCode")
+                                    // call verification
+                                    viewModel.validateCoupon(
+                                        code = couponCode,
+                                        cartTotal = cartTotal
+                                    )
+                                }
+                            }, modifier = Modifier, shape = RoundedCornerShape(8.dp)
+
+                        ) {
+                            Text("Validate")
+                        }
+                    }
+                    couponResult?.let { result ->
+                        Text(
+                            text = result.message,
+                            color = if (result.isValid) Color(0xFF2E7D32) else Color.Red,
+                            fontSize = 14.sp,
+                            modifier = Modifier.padding(top = 4.dp)
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text("Total Cost", fontSize = 22.sp, fontWeight = FontWeight.Bold)
+                        if (couponResult?.isValid == true) {
+                            Column(horizontalAlignment = Alignment.End) {
+                                Text( //cartTotal
+                                    text = "$currencySymbol ${"%.2f".format(cartTotal)}",
+                                    fontSize = 18.sp,
+                                    color = Color.Gray,
+                                    textDecoration = TextDecoration.LineThrough
+                                )
+                                Text(
+                                    "$currencySymbol $totalCost",
+                                    fontSize = 22.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color(0xFF2E7D32)
                                 )
                             }
-                        }, modifier = Modifier, shape = RoundedCornerShape(8.dp)
-
-                    ) {
-                        Text("Validate")
-                    }
-                }
-                couponResult?.let { result ->
-                    Text(
-                        text = result.message,
-                        color = if (result.isValid) Color(0xFF2E7D32) else Color.Red,
-                        fontSize = 14.sp,
-                        modifier = Modifier.padding(top = 4.dp)
-                    )
-                }
-                Spacer(modifier = Modifier.height(10.dp))
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 4.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text("Total Cost", fontSize = 22.sp, fontWeight = FontWeight.Bold)
-                    if (couponResult?.isValid == true) {
-                        Column(horizontalAlignment = Alignment.End) {
-                            Text( //cartTotal
-                                text = "$currencySymbol ${"%.2f".format(cartTotal)}",
-                                fontSize = 18.sp,
-                                color = Color.Gray,
-                                textDecoration = TextDecoration.LineThrough
-                            )
+                        } else {
                             Text(
-                                "$currencySymbol $totalCost",
+                                "${"%.2f".format(cartTotal)} $currencySymbol",
                                 fontSize = 22.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = Color(0xFF2E7D32)
+                                fontWeight = FontWeight.Bold
                             )
                         }
-                    } else {
-                        Text(
-                            "${"%.2f".format(cartTotal)} $currencySymbol",
-                            fontSize = 22.sp,
-                            fontWeight = FontWeight.Bold
-                        )
+
                     }
 
-                }
-
-                HorizontalDivider()
-                Spacer(modifier = Modifier.height(10.dp))
-                Text("Payment Options", fontWeight = FontWeight.Bold, fontSize = 22.sp)
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 4.dp),
-                    horizontalArrangement = Arrangement.SpaceAround,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
+                    HorizontalDivider()
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Text("Payment Options", fontWeight = FontWeight.Bold, fontSize = 22.sp)
                     Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp),
+                        horizontalArrangement = Arrangement.SpaceAround,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        RadioButton(
-                            selected = isCash, onClick = {
-                                //isCash = !isCash
-                                isCash = true
-                                //
-                            })
-                        Text("Cash")
-                    }
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        RadioButton(
-                            selected = !isCash, onClick = {
-                                isCash = false
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            RadioButton(
+                                selected = isCash, onClick = {
+                                    //isCash = !isCash
+                                    isCash = true
+                                    //
+                                })
+                            Text("Cash")
+                        }
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            RadioButton(
+                                selected = !isCash, onClick = {
+                                    isCash = false
 
-                                // val formattedPrice = totalCost //"%.2f".format(cartTotal)
-                            }
-                        )
-                        Text("Online")
-                    }
-
-                }
-
-                HorizontalDivider()
-                Spacer(modifier = Modifier.height(10.dp))
-
-                Spacer(modifier = Modifier.height(10.dp))
-                Button(
-                    onClick = {
-                        //check if cash exceeded 5000 show him a dialog you have
-
-                        val totalValue = convertedTotal ?: discountedTotal
-                        //     val totalValue = displayedTotal
-
-                        //      val egpToPreferredRate = viewModel.getConversionRate("EGP") ?: 1.0
-                        //    val cashLimit = 5000.0 * egpToPreferredRate
-
-                        if (isCash && totalValue > 5000.0) {
-                            showCashLimitDialog = true
-                        } else {
-                            if (isCash) {
-                                coroutineScope.launch {
-                                    viewModel.postNewOrder(
-                                        items = createLineItems,
-                                        discountCode = couponCode,
-                                        shippingAddress = shippingAddress,
-                                        amount = totalCost,
-                                        getWay = "cash",
-                                        financialStatus = "pending",
-                                        context = context
-                                    )
-                                    showSuccessDialog = true
+                                    // val formattedPrice = totalCost //"%.2f".format(cartTotal)
                                 }
-                            } else {
-                                try {
-                                    val paymentRequestJson =
-                                        PaymentsUtil.getGooglePayRequest(totalCost)
-                                    val request =
-                                        PaymentDataRequest.fromJson(paymentRequestJson.toString())
-                                    if (activity != null) {
-                                        val paymentsClient =
-                                            PaymentsUtil.PaymentsClientFactory.getPaymentsClient(
-                                                context
-                                            )
-                                        val task = paymentsClient.loadPaymentData(request)
+                            )
+                            Text("Online")
+                        }
 
-                                        task.addOnCompleteListener { completedTask ->
-                                            try {
-                                                val exception = completedTask.exception
-                                                if (exception is ResolvableApiException) {
-                                                    val intentSenderRequest =
-                                                        IntentSenderRequest.Builder(exception.resolution)
-                                                            .build()
-                                                    launcher.launch(intentSenderRequest)
-                                                } else {
+                    }
+
+                    HorizontalDivider()
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Button(
+                        onClick = {
+                            val totalValue = convertedTotal ?: discountedTotal
+
+                            if (isCash && totalValue > 5000.0) {
+                                showCashLimitDialog = true
+                            } else {
+                                if (isCash) {
+                                    coroutineScope.launch {
+                                        viewModel.postNewOrder(
+                                            items = createLineItems,
+                                            discountCode = couponCode,
+                                            shippingAddress = shippingAddress,
+                                            amount = totalCost,
+                                            getWay = "cash",
+                                            financialStatus = "pending",
+                                            context = context
+                                        )
+                                        showSuccessDialog = true
+                                    }
+                                } else {
+                                    try {
+                                        val paymentRequestJson =
+                                            PaymentsUtil.getGooglePayRequest(totalCost)
+                                        val request =
+                                            PaymentDataRequest.fromJson(paymentRequestJson.toString())
+                                        if (activity != null) {
+                                            val paymentsClient =
+                                                PaymentsUtil.PaymentsClientFactory.getPaymentsClient(
+                                                    context
+                                                )
+                                            val task = paymentsClient.loadPaymentData(request)
+
+                                            task.addOnCompleteListener { completedTask ->
+                                                try {
+                                                    val exception = completedTask.exception
+                                                    if (exception is ResolvableApiException) {
+                                                        val intentSenderRequest =
+                                                            IntentSenderRequest.Builder(exception.resolution)
+                                                                .build()
+                                                        launcher.launch(intentSenderRequest)
+                                                    } else {
+                                                        Toast.makeText(
+                                                            context,
+                                                            "Google Pay failed",
+                                                            Toast.LENGTH_SHORT
+                                                        ).show()
+                                                    }
+                                                } catch (e: Exception) {
                                                     Toast.makeText(
                                                         context,
-                                                        "Google Pay failed",
+                                                        "Error with Google Pay",
                                                         Toast.LENGTH_SHORT
                                                     ).show()
                                                 }
-                                            } catch (e: Exception) {
-                                                Toast.makeText(
-                                                    context,
-                                                    "Error with Google Pay",
-                                                    Toast.LENGTH_SHORT
-                                                ).show()
                                             }
                                         }
+                                    } catch (e: Exception) {
+                                        Toast.makeText(
+                                            context,
+                                            "Payment setup failed",
+                                            Toast.LENGTH_SHORT
+                                        )
+                                            .show()
                                     }
-                                } catch (e: Exception) {
-                                    Toast.makeText(
-                                        context,
-                                        "Payment setup failed",
-                                        Toast.LENGTH_SHORT
-                                    )
-                                        .show()
                                 }
                             }
-                        }
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(56.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF3B9A94), contentColor = Color.White
-                    )
-                ) {
-                    Text(
-                        "CheckOut",
-                        fontSize = 22.sp,
-                        fontWeight = FontWeight.Bold,
-                        textAlign = TextAlign.Center
-                    )
-                }
-
-                if (showCashLimitDialog) {
-                    AlertDialog(
-                        onDismissRequest = { showCashLimitDialog = false },
-                        confirmButton = {
-                            TextButton(onClick = { showCashLimitDialog = false }) {
-                                Text("OK")
-                            }
                         },
-                        title = { Text("Cash Payment Limit") },
-                        text = {
-                            Text(
-                                "You cannot pay this amount using cash. " +
-                                        "Please choose an online payment method.\n\nThank you for your understanding."
-                            )
-                        }
-                    )
-                }
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(56.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFF3B9A94), contentColor = Color.White
+                        )
+                    ) {
+                        Text(
+                            "CheckOut",
+                            fontSize = 22.sp,
+                            fontWeight = FontWeight.Bold,
+                            textAlign = TextAlign.Center
+                        )
+                    }
 
-                if (showSuccessDialog) {
-                    OrderSuccessDialog(
-                        onDismissRequest = { showSuccessDialog = false },
-                        onConfirmation = {
-                            showSuccessDialog = false
-                            navController.popBackStack()
-                        })
-//                    AlertDialog(
-//                        onDismissRequest = { showSuccessDialog = false },
-//                        confirmButton = {
-//                            TextButton(onClick = {
-//                                showSuccessDialog = false
-//                                //We need to delete that from draft order
-//                            }) {
-//                                Text("OK")
-//                            }
-//                        },
-//                        title = { Text("Order Placed") },
-//                        text = { Text("You have successfully placed your order.\nThank you for shopping with us!") }
-//                    )
+                    if (showCashLimitDialog) {
+                        AlertDialog(
+                            onDismissRequest = { showCashLimitDialog = false },
+                            confirmButton = {
+                                TextButton(onClick = { showCashLimitDialog = false }) {
+                                    Text("OK")
+                                }
+                            },
+                            title = { Text("Cash Payment Limit") },
+                            text = {
+                                Text(
+                                    "You cannot pay this amount using cash. " +
+                                            "Please choose an online payment method.\n\nThank you for your understanding."
+                                )
+                            }
+                        )
+                    }
+
+                    if (showSuccessDialog) {
+                        Log.i("newOrder", "OrderSuccessDialog cart id ${CartSharedPreference.getCartId(context)} ")
+                        viewModel.removeCartDraftOrder(
+                            CartSharedPreference.getCartId(
+                                context
+                            ), customerId
+                        )
+                        OrderSuccessDialog(
+                            onDismissRequest = { showSuccessDialog = false },
+                            onConfirmation = {
+                                showSuccessDialog = false
+                                navController.popBackStack()
+                            })
+                    }
                 }
             }
         }
@@ -538,12 +531,14 @@ fun OrderSuccessDialog(
         composition = successComposition,
         iterations = LottieConstants.IterateForever
     )
-
+    val context = LocalContext.current
     AlertDialog(
         onDismissRequest = onDismissRequest,
         confirmButton = {
             Button(
-                onClick = onConfirmation,
+                onClick = {
+                            onConfirmation()
+                },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color(0xFF3B9A94),
                     contentColor = Color.White

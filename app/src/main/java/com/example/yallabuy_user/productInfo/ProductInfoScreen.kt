@@ -79,6 +79,7 @@ import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.yallabuy_user.R
 import com.example.yallabuy_user.authentication.login.CustomerIdPreferences
 import com.example.yallabuy_user.authentication.login.LoginScreen
+import com.example.yallabuy_user.cart.viewmodel.CartSharedPreference
 import com.example.yallabuy_user.wish.WishListIdPref
 
 import com.example.yallabuy_user.cart.viewmodel.CartViewModel
@@ -102,11 +103,13 @@ fun ProductInfoScreen(
 
     val productInfo = productInfoViewModel.productInfo.collectAsState().value
     val showSignUpDialog = cartViewModel.showSignUpDialog.collectAsState()
-    val resetWishListSharedPreference = productInfoViewModel.resetWishListSharedPreference.collectAsState().value
+    val resetWishListSharedPreference =
+        productInfoViewModel.resetWishListSharedPreference.collectAsState().value
+    val isFirstProductInCart = productInfoViewModel.isFirstProductInCart.collectAsState()
+
     val context = LocalContext.current
 
     LaunchedEffect(productId) {
-        Log.i("info", "ProductInfoScreen in the launchedEffect ")
         productInfoViewModel.getProductInfoById(productId)
         productInfoViewModel.isAlreadySaved(WishListIdPref.getWishListId(context), productId)
         setTopBar {
@@ -127,8 +130,8 @@ fun ProductInfoScreen(
         }
     }
 
-    if (resetWishListSharedPreference){
-        WishListIdPref.saveWishListID(context , 0)
+    if (resetWishListSharedPreference) {
+        WishListIdPref.saveWishListID(context, 0)
     }
     when (productInfo) {
         is ApiResponse.Failure -> {
@@ -141,26 +144,26 @@ fun ProductInfoScreen(
 
         is ApiResponse.Success -> {
             Column {
-                CompositionLocalProvider(LocalProductInfoViewModel provides productInfoViewModel
-                    , LocalNavController provides navController) {
+                CompositionLocalProvider(
+                    LocalProductInfoViewModel provides productInfoViewModel,
+                    LocalNavController provides navController
+                ) {
                     ProductImage(productInfo.data)
                 }
                 Spacer(Modifier.height(5.dp))
-                // ProductDetail(productInfo.data)
 
                 Column(modifier = Modifier.fillMaxSize()) {
-                    //   ProductImage(productInfo.data)
                     Column(
                         modifier = Modifier
                             .weight(1f)
                             .verticalScroll(rememberScrollState())
                     ) {
                         Spacer(Modifier.height(5.dp))
+                        CompositionLocalProvider(LocalProductInfoViewModel provides productInfoViewModel) {
                             ProductDetail(
                                 productInfo.data,
                                 onAddToCartClick = { draftOrder ->
-
-
+                                    Log.i("newOrder", "ProductInfoScreen before going to view model  ")
                                     productInfoViewModel.getCustomerById(
                                         customerId = CustomerIdPreferences.getData(context),
                                         data = productInfo.data, isWishlist = false
@@ -169,6 +172,7 @@ fun ProductInfoScreen(
                             )
                         }
                     }
+                }
             }
             if (showSignUpDialog.value) {
                 AlertDialog(
@@ -190,6 +194,11 @@ fun ProductInfoScreen(
                             Text("Cancel")
                         }
                     }
+                )
+            }
+            if (isFirstProductInCart.value) {
+                CartSharedPreference.saveCartID(
+                    context, productInfoViewModel.getCartDraftOrderId()
                 )
             }
         }
@@ -268,6 +277,7 @@ fun ProductDetail(
     var selectedSize by remember { mutableStateOf("") }
     var selectedColor by remember { mutableStateOf("") }
     var showMissingSelectionDialog by remember { mutableStateOf(false) }
+
     Column {
         Text(
             data?.product?.title ?: "No Title Available",
@@ -302,7 +312,7 @@ fun ProductDetail(
             )
             Button(
                 onClick = {
-
+                    Log.i("newOrder", "OrderSuccessDialog cart id ${CartSharedPreference.getCartId(context)} ")
                     if (selectedSize.isEmpty() || selectedColor.isEmpty()) {
                         showMissingSelectionDialog = true
                     } else {
@@ -332,13 +342,8 @@ fun ProductDetail(
                                             )
                                         )
                                     ),
-//                                        totalPrice = (variant.price.toDoubleOrNull()
-//                                            ?: 0.0 * productCounter).toString(),
-
-
                                     customer = Customer(
                                         CustomerIdPreferences.getData(context)
-                                        //  id = 8805732188478
                                     )
                                 )
                             )
@@ -347,14 +352,13 @@ fun ProductDetail(
                         }
                     }
                 },
-
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(80.dp)
                     .padding(horizontal = 5.dp, vertical = 10.dp),
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.Black,
+                    containerColor = Color(0xFF3B9A94),
                     contentColor = Color.White
                 )
             ) {
@@ -406,7 +410,7 @@ fun QuantitySelectorCard(
                 Icon(
                     imageVector = Icons.Default.Delete,
                     contentDescription = "Decrease",
-                    tint = Color.Black
+                    tint = Color(0xFF3B9A94)
                 )
             }
 
@@ -420,7 +424,7 @@ fun QuantitySelectorCard(
                 Icon(
                     imageVector = Icons.Default.Add,
                     contentDescription = "Increase",
-                    tint = Color.Black
+                    tint = Color(0xFF3B9A94)
                 )
             }
         }
@@ -629,7 +633,10 @@ fun HeartInCircle(
         }
     }
     if (isAlreadySaved.value || isHeartClicked.value) {
-        Log.i("saved", "isSaved ${isAlreadySaved.value} and isHeartClicked ${isHeartClicked.value} ")
+        Log.i(
+            "saved",
+            "isSaved ${isAlreadySaved.value} and isHeartClicked ${isHeartClicked.value} "
+        )
         icon = Icons.Default.Favorite
     }
     Box(
@@ -659,7 +666,7 @@ fun HeartInCircle(
         Icon(
             imageVector = icon,
             contentDescription = "Heart Icon",
-            modifier = Modifier.size(18.dp) ,
+            modifier = Modifier.size(18.dp),
         )
     }
 
@@ -750,7 +757,7 @@ fun DeleteProductAlertInProductInfo(
                         onConfirmation()
                         productInfoViewModel.deleteProductFromWishList(
                             customerId,
-                            title ?: "No title found" ,
+                            title ?: "No title found",
                             wishListId
                         )
                     }, colors = ButtonDefaults.buttonColors(
