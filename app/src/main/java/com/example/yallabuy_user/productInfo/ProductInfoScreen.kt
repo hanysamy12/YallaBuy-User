@@ -46,6 +46,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
@@ -57,6 +58,7 @@ import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -65,6 +67,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -89,6 +93,7 @@ import com.example.yallabuy_user.data.models.cart.DraftOrderBody
 import com.example.yallabuy_user.data.models.cart.LineItem
 import com.example.yallabuy_user.data.models.cart.Property
 import com.example.yallabuy_user.ui.navigation.ScreenRoute
+import kotlinx.coroutines.launch
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -98,7 +103,8 @@ fun ProductInfoScreen(
     navController: NavHostController,
     productInfoViewModel: ProductInfoViewModel = koinViewModel(),
     cartViewModel: CartViewModel = koinViewModel(),
-    setTopBar: (@Composable () -> Unit) -> Unit
+    setTopBar: (@Composable () -> Unit) -> Unit,
+    snackbarHostState: SnackbarHostState
 ) {
 
     val productInfo = productInfoViewModel.productInfo.collectAsState().value
@@ -106,15 +112,22 @@ fun ProductInfoScreen(
     val resetWishListSharedPreference =
         productInfoViewModel.resetWishListSharedPreference.collectAsState().value
     val isFirstProductInCart = productInfoViewModel.isFirstProductInCart.collectAsState()
-
+    val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
+
 
     LaunchedEffect(productId) {
         productInfoViewModel.getProductInfoById(productId)
         productInfoViewModel.isAlreadySaved(WishListIdPref.getWishListId(context), productId)
         setTopBar {
             CenterAlignedTopAppBar(
-                title = { Text("Product Details") },
+                title = {
+                    Text(
+                        "Product Details", color = Color.White,
+                        fontFamily = FontFamily(Font(R.font.caprasimo_regular)),
+                        fontWeight = FontWeight.Bold
+                    )
+                },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                     containerColor = Color(0xFF3B9A94)
                 ),
@@ -148,7 +161,9 @@ fun ProductInfoScreen(
                     LocalProductInfoViewModel provides productInfoViewModel,
                     LocalNavController provides navController
                 ) {
-                    ProductImage(productInfo.data)
+                    ProductImage(productInfo.data, showSnackBar = { message ->
+                        coroutineScope.launch { snackbarHostState.showSnackbar(message) }
+                    })
                 }
                 Spacer(Modifier.height(5.dp))
 
@@ -162,12 +177,18 @@ fun ProductInfoScreen(
                         CompositionLocalProvider(LocalProductInfoViewModel provides productInfoViewModel) {
                             ProductDetail(
                                 productInfo.data,
-                                onAddToCartClick = { draftOrder ->
-                                    Log.i("newOrder", "ProductInfoScreen before going to view model  ")
+                                onAddToCartClick = { draftOrder, message->
+                                    Log.i(
+                                        "newOrder",
+                                        "ProductInfoScreen before going to view model  "
+                                    )
+                                        coroutineScope.launch { snackbarHostState.showSnackbar(message) }
+
                                     productInfoViewModel.getCustomerById(
                                         customerId = CustomerIdPreferences.getData(context),
                                         data = productInfo.data, isWishlist = false
                                     )
+
                                 }
                             )
                         }
@@ -207,7 +228,7 @@ fun ProductInfoScreen(
 
 
 @Composable
-fun ProductImage(data: ProductInfoResponse) {
+fun ProductImage(data: ProductInfoResponse, showSnackBar: (String) -> Unit) {
     val images = data?.product?.images ?: emptyList()
     val pagerState = rememberPagerState()
 
@@ -246,7 +267,8 @@ fun ProductImage(data: ProductInfoResponse) {
                 HeartInCircle(
                     modifier = Modifier
                         .align(Alignment.TopEnd)
-                        .padding(8.dp), data
+                        .padding(8.dp), data,
+                    showSnackBar = showSnackBar
                 )
             }
         }
@@ -267,7 +289,7 @@ fun ProductImage(data: ProductInfoResponse) {
 @Composable
 fun ProductDetail(
     data: ProductInfoResponse,
-    onAddToCartClick: (DraftOrderBody) -> Unit
+    onAddToCartClick: (DraftOrderBody,String) -> Unit
 ) {
 
 
@@ -312,7 +334,10 @@ fun ProductDetail(
             )
             Button(
                 onClick = {
-                    Log.i("newOrder", "OrderSuccessDialog cart id ${CartSharedPreference.getCartId(context)} ")
+                    Log.i(
+                        "newOrder",
+                        "OrderSuccessDialog cart id ${CartSharedPreference.getCartId(context)} "
+                    )
                     if (selectedSize.isEmpty() || selectedColor.isEmpty()) {
                         showMissingSelectionDialog = true
                     } else {
@@ -348,7 +373,7 @@ fun ProductDetail(
                                 )
                             )
 
-                            onAddToCartClick(draftOrderCartObject)
+                            onAddToCartClick(draftOrderCartObject,"Product Added To Cart")
                         }
                     }
                 },
@@ -608,7 +633,8 @@ fun Price(data: ProductInfoResponse, count: Int) {
 @Composable
 fun HeartInCircle(
     modifier: Modifier = Modifier,
-    data: ProductInfoResponse
+    data: ProductInfoResponse,
+    showSnackBar: (String) -> Unit = {}
 ) {
     val productInfoViewModel = LocalProductInfoViewModel.current
     val isHeartClicked = remember { mutableStateOf(false) }
@@ -654,6 +680,7 @@ fun HeartInCircle(
                             CustomerIdPreferences.getData(context),
                             data, isWishlist = true
                         )
+                        showSnackBar("Product Added To WishList")
                     }
                 } else {
                     showGuestAlert.value = true

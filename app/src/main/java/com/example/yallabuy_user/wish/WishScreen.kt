@@ -49,6 +49,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -78,7 +80,8 @@ fun WishScreen(
 
 
     val allWishListProduct = wishListViewModel.allWishListProduct.collectAsState().value
-    val resetWishListSharedPreference = wishListViewModel.resetWishListSharedPreference.collectAsState().value
+    val resetWishListSharedPreference =
+        wishListViewModel.resetWishListSharedPreference.collectAsState().value
     val context = LocalContext.current
     val showLoading = remember { mutableStateOf(false) }
     LaunchedEffect(allWishListProduct) {
@@ -86,7 +89,13 @@ fun WishScreen(
 
         setTopBar {
             CenterAlignedTopAppBar(
-                title = { Text("Wish List") },
+                title = {
+                    Text(
+                        "Wish List", color = Color.White,
+                        fontFamily = FontFamily(Font(R.font.caprasimo_regular)),
+                        fontWeight = FontWeight.Bold
+                    )
+                },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                     containerColor = Color(0xFF3B9A94)
                 ),
@@ -102,8 +111,8 @@ fun WishScreen(
         }
     }
 
-    if(resetWishListSharedPreference){
-        WishListIdPref.saveWishListID(context , 0)
+    if (resetWishListSharedPreference) {
+        WishListIdPref.saveWishListID(context, 0)
     }
     Log.i("wishList", "WishScreen id  ${WishListIdPref.getWishListId(context)} ")
     when (allWishListProduct) {
@@ -119,15 +128,17 @@ fun WishScreen(
         is ApiResponse.Success -> {
             if (allWishListProduct.data.isNotEmpty()) {
                 WishListItems(allWishListProduct.data, navController, wishListViewModel)
-            }else {
+            } else {
                 Column(
-                    modifier = Modifier.fillMaxSize()
-                    , verticalArrangement = Arrangement.Center
-                    ,horizontalAlignment = Alignment.CenterHorizontally
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Image(
-                        painterResource(R.drawable.empty_wish_list)
-                        , contentDescription = "empty" , modifier =  Modifier.size(250.dp))
+                        painterResource(R.drawable.empty_wish_list),
+                        contentDescription = "empty",
+                        modifier = Modifier.size(250.dp)
+                    )
                 }
             }
         }

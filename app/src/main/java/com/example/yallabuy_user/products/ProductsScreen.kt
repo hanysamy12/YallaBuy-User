@@ -37,6 +37,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -69,26 +72,33 @@ fun ProductsScreen(
     var currentPrice by remember { mutableFloatStateOf(0f) }
 
 
-
     var isPriceSet by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) {
 
         setTopBar {
             CenterAlignedTopAppBar(
-                title = { Text(title?:"All Products") },
+                title = {
+                    Text(
+                        title ?: "All Products", color = Color.White,
+                        fontFamily = FontFamily(Font(R.font.caprasimo_regular)),
+                        fontWeight = FontWeight.Bold
+                    )
+                },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                     containerColor = Color(0xFF3B9A94)
                 ),
-                actions = { IconButton(
-                    onClick = {isFilterBarShown = !isFilterBarShown},
-                    content = {
-                        Icon(
-                            painter =  painterResource( R.drawable.ic_filter),
-                            contentDescription = "Search Icon"
-                        )
-                    }
+                actions = {
+                    IconButton(
+                        onClick = { isFilterBarShown = !isFilterBarShown },
+                        content = {
+                            Icon(
+                                painter = painterResource(R.drawable.ic_filter),
+                                contentDescription = "Search Icon"
+                            )
+                        }
 
-                ) }
+                    )
+                }
             )
         }
         categoryID?.let { viewModel.getCategoryProducts(categoryID) } ?: viewModel.getProducts(
@@ -138,7 +148,10 @@ fun ProductsScreen(
                     modifier = Modifier
                         .padding(horizontal = 12.dp)
                 ) {
-                    Text("Price:${currentPrice.toInt()} ${Common.currencyCode.getCurrencyCode()}", fontSize = 13.sp)
+                    Text(
+                        "Price:${currentPrice.toInt()} ${Common.currencyCode.getCurrencyCode()}",
+                        fontSize = 13.sp
+                    )
                     Slider(
                         modifier = Modifier
                             .height(22.dp),

@@ -53,6 +53,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
@@ -118,7 +120,7 @@ fun OrderCheckoutScreen(
     var shippingAddress = CreateShippingAddress(id = -1L)
     var totalCost by remember { mutableStateOf("") }
     var isCash by remember { mutableStateOf(true) }
-  //  val newOrdersViewModel = LocalOrdersViewModel.current
+    //  val newOrdersViewModel = LocalOrdersViewModel.current
     val customerId = CustomerIdPreferences.getData(context)
 
 
@@ -155,7 +157,13 @@ fun OrderCheckoutScreen(
     LaunchedEffect(Unit) {
         setTopBar {
             CenterAlignedTopAppBar(
-                title = { Text("Checkout") },
+                title = {
+                    Text(
+                        "Checkout", color = Color.White,
+                        fontFamily = FontFamily(Font(R.font.caprasimo_regular)),
+                        fontWeight = FontWeight.Bold
+                    )
+                },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                     containerColor = colorResource(R.color.teal_80)
                 )
@@ -444,7 +452,10 @@ fun OrderCheckoutScreen(
                     }
 
                     if (showSuccessDialog) {
-                        Log.i("newOrder", "OrderSuccessDialog cart id ${CartSharedPreference.getCartId(context)} ")
+                        Log.i(
+                            "newOrder",
+                            "OrderSuccessDialog cart id ${CartSharedPreference.getCartId(context)} "
+                        )
                         viewModel.removeCartDraftOrder(
                             CartSharedPreference.getCartId(
                                 context
@@ -537,7 +548,7 @@ fun OrderSuccessDialog(
         confirmButton = {
             Button(
                 onClick = {
-                            onConfirmation()
+                    onConfirmation()
                 },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color(0xFF3B9A94),

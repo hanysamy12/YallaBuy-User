@@ -31,6 +31,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.yallabuy_user.R
@@ -58,7 +61,13 @@ fun ProfileScreen(
         }
         setTopBar {
             CenterAlignedTopAppBar(
-                title = { Text("Profile") },
+                title = {
+                    Text(
+                        "Profile", color = Color.White,
+                        fontFamily = FontFamily(Font(R.font.caprasimo_regular)),
+                        fontWeight = FontWeight.Bold
+                    )
+                },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                     containerColor = Color(0xFF3B9A94)
                 ),

@@ -38,6 +38,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.yallabuy_user.R
@@ -58,7 +60,13 @@ fun CurrencyScreen(
     val availableCurrencies = listOf("USD", "EUR", "EGP", "SAR")
     setTopBar {
         CenterAlignedTopAppBar(
-            title = { Text("Currency") },
+            title = {
+                Text(
+                    "Currency", color = Color.White,
+                    fontFamily = FontFamily(Font(R.font.caprasimo_regular)),
+                    fontWeight = FontWeight.Bold
+                )
+            },
             colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                 containerColor = colorResource(R.color.teal_80)
             ),
@@ -85,27 +93,27 @@ fun CurrencyScreen(
 
         )
     }
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(6.dp)
-                .padding(horizontal = 16.dp, vertical = 8.dp)
-        ) {
-            Text(
-                text = "Choose your preferred currency",
-                style = MaterialTheme.typography.titleMedium,
-                color = colorResource(R.color.dark_blue),
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(6.dp)
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+    ) {
+        Text(
+            text = "Choose your preferred currency",
+            style = MaterialTheme.typography.titleMedium,
+            color = colorResource(R.color.dark_blue),
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
 
-            CurrencyPreferenceDropdown(
-                selectedCurrency = selectedCurrency,
-                availableCurrencies = availableCurrencies,
-                onCurrencySelected = viewModel::selectCurrency
-            )
-        }
+        CurrencyPreferenceDropdown(
+            selectedCurrency = selectedCurrency,
+            availableCurrencies = availableCurrencies,
+            onCurrencySelected = viewModel::selectCurrency
+        )
     }
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

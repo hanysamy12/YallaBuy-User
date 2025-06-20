@@ -144,10 +144,10 @@ fun MainScreen() {
             modifier = Modifier.padding(contentPadding)
         ) {
             composable(route = ScreenRoute.Registration.route) {
-                RegistrationScreen(navController)
+                RegistrationScreen(navController, setTopBar = { topBarContent.value = it })
             }
             composable(route = ScreenRoute.Login.route) {
-                LoginScreen(navController)
+                LoginScreen(navController, setTopBar = { topBarContent.value = it })
             }
             composable(route = ScreenRoute.Home.route) {
                 HomeScreen(navController, setTopBar = { topBarContent.value = it })
@@ -262,7 +262,7 @@ fun MainScreen() {
                 ProductInfoScreen(
                     args.productId,
                     navController,
-                    setTopBar = { topBarContent.value = it })
+                    setTopBar = { topBarContent.value = it }, snackbarHostState = snackBar)
             }
             composable(ScreenRoute.PreviousOrders.route) {
                 PreviousOrdersScreen(
