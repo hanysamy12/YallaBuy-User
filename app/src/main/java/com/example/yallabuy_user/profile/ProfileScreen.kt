@@ -51,7 +51,7 @@ fun ProfileScreen(
 
     val context = LocalContext.current
     val logoutState by viewModel.logoutState.collectAsState()
-
+    var userName: String?
 
     LaunchedEffect(logoutState) {
         if (logoutState) {
@@ -81,9 +81,10 @@ fun ProfileScreen(
                 }
             )
         }
+
     }
 
-
+    userName = viewModel.getUserName(context)
     Column(
         modifier = Modifier
             .padding(6.dp)
@@ -94,9 +95,14 @@ fun ProfileScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Spacer(modifier = Modifier.height(32.dp))
-
+        userName?.let {
+            Text(
+                "Welcome $it", color = Color.White,
+                fontFamily = FontFamily(Font(R.font.caprasimo_regular)),
+            )
+        }
         Image(
-            painter = painterResource(id = R.drawable.person_pin_circle),
+            painter = painterResource(id = R.drawable.img_profile),
             contentDescription = "Profile Picture",
             modifier = Modifier
                 .size(120.dp)
@@ -120,7 +126,7 @@ fun ProfileScreen(
         SettingsListItem(
             item = SettingsItem(
                 title = "Previous Orders",
-                icon = R.drawable.ic_app,
+                icon = R.drawable.ic_colored_cart,
                 onClick = {
                     navController.navigate(ScreenRoute.PreviousOrders.route)
                 }
@@ -136,7 +142,7 @@ fun ProfileScreen(
         SettingsListItem(
             item = SettingsItem(
                 title = "Logout",
-                icon = R.drawable.location_on,  // I will replace with actual icon
+                icon = R.drawable.ic_logout,  // I will replace with actual icon
                 onClick = {
                     viewModel.logout(context)
                     navController.navigate(ScreenRoute.Login.route) {

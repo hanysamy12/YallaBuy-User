@@ -28,7 +28,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -217,15 +219,6 @@ private fun HomeContent(
     val context = LocalContext.current
     Column {
         Spacer(modifier = Modifier.height(10.dp))
-        Text(
-            text = "Please tap on the image to get the coupon:",
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp),
-            fontSize = 16.sp,
-            textAlign = TextAlign.Center,
-            fontWeight = FontWeight.Medium
-        )
         CouponsCarousel(coupons = coupons, onCouponClick = { couponCode ->
             val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
             val clip = ClipData.newPlainText("Coupon Code", couponCode)
@@ -258,7 +251,7 @@ private fun HomeContent(
         }
         Spacer(Modifier.height(20.dp))
         Text(
-            "Show All Products",
+            "Explore Products",
             modifier = Modifier
                 .padding(start = 6.dp)
                 .clickable {
@@ -350,6 +343,16 @@ fun CouponsCarousel(
                 )
             }
         }
+        Image(
+            painter = painterResource(id = R.drawable.img_tap_to_copy),
+            contentDescription = "",
+            modifier = Modifier
+                .padding(8.dp)
+                .size(50.dp)
+                .clip(CircleShape)
+                .align(Alignment.BottomEnd),
+            contentScale = ContentScale.Crop
+        )
     }
 }
 
