@@ -111,16 +111,31 @@ fun PreviousOrdersScreen(
 
                 is ApiResponse.Success<*> -> {
                     val orders = (uiOrdersState as ApiResponse.Success).data
-
-                    LazyColumn(modifier = Modifier.fillMaxSize()) {
-                        items(orders.size) { index ->
-                            OrderItem(
-                                orders[index],
-                                onOrderClicked = {
-                                    navController.navigate(
-                                        ScreenRoute.PreviousOrderDetails(orderId = it)
-                                    )
-                                },
+                    if (orders.isNotEmpty()) {
+                        LazyColumn(modifier = Modifier.fillMaxSize()) {
+                            items(orders.size) { index ->
+                                OrderItem(
+                                    orders[index],
+                                    onOrderClicked = {
+                                        navController.navigate(
+                                            ScreenRoute.PreviousOrderDetails(orderId = it)
+                                        )
+                                    },
+                                )
+                            }
+                        }
+                    } else {
+                        Column(
+                            Modifier.fillMaxSize(),
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            AsyncImage(
+                                modifier = Modifier
+                                    .size(150.dp)
+                                    .background(shape = RoundedCornerShape(12.dp), color = Color.White),
+                                model = R.drawable.empty_cart,
+                                contentDescription = ""
                             )
                         }
                     }
