@@ -68,6 +68,7 @@ import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.yallabuy_user.R
 import com.example.yallabuy_user.authentication.registration.OrDivider
 import com.example.yallabuy_user.ui.navigation.ScreenRoute
+import com.example.yallabuy_user.wish.WishListIdPref
 import kotlinx.coroutines.flow.collect
 import org.koin.androidx.compose.koinViewModel
 
@@ -241,6 +242,13 @@ fun LoginScreen(
             if (customerData != null) {
                 CustomerIdPreferences.saveCustomerID(context, customerData.customers[0].id)
                 CustomerIdPreferences.saveCustomerName(context , customerData.customers[0].first_name)
+                val note = customerData.customers[0].note as? String
+                Log.i("checkingWishList", "LoginScreen note = $note ")
+                Log.i("checkingWishList", "LoginScreen wish List id = ${WishListIdPref.getWishListId(context)} ")
+                if(!note.isNullOrBlank()){
+                    Log.i("checkingWishList", "LoginScreen saving shared preference  ")
+                    WishListIdPref.saveWishListID(context , note.toLong())
+                }
                 navController.navigate(ScreenRoute.Home.route)
             }
         }

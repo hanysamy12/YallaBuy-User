@@ -154,6 +154,7 @@ class ProductInfoViewModel(
     }
 
     private fun createWishListDraftOrder(data: ProductInfoResponse, customerId: Long) {
+
         viewModelScope.launch {
             try {
                 val draftOrder = DraftOrder(
@@ -187,7 +188,7 @@ class ProductInfoViewModel(
                     getWishListDraftOrderId()
                 }
             } catch (e: Exception) {
-                Log.i("wishList", "createWishListDraftOrder in view model error is ${e.message} ")
+                Log.i("checkingWishList", "createWishListDraftOrder in view model error is ${e.message} ")
             }
         }
     }
@@ -258,7 +259,7 @@ class ProductInfoViewModel(
 
                     val alreadyExists = isAlreadySavedInCart(lineItems, data.product.title)
                     if (alreadyExists) {
-                        _productIsAlreadySaved.emit(true)
+//                        _productIsAlreadySaved.emit(true)
                     } else {
                         // Add new product to line items
                         val updatedLineItems = lineItems.toMutableList().apply {
@@ -303,41 +304,56 @@ class ProductInfoViewModel(
 
 
     private fun updateNoteInCustomer(wishListDraftOrderId: String, customerId: Long) {
+        Log.i("checkingWishList", "updateNoteInCustomer function called ")
         viewModelScope.launch {
             try {
                 val updateNoteInCustomer = UpdateNoteInCustomer(
                     CustomerNoteUpdate(
-                        wishListDraftOrderId.toLong(),
+                        customerId,
                         wishListDraftOrderId
                     )
                 )
                 repo.updateNoteInCustomer(customerId, updateNoteInCustomer)
                     .collect { updatedCustomer ->
                         Log.i(
-                            "wishList",
+                            "checkingWishList",
                             "updateNoteInCustomer success with new note = ${updatedCustomer.customer.note} "
                         )
                     }
             } catch (e: Exception) {
-                Log.i("wishList", "updateNoteInCustomer in viewmodel error is ${e.message} ")
+                Log.e("checkingWishList", "deleteProductFromWishList failed", e)
+                Log.i("checkingWishList", "Exception type: ${e::class.java.simpleName}")
+                Log.i("checkingWishList", "LocalizedMessage: ${e.localizedMessage}")
             }
         }
     }
 
      fun isAlreadySaved(wishListId : Long , productId : Long) {
-        viewModelScope.launch {
+         Log.i("checkingWishList", "isAlreadySaved wish list id = $wishListId ")
+         viewModelScope.launch {
             if (wishListId != 0L) {
                 try {
-                      repo.getWishListDraftById(wishListId).collect{
-                     val response =    it.draft_order.line_items.filter {product ->
-                         product.properties?.get(1)?.value == productId.toString()
+                    Log.i("checkingWishList", "isAlreadySaved product id = $productId ")
+                    repo.getWishListDraftById(wishListId).collect{
+                        Log.i("checkingWishList", "isAlreadySaved in collector ")
+                        val response = it.draft_order.line_items
+                         .filter {product ->
+                             Log.i("checkingWishList", "isAlreadySaved in  response ")
+                             product.properties?.get(1)?.value == productId.toString()
                         }
-                         if(response.isNotEmpty()) _productIsAlreadySaved.emit(true)
+                        for(product in response){
+                            Log.i("checkingWishList", "isAlreadySaved response have  ${response.get(0).properties?.get(1)?.value} ")
+                        }
+                        if(response.isNotEmpty()){
+                             Log.i("checkingWishList", "isAlreadySaved found product ${response.get(0).properties?.get(1)?.value} ")
+                             _productIsAlreadySaved.emit(true)
+                         }
                     }
                 } catch (e: Exception) {
-                    Log.i("info", "isAlreadySaved error in viewModel is ${e.message} ")
+                    Log.i("checkingWishList", "isAlreadySaved error in viewModel is ${e.message} ")
                 }
             }else {
+                Log.i("checkingWishList", "isAlreadySaved shared pref is null ")
                 _productIsAlreadySaved.emit(false)
             }
         }
@@ -356,58 +372,24 @@ class ProductInfoViewModel(
         return wishListDraftOrderIdGlobal
     }
 
-    fun updateCustomerTags(customerId: Long, newTag: String) {
-        viewModelScope.launch {
-            try {
-                repo.getUserById(customerId).collect { customerResponse ->
-                    val currentTag = customerResponse.customer.tags.orEmpty()
-
-                    if (currentTag != newTag) {
-                        val updateRequest = UpdateCustomerBody(
-                            customer = CustomerTagUpdate(
-                                id = customerId,
-                                tags = newTag
-                            )
-                        )
-
-                        repo.updateCustomerTags(customerId, updateRequest).collect { updated ->
-                            Log.i(
-                                "customer",
-                                "Successfully updated tag to: ${updated.customer.tags}"
-                            )
-                        }
-                    } else {
-                        Log.i("customer", "Tag already up-to-date: $currentTag")
-                    }
-                }
-            } catch (e: Exception) {
-                Log.e("customer", "Error updating customer tag: ${e.message}")
-            }
-        }
-    }
-
     fun deleteProductFromWishList(customerId : Long , productTitle : String , wishListId : Long){
         viewModelScope.launch {
-            Log.i("wishList", " inside deleteProductFromWishList ")
-            Log.i("saved", "deleteProductFromWishList title $productTitle ")
             try {
                 repo.getWishListDraftById(wishListId).collect{ response ->
 
                     if(response.draft_order.line_items.size == 1){
-                        Log.i("saved", "deleteProductFromWishList in viewModel list < 1  ")
                         repo.deleteDraftOrderCart(wishListId)
-                        updateNoteInCustomer("" ,customerId )
+                        updateNoteInCustomer(" ",customerId )
                         _resetWishListSharedPreference.emit(true)
                     }else {
-                        Log.i("saved", "deleteProductFromWishList in viewModel list > 1  ")
-                        val listBeforeDelete = response.draft_order.line_items.toMutableList()
-                        for (product in listBeforeDelete){
-                            if(product.title.equals(productTitle)){
-                                listBeforeDelete.remove(product)
+                        val product = response.draft_order.line_items
+                            .filter {
+                                it.title.equals(productTitle)
                             }
-                        }
+                        val mutableDeletedList =  response.draft_order.line_items.toMutableList()
+                        mutableDeletedList.remove(product[0])
                      val wishListDraftOrderRequest = WishListDraftOrderRequest(
-                         DraftOrder(listBeforeDelete.toList() , DraftCustomer(customerId))
+                         DraftOrder(mutableDeletedList.toList() , DraftCustomer(customerId))
                      )
                      repo.updateDraftOrder(wishListId , wishListDraftOrderRequest )
                      _productIsAlreadySaved.emit(false)
@@ -415,7 +397,7 @@ class ProductInfoViewModel(
                     }
                 }
             }catch (e : Exception){
-                Log.i("saved", "deleteProductFromWishList error in viewModel ${e.localizedMessage} ")
+                Log.i("checkingWishList", "deleteProductFromWishList error in viewModel ${e.localizedMessage} ")
             }
 
         }

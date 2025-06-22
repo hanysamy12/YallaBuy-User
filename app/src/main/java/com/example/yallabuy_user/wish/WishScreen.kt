@@ -112,16 +112,16 @@ fun WishScreen(
     }
 
     if (resetWishListSharedPreference) {
-        WishListIdPref.saveWishListID(context, 0)
+        Log.i("checkingWishList", "WishScreen saving shared preference  ")
+        WishListIdPref.saveWishListID(context, 0L)
     }
-    Log.i("wishList", "WishScreen id  ${WishListIdPref.getWishListId(context)} ")
     when (allWishListProduct) {
         is ApiResponse.Failure -> {
             Log.i("wishList", "WishScreen fail")
         }
 
         ApiResponse.Loading -> {
-            Log.i("wishList", "WishScreen fail")
+            Log.i("wishList", "WishScreen loading")
             showLoading.value = true
         }
 

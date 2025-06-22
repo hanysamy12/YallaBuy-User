@@ -259,9 +259,12 @@ class RemoteDataSource(
     override suspend fun getWishListDraftById(wishListDraftOrderId: Long): Flow<WishListDraftOrderResponse> {
         return try {
             val wishLestDraftOrderResponse = service.getWishListDraftById(wishListDraftOrderId)
+            Log.i("checkingWishList", "getWishListDraftById:  in remote success ")
             flowOf(wishLestDraftOrderResponse)
         }catch (e : Exception){
-            Log.i("wishList", "getWishListDraftById:  in remote error is ${e.message} ")
+            Log.e("checkingWishList", "getWishListDraftById in remote failed", e)
+            Log.i("checkingWishList", "Exception type: ${e::class.java.simpleName}")
+            Log.i("checkingWishList", "LocalizedMessage: ${e.localizedMessage}")
             flowOf()
         }
     }

@@ -73,6 +73,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.DialogProperties
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.airbnb.lottie.compose.LottieAnimation
@@ -107,7 +108,7 @@ fun ProductInfoScreen(
     snackbarHostState: SnackbarHostState
 ) {
 
-    val productInfo = productInfoViewModel.productInfo.collectAsState().value
+    val productInfo = productInfoViewModel.productInfo.collectAsStateWithLifecycle().value
     val showSignUpDialog = cartViewModel.showSignUpDialog.collectAsState()
     val resetWishListSharedPreference =
         productInfoViewModel.resetWishListSharedPreference.collectAsState().value
@@ -116,6 +117,7 @@ fun ProductInfoScreen(
     val context = LocalContext.current
 
 
+    Log.i("checkingWishList", "ProductInfoScreen wishListID ${WishListIdPref.getWishListId(context)} ")
     LaunchedEffect(productId) {
         productInfoViewModel.getProductInfoById(productId)
         productInfoViewModel.isAlreadySaved(WishListIdPref.getWishListId(context), productId)
@@ -144,7 +146,8 @@ fun ProductInfoScreen(
     }
 
     if (resetWishListSharedPreference) {
-        WishListIdPref.saveWishListID(context, 0)
+        Log.i("checkingWishList", "Product info screen saving shared preference  ")
+        WishListIdPref.saveWishListID(context, 0L)
     }
     when (productInfo) {
         is ApiResponse.Failure -> {
@@ -188,7 +191,6 @@ fun ProductInfoScreen(
                                         customerId = CustomerIdPreferences.getData(context),
                                         data = productInfo.data, isWishlist = false
                                     )
-
                                 }
                             )
                         }
@@ -660,7 +662,7 @@ fun HeartInCircle(
     }
     if (isAlreadySaved.value || isHeartClicked.value) {
         Log.i(
-            "saved",
+            "checkingWishList",
             "isSaved ${isAlreadySaved.value} and isHeartClicked ${isHeartClicked.value} "
         )
         icon = Icons.Default.Favorite
@@ -672,7 +674,7 @@ fun HeartInCircle(
             .background(Color.White, shape = CircleShape)
             .clickable {
                 if (isNotGuest.value) {
-                    if (isAlreadySaved.value) {
+                    if (isAlreadySaved.value || isHeartClicked.value) {
                         showDeleteProductAlert.value = true
                     } else {
                         isHeartClicked.value = true
@@ -701,6 +703,7 @@ fun HeartInCircle(
         DeleteProductAlertInProductInfo(
             onConfirmation = {
                 showDeleteProductAlert.value = false
+                isHeartClicked.value = false
             },
             onDismissRequest = {
                 showDeleteProductAlert.value = false
@@ -708,6 +711,7 @@ fun HeartInCircle(
         )
     }
     if (isFirstProductInWishList) {
+        Log.i("checkingWishList", "HeartInCircle saving shared preference  ")
         WishListIdPref.saveWishListID(
             LocalContext.current,
             productInfoViewModel.getWishListDraftOrderId()

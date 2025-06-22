@@ -136,10 +136,10 @@ class Repository(private val remoteDataSource: RemoteDataSourceInterface) : Repo
         return try {
             val wishLestDraftOrderResponse =
                 remoteDataSource.getWishListDraftById(wishListDraftOrderId)
-            Log.i("wishList", "getWishListDraftById:  in repo success ")
+            Log.i("checkingWishList", "getWishListDraftById:  in repo success ")
             wishLestDraftOrderResponse
         } catch (e: Exception) {
-            Log.i("wishList", "getWishListDraftById:  in repo error is ${e.message} ")
+            Log.i("checkingWishList", "getWishListDraftById:  in repo error is ${e.message} ")
             flowOf()
         }
     }
