@@ -31,6 +31,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -225,7 +228,31 @@ private fun HomeContent(
             clipboard.setPrimaryClip(clip)
             Toast.makeText(context, "Coupon code copied: $couponCode", Toast.LENGTH_SHORT).show()
         })
-
+        Spacer(Modifier.height(20.dp))
+        Row(
+            modifier = Modifier
+                .padding(start = 6.dp)
+                .fillMaxWidth()
+                .clickable {
+                    Log.i(TAG, "All Products Clicked")
+                    onCatClicked(null, null)
+                },
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                "Explore Products",
+                color = colorResource(R.color.teal_80),
+                fontSize = 20.sp,
+                textDecoration = TextDecoration.Underline
+            )
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                contentDescription = "all Products",
+                modifier = Modifier.padding(end = 6.dp),
+                colorResource(R.color.teal_80)
+            )
+        }
         Spacer(Modifier.height(20.dp))
 
         if (categories.size >= 4) {
@@ -249,19 +276,7 @@ private fun HomeContent(
                 textAlign = TextAlign.Center
             )
         }
-        Spacer(Modifier.height(20.dp))
-        Text(
-            "Explore Products",
-            modifier = Modifier
-                .padding(start = 6.dp)
-                .clickable {
-                    Log.i(TAG, "All Products Clicked")
-                    onCatClicked(null, null)
-                },
-            color = colorResource(R.color.teal_80),
-            fontSize = 20.sp,
-            textDecoration = TextDecoration.Underline
-        )
+
         Spacer(
             Modifier.height(20.dp)
         )
