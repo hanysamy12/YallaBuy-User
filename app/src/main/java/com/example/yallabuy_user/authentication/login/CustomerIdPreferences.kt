@@ -24,15 +24,11 @@ class CustomerIdPreferences {
             editor.putString(PREF_NAME_, name)
             editor.apply()
         }
-<<<<<<< HEAD
-        fun getCustomerName(context: Context): String {
-            val sharedPreferences = context.getSharedPreferences(PREF_NAME_, Context.MODE_PRIVATE)
-            return sharedPreferences.getString(PREF_NAME_, "") ?: ""
-=======
+
         fun getCustomerName(context: Context): String? {
             val sharedPreferences = context.getSharedPreferences(PREF_NAME_, Context.MODE_PRIVATE)
             return sharedPreferences.getString(PREF_NAME_, null)
->>>>>>> cd2ec51f007dfaf5c2ba37b31603eda245a30d92
+
         }
     }
 }

@@ -29,9 +29,11 @@ class WishViewModel(
     private  var deletedList : List<DraftOrderLineItem> = emptyList()
 
     override fun getAllProductFromWishList(wishListId: Long) {
+        Log.i("wishList", "getAllProductFromWishList function called ")
         viewModelScope.launch {
             try {
                 if(wishListId != 0L) {
+                    Log.i("wishList", "getAllProductFromWishList not empty" )
                     val response = repositoryInterface.getWishListDraftById(wishListId)
                     response.collect { wishListResponse ->
                         _allWishListProduct.emit(ApiResponse.Success(wishListResponse.draft_order.line_items))
@@ -41,7 +43,7 @@ class WishViewModel(
                    _allWishListProduct.emit(ApiResponse.Success(emptyList()))
                 }
             }catch (e : Exception){
-                Log.i("TAG", "getAllProductFromWishList in viewmodel error is ${e.message} ")
+                Log.i("wishList", "getAllProductFromWishList in viewmodel error is ${e.message} ")
             }
         }
     }
@@ -49,9 +51,9 @@ class WishViewModel(
     override fun deleteProductFromWishList(draftOrderId : Long , customerId : Long , title : String ) {
         viewModelScope.launch {
             try {
-
                repositoryInterface.getWishListDraftById(draftOrderId).collect{ response ->
                   if(response.draft_order.line_items.size == 1){
+                      Log.i("wishList", "deleteProductFromWishList list ${deletedList.size} ")
                       repositoryInterface.deleteDraftOrderCart(draftOrderId)
                       repositoryInterface.updateNoteInCustomer(customerId , UpdateNoteInCustomer(
                           CustomerNoteUpdate(customerId , "")
@@ -59,26 +61,28 @@ class WishViewModel(
                       _resetWishListSharedPreference.emit(true)
                       _allWishListProduct.emit(ApiResponse.Success(emptyList()))
                   }else {
-                      val mutableDeletedList = deletedList.toMutableList()
-                      for (product in mutableDeletedList ){
-                          if(product.title.equals(title)){
-                              mutableDeletedList.remove(product)
+                      val product = response.draft_order.line_items
+                          .filter {
+                              it.title.equals(title)
                           }
-                      }
+                      val mutableDeletedList =  response.draft_order.line_items.toMutableList()
+                      mutableDeletedList.remove(product[0])
                       val request =  WishListDraftOrderRequest(
                           DraftOrder(
                               line_items = mutableDeletedList.toList() ,
                               customer = DraftCustomer(customerId)
                           )
                       )
-                      repositoryInterface.updateDraftOrder(draftOrderId ,request  )
-                      _allWishListProduct.emit(ApiResponse.Success(request.draft_order.line_items))
-                      _resetWishListSharedPreference.emit(false)
+                      repositoryInterface.updateDraftOrder(draftOrderId ,request  ).collect{draftOrder ->
+                          _allWishListProduct.emit(ApiResponse.Success(draftOrder.draft_order.line_items))
+                          _resetWishListSharedPreference.emit(false)
+                      }
                   }
                }
             }catch (e : Exception){
-                Log.i("TAG", "deleteProductFromWishList error in view model ${e.message} ")
-            }
+                Log.e("wishList", "deleteProductFromWishList failed", e)
+                Log.i("wishList", "Exception type: ${e::class.java.simpleName}")
+                Log.i("wishList", "LocalizedMessage: ${e.localizedMessage}")            }
         }
     }
 }

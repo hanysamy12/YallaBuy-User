@@ -1,8 +1,11 @@
 package com.example.yallabuy_user.profile
 
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.example.yallabuy_user.authentication.login.CustomerIdPreferences
+import com.example.yallabuy_user.cart.viewmodel.CartSharedPreference
+import com.example.yallabuy_user.wish.WishListIdPref
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
@@ -27,6 +30,9 @@ class ProfileViewModel() : ViewModel() {
 
     fun logout(context: Context) {
         CustomerIdPreferences.saveCustomerID(context, 0L)
+        WishListIdPref.saveWishListID(context,0L)
+        Log.i("checkingWishList", "Logout saving shared preference  ")
+        CartSharedPreference.saveCartID(context,0L)
         _logoutState.value = true
     }
 
