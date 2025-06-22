@@ -28,7 +28,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -49,6 +51,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
@@ -78,7 +82,14 @@ fun HomeScreen(
     LaunchedEffect(Unit) {
         setTopBar {
             CenterAlignedTopAppBar(
-                title = { Text("Yalla Buy") },
+                title = {
+                    Text(
+                        "Yalla Buy",
+                        color = Color.White,
+                        fontFamily = FontFamily(Font(R.font.caprasimo_regular)),
+                        fontWeight = FontWeight.Bold
+                    )
+                },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                     containerColor = Color(0xFF3B9A94)
                 ),
@@ -131,7 +142,7 @@ fun HomeScreen(
                                     categories = categories,
                                     brands = brands,
                                     coupons = couponItems,
-                                    onCatClicked = { catId,title ->
+                                    onCatClicked = { catId, title ->
                                         navController.navigate(
                                             ScreenRoute.ProductsScreen(
                                                 vendorName = null, categoryID = catId, title = title
@@ -202,21 +213,12 @@ private fun HomeContent(
     categories: List<CustomCollectionsItem>,
     brands: List<SmartCollectionsItem>,
     coupons: List<CouponItem>,
-    onCatClicked: (Long?,String?) -> Unit,
+    onCatClicked: (Long?, String?) -> Unit,
     onBrandClicked: (String) -> Unit
 ) {
     val context = LocalContext.current
     Column {
         Spacer(modifier = Modifier.height(10.dp))
-        Text(
-            text = "Please tap on the image to get the coupon:",
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp),
-            fontSize = 16.sp,
-            textAlign = TextAlign.Center,
-            fontWeight = FontWeight.Medium
-        )
         CouponsCarousel(coupons = coupons, onCouponClick = { couponCode ->
             val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
             val clip = ClipData.newPlainText("Coupon Code", couponCode)
@@ -249,12 +251,12 @@ private fun HomeContent(
         }
         Spacer(Modifier.height(20.dp))
         Text(
-            "Show All Products",
+            "Explore Products",
             modifier = Modifier
                 .padding(start = 6.dp)
                 .clickable {
                     Log.i(TAG, "All Products Clicked")
-                    onCatClicked(null,null)
+                    onCatClicked(null, null)
                 },
             color = colorResource(R.color.teal_80),
             fontSize = 20.sp,
@@ -341,6 +343,16 @@ fun CouponsCarousel(
                 )
             }
         }
+        Image(
+            painter = painterResource(id = R.drawable.img_tap_to_copy),
+            contentDescription = "",
+            modifier = Modifier
+                .padding(8.dp)
+                .size(50.dp)
+                .clip(CircleShape)
+                .align(Alignment.BottomEnd),
+            contentScale = ContentScale.Crop
+        )
     }
 }
 
@@ -348,11 +360,12 @@ fun CouponsCarousel(
 fun CouponImage(
     imageResId: Int, couponCode: String, onClick: () -> Unit
 ) {
-    Box(modifier = Modifier
-        .height(200.dp)
-        .clip(RoundedCornerShape(12.dp))
-        .clickable { onClick() }
-        .background(Color.LightGray)) {
+    Box(
+        modifier = Modifier
+            .height(200.dp)
+            .clip(RoundedCornerShape(12.dp))
+            .clickable { onClick() }
+            .background(Color.LightGray)) {
         Image(
             painter = painterResource(id = imageResId),
             contentDescription = "Coupon Image",
@@ -368,11 +381,11 @@ fun CouponImage(
 
 @Composable
 fun CircularImageWithTitle(
-    category: CustomCollectionsItem, imgId: Int, onCatClicked: (Long,String) -> Unit
+    category: CustomCollectionsItem, imgId: Int, onCatClicked: (Long, String) -> Unit
 ) {
     Column(
         modifier = Modifier.clickable {
-            category.id?.let { onCatClicked(it,category.title?:"") }
+            category.id?.let { onCatClicked(it, category.title ?: "") }
         }, horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Image(

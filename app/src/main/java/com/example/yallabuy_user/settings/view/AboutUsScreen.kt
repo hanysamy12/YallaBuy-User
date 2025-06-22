@@ -30,6 +30,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -45,7 +47,13 @@ fun AboutUsScreen(
 ) {
     setTopBar {
         CenterAlignedTopAppBar(
-            title = { Text("About Us") },
+            title = {
+                Text(
+                    "About Us", color = Color.White,
+                    fontFamily = FontFamily(Font(R.font.caprasimo_regular)),
+                    fontWeight = FontWeight.Bold
+                )
+            },
             colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                 containerColor = colorResource(R.color.teal_80)
             ),
@@ -71,27 +79,27 @@ fun AboutUsScreen(
 
         )
     }
-        AboutUsContent( function = {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(200.dp)
-                    .background(Color.LightGray), // Placeholder background
-                contentAlignment = Alignment.Center
-            ) {
-                Text("Image Placeholder", color = Color.DarkGray)
-            }
-        })
-    }
+    AboutUsContent(function = {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(200.dp)
+                .background(Color.LightGray), // Placeholder background
+            contentAlignment = Alignment.Center
+        ) {
+            Text("Image Placeholder", color = Color.DarkGray)
+        }
+    })
+}
 
 
 @Composable
-fun AboutUsContent( function: @Composable () -> Unit) {
+fun AboutUsContent(function: @Composable () -> Unit) {
     Column(
         modifier = Modifier
             .padding(6.dp)
             .fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally 
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
         Image(

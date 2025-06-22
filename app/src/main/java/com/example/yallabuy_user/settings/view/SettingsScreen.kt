@@ -35,6 +35,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -56,7 +59,13 @@ fun SettingsScreen(navController: NavController, setTopBar: ((@Composable () -> 
         setTopBar {
             setTopBar {
                 CenterAlignedTopAppBar(
-                    title = { Text("Settings") },
+                    title = {
+                        Text(
+                            "Settings", color = Color.White,
+                            fontFamily = FontFamily(Font(R.font.caprasimo_regular)),
+                            fontWeight = FontWeight.Bold
+                        )
+                    },
                     colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                         containerColor = colorResource(R.color.teal_80)
                     ),
@@ -123,7 +132,7 @@ fun SettingsScreen(navController: NavController, setTopBar: ((@Composable () -> 
             }
         ),
 
-    )
+        )
 
 
     SettingsListContent(

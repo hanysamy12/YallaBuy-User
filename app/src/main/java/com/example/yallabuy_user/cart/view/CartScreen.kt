@@ -47,6 +47,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -83,7 +85,13 @@ fun CartScreen(
         }
         setTopBar {
             CenterAlignedTopAppBar(
-                title = { Text("Cart") },
+                title = {
+                    Text(
+                        "Cart", color = Color.White,
+                        fontFamily = FontFamily(Font(R.font.caprasimo_regular)),
+                        fontWeight = FontWeight.Bold
+                    )
+                },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                     containerColor = colorResource(R.color.teal_80)
                 ),
@@ -131,8 +139,11 @@ fun CartScreen(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
                     ) {
-                        Image(painterResource(R.drawable.empty_cart) , contentDescription = "logo"
-                        , modifier = Modifier.size(250.dp))
+                        Image(
+                            painterResource(R.drawable.empty_cart),
+                            contentDescription = "logo",
+                            modifier = Modifier.size(250.dp)
+                        )
                     }
                 } else {
                     val draftOrderId = draftOrders.first().id
@@ -176,7 +187,7 @@ fun CartScreen(
                                     onDelete = {
                                         cartViewModel.removeItemFromCart(
                                             draftOrder.id ?: -1L,
-                                            item.variantID ,
+                                            item.variantID,
                                             customerId
                                         )
                                     }

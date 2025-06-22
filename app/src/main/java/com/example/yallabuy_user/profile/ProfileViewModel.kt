@@ -14,6 +14,8 @@ class ProfileViewModel() : ViewModel() {
     private val _logoutState = MutableStateFlow(false)
     val logoutState: StateFlow<Boolean> = _logoutState
 
+
+
     init {
         loadProfile()
     }
@@ -28,6 +30,10 @@ class ProfileViewModel() : ViewModel() {
         _logoutState.value = true
     }
 
+    fun getUserName(context: Context) :String?
+    {
+        return CustomerIdPreferences.getCustomerName(context)
+    }
 }
 
 
