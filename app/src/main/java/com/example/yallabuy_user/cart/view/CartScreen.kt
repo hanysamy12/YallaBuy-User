@@ -76,7 +76,10 @@ fun CartScreen(
     val customerId = CustomerIdPreferences.getData(context)
     val currencySymbol = Common.currencyCode.getCurrencyCode()
 
-
+    LaunchedEffect(draftOrdersState) {
+        val draftOrders = (draftOrdersState as? ApiResponse.Success)?.data?.draftOrderCarts ?: return@LaunchedEffect
+        cartViewModel.convertItemPrices(draftOrders)
+    }
 
 
     LaunchedEffect(Unit) {
