@@ -102,10 +102,10 @@ fun ProfileScreen(
         Spacer(modifier = Modifier.height(32.dp))
         userName?.let {
             if (it.isNotBlank())
-            Text(
-                "Welcome $it", color = colorResource(R.color.dark_turquoise),
-                fontFamily = FontFamily(Font(R.font.caprasimo_regular)),
-            )
+                Text(
+                    "Welcome $it", color = colorResource(R.color.dark_turquoise),
+                    fontFamily = FontFamily(Font(R.font.caprasimo_regular)),
+                )
         }
         Image(
             painter = painterResource(id = R.drawable.img_profile),
@@ -147,10 +147,27 @@ fun ProfileScreen(
 
         SettingsListItem(
             item = SettingsItem(
-                title = "Logout",
+                title = when {
+                    userName.isNullOrBlank() -> {
+                        "Login"
+                    }
+                    else -> {
+                        "Logout"
+                    }
+                },
                 icon = R.drawable.ic_logout,
                 onClick = {
-                    showDialog = true
+                    when {
+                        userName.isNullOrBlank() -> {
+                            viewModel.logout(context)
+                            navController.navigate(ScreenRoute.Login.route) {
+                                popUpTo(ScreenRoute.Profile.route) { inclusive = true }
+                            }
+                        }
+                        else -> {
+                            showDialog = true
+                        }
+                    }
                 }
             )
         )

@@ -17,8 +17,6 @@ class ProfileViewModel() : ViewModel() {
     private val _logoutState = MutableStateFlow(false)
     val logoutState: StateFlow<Boolean> = _logoutState
 
-
-
     init {
         loadProfile()
     }
@@ -32,6 +30,7 @@ class ProfileViewModel() : ViewModel() {
         CustomerIdPreferences.saveCustomerID(context, 0L)
         CustomerIdPreferences.saveCustomerName(context,"")
         WishListIdPref.saveWishListID(context,0L)
+        CartSharedPreference.saveCartID(context,0L)
         Log.i("checkingWishList", "Logout saving shared preference  ")
         CartSharedPreference.saveCartID(context,0L)
         _logoutState.value = true
