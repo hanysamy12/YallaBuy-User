@@ -30,6 +30,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -97,7 +98,7 @@ fun ProfileScreen(
         Spacer(modifier = Modifier.height(32.dp))
         userName?.let {
             Text(
-                "Welcome $it", color = Color.White,
+                "Welcome $it", color = colorResource(R.color.dark_turquoise),
                 fontFamily = FontFamily(Font(R.font.caprasimo_regular)),
             )
         }
@@ -142,7 +143,7 @@ fun ProfileScreen(
         SettingsListItem(
             item = SettingsItem(
                 title = "Logout",
-                icon = R.drawable.ic_logout,  // I will replace with actual icon
+                icon = R.drawable.ic_logout,
                 onClick = {
                     viewModel.logout(context)
                     navController.navigate(ScreenRoute.Login.route) {

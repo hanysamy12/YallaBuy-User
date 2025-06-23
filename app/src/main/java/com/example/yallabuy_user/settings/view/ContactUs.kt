@@ -95,7 +95,7 @@ fun ContactUsScreen(
 
     ContactUsContent(contacts = contacts) {
         Image(
-            painter = painterResource(id = R.drawable.contact_us_banner),
+            painter = painterResource(id = R.drawable.contact_us),
             contentDescription = "Contact Us Banner",
             modifier = Modifier
                 .fillMaxWidth()
@@ -222,7 +222,7 @@ fun ContactUsScreenPreview() {
     ContactUsContent(contacts = previewContacts) {
 
         Image(
-            painter = painterResource(id = R.drawable.contact_us_banner),
+            painter = painterResource(id = R.drawable.contact_us),
             contentDescription = "Contact Us Banner",
             modifier = Modifier
                 .fillMaxWidth()
