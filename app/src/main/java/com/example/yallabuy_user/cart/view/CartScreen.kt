@@ -116,11 +116,24 @@ fun CartScreen(
     ) {
         when (val state = draftOrdersState) {
             is ApiResponse.Loading -> {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator()
+                if (customerId == 0L) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Image(
+                            painterResource(R.drawable.empty_cart),
+                            contentDescription = "Guest Cart",
+                            modifier = Modifier.size(250.dp)
+                        )
+                    }
+                } else {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
                 }
             }
 
