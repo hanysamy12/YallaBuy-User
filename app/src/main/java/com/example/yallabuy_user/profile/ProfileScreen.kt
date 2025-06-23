@@ -18,7 +18,6 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
@@ -162,10 +161,10 @@ fun ProfileScreen(
                     navController.navigate(ScreenRoute.Login.route) {
                         popUpTo(ScreenRoute.Profile.route) { inclusive = true }
                     }
-                    showDialog = false // Hide dialog after logout
+                    showDialog = false
                 },
                 onCancel = {
-                    showDialog = false // Hide dialog if user cancels
+                    showDialog = false
                 }
             )
         }
