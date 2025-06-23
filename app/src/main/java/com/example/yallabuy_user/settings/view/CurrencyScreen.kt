@@ -102,7 +102,7 @@ fun CurrencyScreen(
         Text(
             text = "Choose your preferred currency",
             style = MaterialTheme.typography.titleMedium,
-            color = colorResource(R.color.dark_blue),
+            color = colorResource(R.color.dark_turquoise),
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(bottom = 8.dp)
         )
@@ -133,21 +133,20 @@ fun CurrencyPreferenceDropdown(
             value = selectedCurrency,
             onValueChange = {},
             readOnly = true,
-            label = { Text("Preferred Currency", color = colorResource(R.color.dark_blue)) },
+            label = { Text("Preferred Currency", color = colorResource(R.color.dark_turquoise)) },
             trailingIcon = {
                 Icon(
                     imageVector = if (expanded) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown,
-                    contentDescription = null,
-                    modifier = Modifier.clickable { expanded = !expanded }
+                    contentDescription = null
                 )
             },
             colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(
-                focusedBorderColor = colorResource(R.color.dark_blue),
-                unfocusedBorderColor = colorResource(R.color.dark_blue).copy(alpha = 0.7f),
-                focusedLabelColor = colorResource(R.color.dark_blue),
-                unfocusedLabelColor = colorResource(R.color.dark_blue).copy(alpha = 0.7f),
-                focusedTextColor = colorResource(R.color.dark_blue),
-                unfocusedTextColor = colorResource(R.color.dark_blue)
+                focusedBorderColor = colorResource(R.color.dark_turquoise),
+                unfocusedBorderColor = colorResource(R.color.dark_turquoise).copy(alpha = 0.7f),
+                focusedLabelColor = colorResource(R.color.dark_turquoise),
+                unfocusedLabelColor = colorResource(R.color.dark_turquoise).copy(alpha = 0.7f),
+                focusedTextColor = colorResource(R.color.dark_turquoise),
+                unfocusedTextColor = colorResource(R.color.dark_turquoise)
             ),
             modifier = Modifier.menuAnchor()
         )
@@ -161,7 +160,7 @@ fun CurrencyPreferenceDropdown(
                     text = {
                         Text(
                             text = currencyCode,
-                            color = colorResource(R.color.dark_blue)
+                            color = colorResource(R.color.dark_turquoise)
                         )
                     },
                     onClick = {
@@ -178,38 +177,3 @@ fun CurrencyPreferenceDropdown(
         }
     }
 }
-//
-//@SuppressLint("ViewModelConstructorInComposable")
-//@Preview(showBackground = true)
-//@Composable
-//fun CurrencyPreferenceSettingPreview() {
-//    // Dummy ViewModel for preview
-//    class PreviewViewModel : CurrencyViewModel(object : CurrencyPreferenceManager {
-//
-//        private val flow = MutableStateFlow("EGP")
-//        override suspend fun getPreferredCurrency(): String = flow.value
-//        override suspend fun setPreferredCurrency(currencyCode: String) { flow.value = currencyCode }
-//        override val preferredCurrencyFlow: Flow<String> = flow
-//    })
-//
-//    MaterialTheme {
-//        CurrencyScreen(viewModel = PreviewViewModel())
-//    }
-//}
-//
-//@SuppressLint("ViewModelConstructorInComposable")
-//@Preview(showBackground = true)
-//@Composable
-//fun CurrencyPreferenceSettingUSDPreview() {
-//    // dummy ViewModel for preview
-//    class PreviewViewModel : CurrencyViewModel(object : CurrencyPreferenceManager {
-//        private val flow = MutableStateFlow("USD")
-//        override suspend fun getPreferredCurrency(): String = flow.value
-//        override suspend fun setPreferredCurrency(currencyCode: String) { flow.value = currencyCode }
-//        override val preferredCurrencyFlow: Flow<String> = flow
-//    })
-//
-//    MaterialTheme {
-//        CurrencyScreen(viewModel = PreviewViewModel())
-//    }
-//}

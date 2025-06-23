@@ -131,7 +131,7 @@ fun ContactUsContent(
                 textAlign = TextAlign.Center,
                 fontWeight = FontWeight.SemiBold,
                 modifier = Modifier.padding(horizontal = 24.dp),
-                color = colorResource(R.color.dark_blue)
+                color = colorResource(R.color.dark_turquoise)
             )
             Spacer(modifier = Modifier.height(24.dp))
         }
@@ -155,7 +155,7 @@ fun ContactCard(contact: ContactUs) {
             .padding(horizontal = 16.dp)
             .border(
                 width = 2.dp,
-                color = colorResource(R.color.dark_blue),
+                color = colorResource(R.color.dark_turquoise),
                 shape = RoundedCornerShape(8.dp)
             ),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
@@ -169,7 +169,7 @@ fun ContactCard(contact: ContactUs) {
                 Icon(
                     Icons.Filled.Person,
                     contentDescription = "Name",
-                    tint = colorResource(R.color.dark_blue)
+                    tint = colorResource(R.color.dark_turquoise)
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(text = contact.name, fontWeight = FontWeight.Bold, fontSize = 18.sp)

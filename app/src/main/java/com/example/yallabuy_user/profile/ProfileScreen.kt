@@ -56,7 +56,7 @@ fun ProfileScreen(
     LaunchedEffect(logoutState) {
         if (logoutState) {
             navController.navigate(ScreenRoute.Login.route) {
-                popUpTo(0) { inclusive = true } // Clear entire back stack
+                popUpTo(0) { inclusive = true }
             }
         }
         setTopBar {
@@ -75,7 +75,7 @@ fun ProfileScreen(
                     Icon(
                         painter = painterResource(id = R.drawable.ic_app),
                         contentDescription = "App Icon",
-                        tint = Color.Unspecified, // Optional: set tint if needed
+                        tint = Color.Unspecified,
                         modifier = Modifier.padding(start = 12.dp)
                     )
                 }

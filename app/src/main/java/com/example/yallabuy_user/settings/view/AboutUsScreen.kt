@@ -84,7 +84,7 @@ fun AboutUsScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(200.dp)
-                .background(Color.LightGray), // Placeholder background
+                .background(Color.LightGray),
             contentAlignment = Alignment.Center
         ) {
             Text("Image Placeholder", color = Color.DarkGray)
@@ -117,7 +117,7 @@ fun AboutUsContent(function: @Composable () -> Unit) {
             text = "YallaBuy",
             fontSize = 28.sp,
             fontWeight = FontWeight.Bold,
-            color = colorResource(R.color.dark_blue)
+            color = colorResource(R.color.dark_turquoise)
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -127,7 +127,7 @@ fun AboutUsContent(function: @Composable () -> Unit) {
             text = "It is an m-Commerce Application that presents products from different vendors and enables the authenticated users to add/remove products to/from their shopping carts and complete the whole shopping cycle online through the app.",
             fontSize = 16.sp,
             textAlign = TextAlign.Center,
-            color = colorResource(R.color.dark_blue),
+            color = colorResource(R.color.dark_turquoise),
             modifier = Modifier.padding(horizontal = 16.dp)
         )
 

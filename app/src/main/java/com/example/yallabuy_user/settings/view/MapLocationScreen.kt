@@ -421,7 +421,7 @@ fun MapLocationScreen(
                     .size(48.dp)
                     .align(Alignment.Center)
                     .offset(y = (-24).dp),
-                tint = colorResource(id = R.color.dark_blue)
+                tint = colorResource(id = R.color.dark_turquoise)
             )
 
             FloatingActionButton(
@@ -439,7 +439,7 @@ fun MapLocationScreen(
                 Icon(
                     imageVector = Icons.Default.LocationOn,
                     contentDescription = "My Location",
-                    tint = colorResource(id = R.color.dark_blue)
+                    tint = colorResource(id = R.color.dark_turquoise)
                 )
             }
 
@@ -458,7 +458,7 @@ fun MapLocationScreen(
                     .align(Alignment.BottomCenter),
                 shape = RoundedCornerShape(8.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = colorResource(id = R.color.dark_blue)
+                    containerColor = colorResource(id = R.color.dark_turquoise)
                 )
             ) {
                 Text(

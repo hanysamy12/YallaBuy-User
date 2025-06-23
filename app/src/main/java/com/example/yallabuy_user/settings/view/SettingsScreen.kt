@@ -215,14 +215,14 @@ fun SettingsListItem(item: SettingsItem) {
         Text(
             text = item.title,
             fontSize = 16.sp,
-            color = colorResource(id = R.color.dark_blue),
+            color = colorResource(id = R.color.dark_turquoise),
             modifier = Modifier.weight(1f)
         )
         Icon(
             imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
             contentDescription = "Navigate",
             modifier = Modifier.size(16.dp),
-            tint = colorResource(R.color.dark_blue)
+            tint = colorResource(R.color.dark_turquoise)
         )
     }
 }

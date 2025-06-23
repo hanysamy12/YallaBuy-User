@@ -88,10 +88,6 @@ import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
 private const val TAG = "OrderCheckoutScreen"
-//cash show him a dialog if exceeded the amount
-//pass total amount from cart screen to the OrderCheckoutScreen
-//checkout?? dialog
-//address >>hany
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)

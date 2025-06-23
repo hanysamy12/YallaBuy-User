@@ -330,7 +330,7 @@ fun CartItemCard(
                 Icon(
                     imageVector = Icons.Default.Delete,
                     contentDescription = "Delete Item",
-                    tint = colorResource(R.color.dark_blue),
+                    tint = colorResource(R.color.dark_turquoise),
                     modifier = Modifier
                         .size(32.dp)
                         .clickable { showDialog = true }

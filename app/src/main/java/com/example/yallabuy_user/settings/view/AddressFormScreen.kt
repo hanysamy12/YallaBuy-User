@@ -83,7 +83,7 @@ fun AddressFormScreen(
         Text(
             text = "Add Address Form",
             modifier = Modifier.fillMaxWidth(),
-            color = colorResource(R.color.dark_blue),
+            color = colorResource(R.color.dark_turquoise),
             fontSize = 24.sp,
             textAlign = TextAlign.Center
         )

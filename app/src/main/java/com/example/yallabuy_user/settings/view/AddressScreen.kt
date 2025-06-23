@@ -576,7 +576,7 @@ fun ExpandableFab(
                     Icon(
                         imageVector = Icons.Default.Place,
                         contentDescription = "Add by Map",
-                        tint = colorResource(id = R.color.dark_blue)
+                        tint = colorResource(id = R.color.dark_turquoise)
                     )
                 }
 
@@ -588,7 +588,7 @@ fun ExpandableFab(
                     Icon(
                         imageVector = Icons.Default.Home,
                         contentDescription = "Add Address",
-                        tint = colorResource(id = R.color.dark_blue)
+                        tint = colorResource(id = R.color.dark_turquoise)
                     )
                 }
             }
