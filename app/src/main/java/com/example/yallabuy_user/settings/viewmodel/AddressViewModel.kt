@@ -148,5 +148,15 @@ class AddressViewModel(
         }
     }
 
+    fun trimAddressFromZip(fullAddress: String): String {
+        val regex = Regex("""\d{4,6}""")
+        val match = regex.find(fullAddress)
+        return if (match != null) {
+            fullAddress.substring(0, match.range.first).trimEnd(',', ' ', '\n')
+        } else {
+            fullAddress
+        }
+    }
+
 }
 

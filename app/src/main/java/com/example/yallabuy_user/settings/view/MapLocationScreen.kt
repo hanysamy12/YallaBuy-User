@@ -92,7 +92,6 @@ fun MapLocationScreen(
     onNavigateBack: () -> Unit,
     navController: NavController,
     setTopBar: ((@Composable () -> Unit)) -> Unit,
-    // onLocationConfirmed: (Address) -> Unit
 ) {
     LaunchedEffect(Unit) {
         setTopBar {
@@ -133,8 +132,6 @@ fun MapLocationScreen(
     }
     val context = LocalContext.current
     val activity = LocalActivity.current
-    val lifecycleOwner = LocalLifecycleOwner.current
-
     var selectedLocation by remember { mutableStateOf(LatLng(30.0444, 31.2357)) }
     var currentAddress by remember { mutableStateOf("Searching for address...") }
     var city by remember { mutableStateOf("") }
@@ -154,10 +151,9 @@ fun MapLocationScreen(
     var showLocationSettingsDialog by remember { mutableStateOf(false) }
     var showInternetDialog by remember { mutableStateOf(false) }
 
-    val geocoder = remember { Geocoder(context, Locale.getDefault()) }
-
-    var detectedAddress by remember { mutableStateOf("Tap on the map to select an address") }
-    var showEditDialog by remember { mutableStateOf(false) }
+    //val geocoder = remember { Geocoder(context, Locale.getDefault()) }
+    //var detectedAddress by remember { mutableStateOf("Tap on the map to select an address") }
+    //var showEditDialog by remember { mutableStateOf(false) }
 
     val launcher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -185,17 +181,6 @@ fun MapLocationScreen(
             }
         )
     }
-
-//    LaunchedEffect(cameraPositionState.position) {
-//        delay(500)
-//        updateAddressFromLocation(
-//            geocoder = geocoder,
-//            location = cameraPositionState.position.target,
-//            onAddressUpdated = { address ->
-//                currentAddress = address
-//            }
-//        )
-//    }
 
     LaunchedEffect(cameraPositionState.isMoving) {
         if (!cameraPositionState.isMoving) {
@@ -241,24 +226,10 @@ fun MapLocationScreen(
         }
     }
 
-//    LaunchedEffect(hasPermission) {
-//        if (!hasPermission) {
-//            locationPermissionManager.requestPermission()
-//        }
-//    }
-
     LaunchedEffect(isLocationEnabled, hasPermission) {
         showLocationSettingsDialog = hasPermission && !isLocationEnabled
     }
 
-    LaunchedEffect(hasPermission, isLocationEnabled) {
-//        if (hasPermission && isLocationEnabled) {
-//            locationPermissionManager.getUserCurrentLocation(context) { latLng ->
-//                selectedLocation = latLng
-//                cameraPositionState.move(CameraUpdateFactory.newLatLngZoom(latLng, 15f))
-//            }
-//        }
-    }
 
     if (showInternetDialog) {
         AlertDialog(
@@ -426,10 +397,6 @@ fun MapLocationScreen(
 
             FloatingActionButton(
                 onClick = {
-//                    getCurrentLocation(context) { location ->
-//                        selectedLocation = location
-//                        cameraPositionState.position = CameraPosition.fromLatLngZoom(location, 15f)
-                    //}
                 },
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
@@ -471,39 +438,4 @@ fun MapLocationScreen(
 
         }
     }
-}
-
-@Composable
-fun EditAddressDialog(
-    detectedAddress: String,
-    onDismiss: () -> Unit,
-    onConfirm: (String) -> Unit
-) {
-    var address by remember { mutableStateOf(detectedAddress) }
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text("Edit Address") },
-        text = {
-            OutlinedTextField(
-                value = address,
-                onValueChange = { address = it },
-                label = { Text("Address") },
-                modifier = Modifier.fillMaxWidth()
-            )
-        },
-        confirmButton = {
-            TextButton(onClick = {
-                onConfirm(address)
-                onDismiss()
-            }) {
-                Text("Confirm")
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Cancel")
-            }
-        }
-    )
 }

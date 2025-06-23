@@ -54,11 +54,12 @@ fun AddressFormScreen(
     var firstName by remember { mutableStateOf("") }
     var lastName by remember { mutableStateOf("") }
     var phone by remember { mutableStateOf("") }
-    var address by remember { mutableStateOf(fullAddress ?: "") }
     var cityText by remember { mutableStateOf(city ?: "") }
     var countryText by remember { mutableStateOf(country ?: "") }
     var showValidationError by remember { mutableStateOf(false) }
-
+    var address by remember {
+        mutableStateOf(fullAddress?.let { viewModel.trimAddressFromZip(it) } ?: "")
+    }
     val context = LocalContext.current
     val createUpdateState by viewModel.createUpdateState.collectAsState()
 
