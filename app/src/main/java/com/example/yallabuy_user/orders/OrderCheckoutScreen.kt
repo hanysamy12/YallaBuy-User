@@ -78,6 +78,7 @@ import com.example.yallabuy_user.data.models.CreateShippingAddress
 import com.example.yallabuy_user.data.models.cart.LineItem
 import com.example.yallabuy_user.data.models.settings.Address
 import com.example.yallabuy_user.home.ProgressShow
+import com.example.yallabuy_user.ui.navigation.ScreenRoute
 import com.example.yallabuy_user.utilities.ApiResponse
 import com.example.yallabuy_user.utilities.Common
 import com.example.yallabuy_user.utilities.PaymentsUtil
@@ -116,8 +117,8 @@ fun OrderCheckoutScreen(
     var shippingAddress = CreateShippingAddress(id = -1L)
     var totalCost by remember { mutableStateOf("") }
     var isCash by remember { mutableStateOf(true) }
-    //  val newOrdersViewModel = LocalOrdersViewModel.current
     val customerId = CustomerIdPreferences.getData(context)
+    var isCheckoutDisabled by remember { mutableStateOf(false) }
 
 
     val launcher = rememberLauncherForActivityResult(
@@ -221,13 +222,19 @@ fun OrderCheckoutScreen(
                         is ApiResponse.Success -> {
                             val addresses = (uiAddressState.value as ApiResponse.Success).data
                             Log.i(TAG, "OrderCheckoutScreen: $addresses")
-                            shippingAddress = CreateShippingAddress(id = addresses.first().id)
-                            DropdownField(
-                                label = "Select Address",
-                                selected = addresses.first().city,
-                                options = addresses
-                            ) {
-                                shippingAddress = CreateShippingAddress(id = it)
+
+                            if (addresses.isEmpty()) {
+                                isCheckoutDisabled = true
+                                NoAddress { navController.navigate(ScreenRoute.Address.route) }
+                            } else {
+                                shippingAddress = CreateShippingAddress(id = addresses.first().id)
+                                DropdownField(
+                                    label = "Select Address",
+                                    selected = addresses.first().city,
+                                    options = addresses
+                                ) {
+                                    shippingAddress = CreateShippingAddress(id = it)
+                                }
                             }
                         }
                     }
@@ -258,7 +265,10 @@ fun OrderCheckoutScreen(
                                         cartTotal = cartTotal
                                     )
                                 }
-                            }, modifier = Modifier, shape = RoundedCornerShape(8.dp)
+                            }, modifier = Modifier, shape = RoundedCornerShape(8.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = colorResource(R.color.dark_turquoise)
+                            )
 
                         ) {
                             Text("Validate")
@@ -346,6 +356,7 @@ fun OrderCheckoutScreen(
 
                     Spacer(modifier = Modifier.height(10.dp))
                     Button(
+                        enabled = !isCheckoutDisabled,
                         onClick = {
                             val totalValue = convertedTotal ?: discountedTotal
 
@@ -440,7 +451,7 @@ fun OrderCheckoutScreen(
                             title = { Text("Cash Payment Limit") },
                             text = {
                                 Text(
-                                    "You cannot pay this amount using cash. " +
+                                    "You cannot pay more than 5000 EGP cash. " +
                                             "Please choose an online payment method.\n\nThank you for your understanding."
                                 )
                             }
@@ -524,6 +535,21 @@ fun DropdownField(
                     selectedOption = address.fullAddress
                 }, text = { Text(address.fullAddress.ifEmpty { "Un Named Address" }) })
             }
+        }
+    }
+}
+
+@Composable
+fun NoAddress(onAddressClick: () -> Unit) {
+    Column {
+        Text("No addresses found, Add Address to Complete Checkout", color = Color.Red)
+        Button(
+            onClick = { onAddressClick() }, modifier = Modifier, shape = RoundedCornerShape(8.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = colorResource(R.color.dark_turquoise)
+            )
+        ) {
+            Text("Add Address")
         }
     }
 }
