@@ -30,6 +30,7 @@ class ProfileViewModel() : ViewModel() {
 
     fun logout(context: Context) {
         CustomerIdPreferences.saveCustomerID(context, 0L)
+        CustomerIdPreferences.saveCustomerName(context,"")
         WishListIdPref.saveWishListID(context,0L)
         Log.i("checkingWishList", "Logout saving shared preference  ")
         CartSharedPreference.saveCartID(context,0L)
