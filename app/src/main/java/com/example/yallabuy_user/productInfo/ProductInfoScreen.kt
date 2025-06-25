@@ -648,9 +648,9 @@ fun ColorDropDownMenu(
 fun Price(data: ProductInfoResponse, count: Int) {
     var priceInBound = remember { mutableDoubleStateOf(0.0) }
     priceInBound.doubleValue =
-        ((data?.product?.variants?.get(0)?.price?.toDoubleOrNull() ?: 0.0) * 50) * count
+        ((data?.product?.variants?.get(0)?.price?.toDoubleOrNull() ?: 0.0)) * count
     Text(
-        text = "  Total Price :  ${priceInBound.doubleValue}  EGP",
+        text = "  Total Price : ${priceInBound.doubleValue} EGP",
         modifier = Modifier.padding(10.dp),
         fontSize = 15.sp,
         fontWeight = FontWeight.Bold
