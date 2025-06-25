@@ -181,6 +181,10 @@ class CartViewModel(private val cartRepository: RepositoryInterface,
         }
     }
 
+    fun showSignUpDialog() {
+        _showSignUpDialog.value = true
+    }
+
     fun dismissSignUpDialog() {
         _showSignUpDialog.value = false
     }

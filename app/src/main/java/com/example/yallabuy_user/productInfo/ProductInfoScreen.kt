@@ -66,6 +66,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -191,7 +192,8 @@ fun ProductInfoScreen(
                                         customerId = CustomerIdPreferences.getData(context),
                                         data = productInfo.data, isWishlist = false
                                     )
-                                }
+                                },
+                                cartViewModel = cartViewModel
                             )
                         }
                     }
@@ -200,20 +202,34 @@ fun ProductInfoScreen(
             if (showSignUpDialog.value) {
                 AlertDialog(
                     onDismissRequest = { cartViewModel.dismissSignUpDialog() },
-                    title = { Text("Login Required") },
+                    title = { Text("Login Required",
+                        color = colorResource(id = R.color.dark_turquoise),
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 20.sp) },
+
                     text = { Text("You need to sign up or log in to be able to add products to the cart.") },
                     confirmButton = {
                         Button(
                             onClick = {
                                 cartViewModel.dismissSignUpDialog()
                                 navController.navigate(ScreenRoute.Login.route)
-                            }
+                            },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = colorResource(id = R.color.dark_turquoise),
+                                contentColor = Color.White
+                            )
                         ) {
                             Text("Sign up")
                         }
                     },
                     dismissButton = {
-                        Button(onClick = { cartViewModel.dismissSignUpDialog() }) {
+                        Button(onClick = { cartViewModel.dismissSignUpDialog() },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = colorResource(id = R.color.dark_turquoise),
+                                contentColor = Color.White
+                            )
+                        ) {
+
                             Text("Cancel")
                         }
                     }
@@ -291,7 +307,8 @@ fun ProductImage(data: ProductInfoResponse, showSnackBar: (String) -> Unit) {
 @Composable
 fun ProductDetail(
     data: ProductInfoResponse,
-    onAddToCartClick: (DraftOrderBody,String) -> Unit
+    onAddToCartClick: (DraftOrderBody,String) -> Unit,
+    cartViewModel: CartViewModel
 ) {
 
 
@@ -340,42 +357,50 @@ fun ProductDetail(
                         "newOrder",
                         "OrderSuccessDialog cart id ${CartSharedPreference.getCartId(context)} "
                     )
+                    val isGuest = CustomerIdPreferences.getData(context) == 0L
+
+                    if (isGuest) {
+                        cartViewModel.showSignUpDialog()
+                    } else {
+
                     if (selectedSize.isEmpty() || selectedColor.isEmpty()) {
                         showMissingSelectionDialog = true
                     } else {
                         val selectedVariant = data.product.variants.find {
                             it.option1 == selectedSize && it.option2 == selectedColor
                         }
-                        selectedVariant?.let { variant ->
-                            val draftOrderCartObject = DraftOrderBody(
-                                draftOrderCart = DraftOrderCart(
-                                    id = 0L,
-                                    lineItems = mutableListOf(
-                                        LineItem(
-                                            variantID = variant.id,
-                                            productID = variant.product_id,
-                                            title = data.product.title,
-                                            quantity = productCounter,
-                                            price = variant.price,
-                                            properties = listOf(
-                                                Property("Color", selectedColor),
-                                                Property("Size", selectedSize),
-                                                Property(
-                                                    "Quantity_in_Stock",
-                                                    variant.inventory_quantity.toString()
-                                                ),
-                                                Property("Image", data.product.image.src),
-                                                Property("SavedAt", "Cart")
+
+
+                            selectedVariant?.let { variant ->
+                                val draftOrderCartObject = DraftOrderBody(
+                                    draftOrderCart = DraftOrderCart(
+                                        id = 0L,
+                                        lineItems = mutableListOf(
+                                            LineItem(
+                                                variantID = variant.id,
+                                                productID = variant.product_id,
+                                                title = data.product.title,
+                                                quantity = productCounter,
+                                                price = variant.price,
+                                                properties = listOf(
+                                                    Property("Color", selectedColor),
+                                                    Property("Size", selectedSize),
+                                                    Property(
+                                                        "Quantity_in_Stock",
+                                                        variant.inventory_quantity.toString()
+                                                    ),
+                                                    Property("Image", data.product.image.src),
+                                                    Property("SavedAt", "Cart")
+                                                )
                                             )
+                                        ),
+                                        customer = Customer(
+                                            CustomerIdPreferences.getData(context)
                                         )
-                                    ),
-                                    customer = Customer(
-                                        CustomerIdPreferences.getData(context)
                                     )
                                 )
-                            )
-
-                            onAddToCartClick(draftOrderCartObject,"Product Added To Cart")
+                                onAddToCartClick(draftOrderCartObject, "Product Added To Cart")
+                            }
                         }
                     }
                 },
@@ -400,7 +425,7 @@ fun ProductDetail(
                 confirmButton = {
                     Button(
                         onClick = { showMissingSelectionDialog = false },
-                        colors = ButtonDefaults.buttonColors(containerColor = Color.Black)
+                        colors = ButtonDefaults.buttonColors(containerColor = colorResource(R.color.dark_turquoise))
                     ) {
                         Text("OK", color = Color.White)
                     }
