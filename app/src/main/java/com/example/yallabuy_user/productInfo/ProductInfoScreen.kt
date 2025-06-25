@@ -346,11 +346,11 @@ fun ProductDetail(
         Price(data, count = productCounter)
 
         Row {
-            QuantitySelectorCard(
-                productCounter = productCounter,
-                onIncrease = { productCounter += 1 },
-                onDecrease = { if (productCounter > 1) productCounter -= 1 }
-            )
+//            QuantitySelectorCard(
+//                productCounter = productCounter,
+//                onIncrease = { productCounter += 1 },
+//                onDecrease = { if (productCounter > 1) productCounter -= 1 }
+//            )
             Button(
                 onClick = {
                     Log.i(
@@ -434,6 +434,7 @@ fun ProductDetail(
         }
     }
 }
+
 
 @Composable
 fun QuantitySelectorCard(
@@ -577,6 +578,7 @@ fun ColorDropDownMenu(
     // val variants = data?.product?.variants ?: emptyList() //I edited that
 
     val variants = data.product.variants
+    val options = data.product.options
     val selectedColor =
         variants.getOrNull(itemSelectedIndex.intValue)?.option2 ?: "No Colors Available"
 
@@ -623,18 +625,18 @@ fun ColorDropDownMenu(
                     .background(Color.White)
                     .clip(RoundedCornerShape(12.dp))
             ) {
-                variants.forEachIndexed { index, variant ->
+                options.get(index = 1).values.forEachIndexed { index, option ->
                     DropdownMenuItem(
                         text = {
                             Text(
-                                text = variant.option2,
+                                text = option,
                                 style = MaterialTheme.typography.bodyMedium
                             )
                         },
                         onClick = {
-                            Log.i("TAG", "ColorDropDownMenu: ${variant.option2}")
+                            Log.i("TAG", "ColorDropDownMenu: ${option}")
                             itemSelectedIndex.intValue = index
-                            onColorSelected(variant.option2)
+                            onColorSelected(option)
                             isDropDownSelected.value = false
                         }
                     )
