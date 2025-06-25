@@ -173,14 +173,14 @@ private fun OrderProductItem(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(100.dp)
+            //.height(100.dp)
             .padding(4.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
         AsyncImage(
             modifier = Modifier
-                .size(150.dp)
+                .size(120.dp)
                 .shadow(
                     elevation = 3.dp,
                     shape = RoundedCornerShape(12.dp),
