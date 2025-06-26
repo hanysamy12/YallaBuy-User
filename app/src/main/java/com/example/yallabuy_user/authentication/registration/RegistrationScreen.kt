@@ -163,12 +163,12 @@ fun RegistrationScreen(
                 .padding(start = 16.dp, top = 30.dp)
         )
         Image(
-            painter = painterResource(R.drawable.yalla_buy_login_logo),
+            painter = painterResource(R.drawable.sign_up_logo),
             contentDescription = "logo",
             alignment = Alignment.TopCenter,
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .offset(y = (-515).dp) // Push upward from bottom
+                .offset(y = (-490).dp , x = (100).dp) // Push upward from bottom
                 .zIndex(1f)
                 .size(250.dp)
         )
@@ -176,7 +176,7 @@ fun RegistrationScreen(
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(600.dp),
+                .height(580.dp),
             colors = CardDefaults.cardColors(containerColor = Color.White),
             shape = RoundedCornerShape(topStart = 15.dp, topEnd = 15.dp) ,
             border = BorderStroke(2.dp ,  Color(0xFF3B9A94))
@@ -243,7 +243,7 @@ fun RegistrationScreen(
                         modifier = Modifier.padding(horizontal = 16.dp)
                     )
                 }
-                Spacer(Modifier.height(10.dp))
+                Spacer(Modifier.height(7.dp))
                 OrDivider()
                 Spacer(Modifier.height(5.dp))
                 TextButton(
@@ -252,7 +252,7 @@ fun RegistrationScreen(
                     },
                     modifier = Modifier.fillMaxWidth(),
                 ) {
-                    Text("Sign Up as A Guest", fontSize = 20.sp, fontFamily = sigmarRegularFont
+                    Text("Sign Up as A Guest", fontSize = 18.sp, fontFamily = sigmarRegularFont
                     , color =  Color(0xFF3B9A94))
                 }
             }
@@ -299,7 +299,7 @@ fun RegistrationTextFeilds(
         )
         if (validationError?.contains("Email") == true) {
             Text(
-                text = validationError ?: "",
+                text = validationError ,
                 color = MaterialTheme.colorScheme.error,
                 style = MaterialTheme.typography.bodySmall,
                 modifier = Modifier.padding(start = 16.dp, top = 5.dp)
@@ -318,7 +318,7 @@ fun RegistrationTextFeilds(
         )
         if (validationError?.contains("User name") == true) {
             Text(
-                text = validationError ?: "",
+                text = validationError ,
                 color = MaterialTheme.colorScheme.error,
                 style = MaterialTheme.typography.bodySmall,
                 modifier = Modifier.padding(start = 16.dp, top = 5.dp)
@@ -369,7 +369,6 @@ fun RegistrationTextFeilds(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SuccessRegistrationAlert(
     isAccountCreated: MutableState<Boolean>,
