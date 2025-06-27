@@ -8,18 +8,21 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -28,11 +31,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
+import com.example.yallabuy_user.R
 import com.example.yallabuy_user.data.models.LineItemsItem
 import com.example.yallabuy_user.home.ProgressShow
 import com.example.yallabuy_user.ui.navigation.ScreenRoute
@@ -41,16 +48,53 @@ import org.koin.androidx.compose.koinViewModel
 
 private const val TAG = "OrderItemsScreen"
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OrderItemScreen(
     orderId: Long?,
     navController: NavController,
-    viewModel: OrdersViewModel = koinViewModel()
+    viewModel: OrdersViewModel = koinViewModel(),
+    setTopBar: (@Composable () -> Unit) -> Unit,
+    title: String?
 ) {
 
     val uiOrderState by viewModel.orderProducts.collectAsState()
 
     LaunchedEffect(Unit) {
+        setTopBar {
+            CenterAlignedTopAppBar(
+                title = {
+                    Text(
+                        title ?: "Order Details", color = Color.White,
+                        fontFamily = FontFamily(Font(R.font.caprasimo_regular)),
+                        fontWeight = FontWeight.Bold
+                    )
+                },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = Color(0xFF3B9A94)
+                ),
+                navigationIcon = {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Start
+                    ) {
+                        IconButton(onClick = { navController.popBackStack() }) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
+                                contentDescription = "Back"
+
+                            )
+                        }
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_app),
+                            contentDescription = "App Icon",
+                            tint = Color.Unspecified,
+                            //modifier = Modifier.padding(start = 5.dp)
+                        )
+                    }
+                }
+            )
+        }
         viewModel.getOrderById(orderId)
     }
     Box {
@@ -83,7 +127,7 @@ fun OrderItemScreen(
                                     currentCode = currentCode,
                                     onOrderClicked = { productId ->
                                         navController.navigate(
-                                            ScreenRoute.ProductInfo(productId)
+                                            ScreenRoute.ProductInfo(productId),
                                         )
                                     }
                                 )
@@ -91,16 +135,26 @@ fun OrderItemScreen(
                             }
                         }
                     }
-                    Row(modifier = Modifier.fillMaxWidth().padding(10.dp),horizontalArrangement = Arrangement.SpaceBetween) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(10.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
                         Text("Total Price")
                         Text("${ordersItem.currency} ${ordersItem.totalPrice ?: "UnKnown"}")
                     }
                     HorizontalDivider()
 
-                    Row(modifier = Modifier.fillMaxWidth().padding(10.dp),horizontalArrangement = Arrangement.SpaceBetween) {
-                        Text("Shipped To:")
-                        Text("${ordersItem.shippingAddress?.country ?: ""}, ${ordersItem.shippingAddress?.city ?: ""}")
-                    }
+//                    Row(
+//                        modifier = Modifier
+//                            .fillMaxWidth()
+//                            .padding(10.dp),
+//                        horizontalArrangement = Arrangement.SpaceBetween
+//                    ) {
+//                        Text("Shipped To:")
+//                        Text("${ordersItem.shippingAddress?.country ?: ""}, ${ordersItem.shippingAddress?.city ?: ""}")
+//                    }
                 }
             }
         }
@@ -118,14 +172,14 @@ private fun OrderProductItem(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(100.dp)
+            //.height(100.dp)
             .padding(4.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
         AsyncImage(
             modifier = Modifier
-                .size(150.dp)
+                .size(120.dp)
                 .shadow(
                     elevation = 3.dp,
                     shape = RoundedCornerShape(12.dp),

@@ -1,6 +1,8 @@
 package com.example.yallabuy_user.authentication.registration
 
 import android.util.Log
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -11,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -27,11 +30,13 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
@@ -44,6 +49,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -53,6 +59,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.DialogProperties
+import androidx.compose.ui.zIndex
 import androidx.navigation.NavHostController
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
@@ -65,10 +72,12 @@ import com.example.yallabuy_user.ui.navigation.ScreenRoute
 import org.koin.androidx.compose.koinViewModel
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RegistrationScreen(
     navControl: NavHostController,
-    registrationViewModel: RegistrationViewModel = koinViewModel()
+    registrationViewModel: RegistrationViewModel = koinViewModel(),
+    setTopBar: (@Composable () -> Unit) -> Unit
 ) {
 
     var createAccount = registrationViewModel.createAccount
@@ -87,6 +96,29 @@ fun RegistrationScreen(
     val sigmarRegularFont = FontFamily(Font(R.font.sigmarregular))
 
     LaunchedEffect(Unit) {
+        setTopBar {
+            CenterAlignedTopAppBar(
+                title = {
+                    Text(
+                        "Sign Up",
+                        color = Color.White,
+                        fontFamily = FontFamily(Font(R.font.caprasimo_regular)),
+                        fontWeight = FontWeight.Bold
+                    )
+                },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = Color(0xFF3B9A94)
+                ),
+                navigationIcon = {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_app),
+                        contentDescription = "App Icon",
+                        tint = Color.Unspecified, // Optional: set tint if needed
+                        modifier = Modifier.padding(start = 12.dp)
+                    )
+                }
+            )
+        }
         createAccount.collect {
             if (it.isNotEmpty()) {
                 showDialog.value = true
@@ -117,12 +149,12 @@ fun RegistrationScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Black),
+            .background(Color.White),
         contentAlignment = Alignment.BottomCenter
     ) {
         Text(
             text = "Let's Start",
-            color = Color.White,
+            color =  Color(0xFF3B9A94),
             fontSize = 25.sp,
             fontWeight = FontWeight.Bold,
             fontFamily = emblemaoneregilarFont,
@@ -130,23 +162,24 @@ fun RegistrationScreen(
                 .align(Alignment.TopStart)
                 .padding(start = 16.dp, top = 30.dp)
         )
-        Text(
-            text = "Sign Up",
-            color = Color.White,
-            fontSize = 25.sp,
-            fontWeight = FontWeight.Bold,
-            fontFamily = sigmarRegularFont,
+        Image(
+            painter = painterResource(R.drawable.sign_up_logo),
+            contentDescription = "logo",
+            alignment = Alignment.TopCenter,
             modifier = Modifier
-                .align(Alignment.TopStart)
-                .padding(start = 140.dp, top = 150.dp)
+                .align(Alignment.BottomCenter)
+                .offset(y = (-490).dp , x = (100).dp) // Push upward from bottom
+                .zIndex(1f)
+                .size(250.dp)
         )
 
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(600.dp),
+                .height(580.dp),
             colors = CardDefaults.cardColors(containerColor = Color.White),
-            shape = RoundedCornerShape(topStart = 15.dp, topEnd = 15.dp)
+            shape = RoundedCornerShape(topStart = 15.dp, topEnd = 15.dp) ,
+            border = BorderStroke(2.dp ,  Color(0xFF3B9A94))
         ) {
             Column(
                 modifier = Modifier.padding(16.dp),
@@ -165,7 +198,8 @@ fun RegistrationScreen(
                 ) {
                     Text(
                         "Already have an Account ?",
-                        textAlign = TextAlign.Start
+                        textAlign = TextAlign.Start ,
+                        color = Color.Black
                     )
                     TextButton(
                         onClick = {
@@ -173,7 +207,8 @@ fun RegistrationScreen(
                         }
                     ) {
                         Text(
-                            "Login", fontFamily = sigmarRegularFont, textAlign = TextAlign.End
+                            "Login", fontFamily = sigmarRegularFont, textAlign = TextAlign.End ,
+                            color =  Color(0xFF3B9A94)
                         )
                     }
                 }
@@ -195,7 +230,7 @@ fun RegistrationScreen(
                         .shadow(8.dp, RoundedCornerShape(50))
                         .clip(RoundedCornerShape(50)),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.Black,
+                        containerColor =  Color(0xFF3B9A94),
                         contentColor = Color.White
                     ),
                     elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp)
@@ -208,7 +243,7 @@ fun RegistrationScreen(
                         modifier = Modifier.padding(horizontal = 16.dp)
                     )
                 }
-                Spacer(Modifier.height(10.dp))
+                Spacer(Modifier.height(7.dp))
                 OrDivider()
                 Spacer(Modifier.height(5.dp))
                 TextButton(
@@ -217,7 +252,8 @@ fun RegistrationScreen(
                     },
                     modifier = Modifier.fillMaxWidth(),
                 ) {
-                    Text("Sign Up as A Guest", fontSize = 20.sp, fontFamily = sigmarRegularFont)
+                    Text("Sign Up as A Guest", fontSize = 18.sp, fontFamily = sigmarRegularFont
+                    , color =  Color(0xFF3B9A94))
                 }
             }
         }
@@ -263,7 +299,7 @@ fun RegistrationTextFeilds(
         )
         if (validationError?.contains("Email") == true) {
             Text(
-                text = validationError ?: "",
+                text = validationError ,
                 color = MaterialTheme.colorScheme.error,
                 style = MaterialTheme.typography.bodySmall,
                 modifier = Modifier.padding(start = 16.dp, top = 5.dp)
@@ -282,7 +318,7 @@ fun RegistrationTextFeilds(
         )
         if (validationError?.contains("User name") == true) {
             Text(
-                text = validationError ?: "",
+                text = validationError ,
                 color = MaterialTheme.colorScheme.error,
                 style = MaterialTheme.typography.bodySmall,
                 modifier = Modifier.padding(start = 16.dp, top = 5.dp)
@@ -333,7 +369,6 @@ fun RegistrationTextFeilds(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SuccessRegistrationAlert(
     isAccountCreated: MutableState<Boolean>,
@@ -456,7 +491,7 @@ fun OrDivider(
             modifier = Modifier
                 .weight(1f)
                 .height(1.dp),
-            color = Color.Gray
+            color = Color.Black
         )
         Text(
             text = text,
@@ -468,7 +503,7 @@ fun OrDivider(
             modifier = Modifier
                 .weight(1f)
                 .height(1.dp),
-            color = Color.Gray
+            color = Color.Black
         )
     }
 }

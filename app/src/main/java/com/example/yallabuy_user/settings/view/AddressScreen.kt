@@ -16,6 +16,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
@@ -30,6 +31,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenuItem
@@ -57,6 +59,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -69,14 +74,16 @@ import com.example.yallabuy_user.settings.viewmodel.AddressViewModel
 import com.example.yallabuy_user.utilities.ApiResponse
 import org.koin.androidx.compose.koinViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddressScreen(
-    //viewModel: AddressViewModel = koinViewModel(),
     customerId: Long,
     onNavigateBack: () -> Unit = {},
-    onNavigateToMap:() -> Unit
+    onNavigateToMap: () -> Unit,
+    setTopBar: ((@Composable () -> Unit)) -> Unit
 ) {
-    val viewModel: AddressViewModel = koinViewModel()// remember { AddressViewModel(getKoin(), customerId) }
+    val viewModel: AddressViewModel =
+        koinViewModel()// remember { AddressViewModel(getKoin(), customerId) }
     viewModel.setCustomerId(customerId)
 
     val addressState by viewModel.addressState.collectAsState()
@@ -92,10 +99,44 @@ fun AddressScreen(
 
     LaunchedEffect(customerId) {
         viewModel.getAddresses()
-    }
+        setTopBar {
+            CenterAlignedTopAppBar(
+                title = {
+                    Text(
+                        "Address", color = Color.White,
+                        fontFamily = FontFamily(Font(R.font.caprasimo_regular)),
+                        fontWeight = FontWeight.Bold
+                    )
+                },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = colorResource(R.color.teal_80)
+                ),
+                navigationIcon = {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Start
+                    ) {
+                        IconButton(onClick = onNavigateBack) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
+                                contentDescription = "Back"
 
+                            )
+                        }
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_app),
+                            contentDescription = "App Icon",
+                            tint = Color.Unspecified,
+                            //modifier = Modifier.padding(start = 5.dp)
+                        )
+                    }
+                }
+
+            )
+        }
+    }
     Scaffold(
-        topBar = { AddressTopBar(onNavigateBack = onNavigateBack) },
+        //topBar = { AddressTopBar(onNavigateBack = onNavigateBack) },
 
         floatingActionButton = {
             ExpandableFab(
@@ -150,39 +191,6 @@ fun AddressScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun AddressTopBar(onNavigateBack: () -> Unit) {
-    TopAppBar(
-        title = {
-            Text(
-                text = "My Addresses",
-                color = Color.White,
-                fontWeight = FontWeight.Bold
-            )
-        },
-        navigationIcon = {
-            IconButton(onClick = onNavigateBack) {
-                Icon(
-                    imageVector = Icons.Default.ArrowBack,
-                    contentDescription = "Back",
-                    tint = Color.White
-                )
-            }
-        },
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = colorResource(id = R.color.dark_blue)
-        )
-    )
-}
-
-
-@Composable
-fun AddAddressFab(onClick: () -> Unit) {
-    FloatingActionButton(onClick = onClick) {
-        Icon(Icons.Default.Add, contentDescription = "Add Address")
-    }
-}
 
 @Composable
 fun AddressScreenContent(
@@ -224,58 +232,16 @@ fun AddressScreenContent(
 
                     AddressList(
                         addresses = viewModel.addressesList.collectAsState().value,
-                        onEditAddress =  onEditAddress ,
+                        onEditAddress = onEditAddress,
                         onDeleteAddress = { viewModel.deleteAddress(it) },
-                        onSetDefault = {  address -> viewModel.setDefaultAddress(address)  }
+                        onSetDefault = { address -> viewModel.setDefaultAddress(address) }
                     )
-//                    AddressList(
-//                        addresses = addressList.value,
-//                        onEditAddress = onEditAddress,
-//                        onDeleteAddress = { viewModel.deleteAddress(it) },
-//                        onSetDefault = { newDefault ->
-//                            val currentDefault = addresses.find { it.default && it.id != newDefault.id }
-//
-//                            currentDefault?.let {
-//                                viewModel.updateAddress(it.id, AddressBody(it.copy(default = false)))
-//                            }
-//
-//                            viewModel.updateAddress(newDefault.id, AddressBody(newDefault.copy(default = true)))
-//                        }
-//                    )
                 }
             }
         }
     }
 }
 
-@Composable
-fun EmptyAddressList() {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Icon(
-            imageVector = Icons.Outlined.LocationOn,
-            contentDescription = "No addresses",
-            modifier = Modifier.size(64.dp),
-            tint = Color.Gray
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        Text(
-            text = "No addresses saved",
-            style = MaterialTheme.typography.titleMedium,
-            color = Color.Gray
-        )
-        Text(
-            text = "Add your first address by tapping the + button",
-            style = MaterialTheme.typography.bodyMedium,
-            color = Color.Gray
-        )
-    }
-}
 
 @Composable
 fun AddressList(
@@ -316,26 +282,32 @@ fun AddressItem(
         Column(
             modifier = Modifier.padding(16.dp)
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = address.getDetailedDescription(),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
-                )
+//            Row(
+//                modifier = Modifier.fillMaxWidth(),
+//                horizontalArrangement = Arrangement.SpaceBetween,
+//                verticalAlignment = Alignment.CenterVertically
+//            ) {
+            Text(
+                text = address.getDetailedDescription(),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
+            )
 
-                if (address.default) {
+            if (address.default) {
+                Spacer(modifier = Modifier.height(4.dp))
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
                     Badge(
                         containerColor = MaterialTheme.colorScheme.primaryContainer,
                         contentColor = MaterialTheme.colorScheme.onPrimaryContainer
                     ) {
-                        Text("Default")
+                        Text("Default Address")
                     }
                 }
             }
+
+            //     }
 
             Spacer(modifier = Modifier.height(4.dp))
 
@@ -386,30 +358,6 @@ fun AddressItem(
     }
 }
 
-@Composable
-fun DeleteConfirmationDialog(
-    onDismiss: () -> Unit,
-    onConfirm: () -> Unit
-) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text("Delete Address") },
-        text = { Text("Are you sure you want to delete this address?") },
-        confirmButton = {
-            TextButton(
-                onClick = onConfirm,
-                colors = ButtonDefaults.textButtonColors(contentColor = Color.Red)
-            ) {
-                Text("Delete")
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Cancel")
-            }
-        }
-    )
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -429,7 +377,7 @@ fun EditAddressDialog(
         "Red Sea", "Fayoum", "Beni Suef", "Minya", "Assiut", "Sohag",
         "Qena", "Luxor", "Aswan", "New Valley (El Wadi El Gedid)", "Matrouh"
     )
-    var country= "Egypt" //by remember { mutableStateOf(address?.country ?: "") }
+    var country = "Egypt" //by remember { mutableStateOf(address?.country ?: "") }
     var fullAddress by remember { mutableStateOf(address?.fullAddress ?: "") }
     var isDefault by remember { mutableStateOf(address?.default ?: false) }
 
@@ -468,13 +416,6 @@ fun EditAddressDialog(
                     modifier = Modifier.fillMaxWidth(),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)
                 )
-//                OutlinedTextField(
-//                    value = city,
-//                    onValueChange = { city = it },
-//                    label = { Text("City") },
-//                    modifier = Modifier.fillMaxWidth()
-//                )
-
 
                 ExposedDropdownMenuBox(
                     expanded = expanded,
@@ -488,7 +429,7 @@ fun EditAddressDialog(
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
                         modifier = Modifier
                             .fillMaxWidth()
-                            //.menuAnchor()
+                            .menuAnchor()
                     )
 
                     ExposedDropdownMenu(
@@ -576,6 +517,92 @@ fun EditAddressDialog(
     }
 }
 
+
+//@Composable
+//fun AddAddressFab(onClick: () -> Unit) {
+//    FloatingActionButton(onClick = onClick) {
+//        Icon(Icons.Default.Add, contentDescription = "Add Address")
+//    }
+//}
+
+
+@Composable
+fun EmptyAddressList() {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Icon(
+            imageVector = Icons.Outlined.LocationOn,
+            contentDescription = "No addresses",
+            modifier = Modifier.size(64.dp),
+            tint = Color.Gray
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(
+            text = "No addresses saved",
+            style = MaterialTheme.typography.titleMedium,
+            color = Color.Gray
+        )
+        Text(
+            text = "Add your first address by tapping the + button",
+            style = MaterialTheme.typography.bodyMedium,
+            color = Color.Gray
+        )
+    }
+}
+
+@Composable
+fun ExpandableFab(
+    onAddAddressClick: () -> Unit,
+    onAddByMapClick: () -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Box(
+        modifier = Modifier.wrapContentSize(),
+        contentAlignment = Alignment.BottomEnd
+    ) {
+        Column(horizontalAlignment = Alignment.End) {
+            if (expanded) {
+                FloatingActionButton(
+                    onClick = onAddByMapClick,
+                    modifier = Modifier.padding(bottom = 12.dp),
+                    containerColor = colorResource(R.color.light_gray)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Place,
+                        contentDescription = "Add by Map",
+                        tint = colorResource(id = R.color.dark_turquoise)
+                    )
+                }
+
+                FloatingActionButton(
+                    onClick = onAddAddressClick,
+                    modifier = Modifier.padding(bottom = 12.dp),
+                    containerColor = Color.LightGray
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Home,
+                        contentDescription = "Add Address",
+                        tint = colorResource(id = R.color.dark_turquoise)
+                    )
+                }
+            }
+
+            FloatingActionButton(onClick = { expanded = !expanded }) {
+                Icon(
+                    imageVector = if (expanded) Icons.Default.Close else Icons.Default.Add,
+                    contentDescription = "Toggle"
+                )
+            }
+        }
+    }
+}
+
 @Composable
 fun EditConfirmationDialog(
     onDismiss: () -> Unit,
@@ -600,54 +627,6 @@ fun EditConfirmationDialog(
         }
     )
 }
-@Composable
-fun ExpandableFab(
-    onAddAddressClick: () -> Unit,
-    onAddByMapClick: () -> Unit
-) {
-    var expanded by remember { mutableStateOf(false) }
-
-    Box(
-        modifier = Modifier.wrapContentSize(),
-        contentAlignment = Alignment.BottomEnd
-    ) {
-        Column(horizontalAlignment = Alignment.End) {
-            if (expanded) {
-                FloatingActionButton(
-                    onClick = onAddByMapClick,
-                    modifier = Modifier.padding(bottom = 12.dp),
-                    containerColor = colorResource(R.color.light_gray)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Place,
-                        contentDescription = "Add by Map",
-                        tint = colorResource(id = R.color.dark_blue)
-                    )
-                }
-
-                FloatingActionButton(
-                    onClick = onAddAddressClick,
-                    modifier = Modifier.padding(bottom = 12.dp),
-                    containerColor = Color.LightGray
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Home,
-                        contentDescription = "Add Address",
-                        tint = colorResource(id = R.color.dark_blue)
-                    )
-                }
-            }
-
-            FloatingActionButton(onClick = { expanded = !expanded }) {
-                Icon(
-                    imageVector = if (expanded) Icons.Default.Close else Icons.Default.Add,
-                    contentDescription = "Toggle"
-                )
-            }
-            }
-        }
-    }
-
 
 
 @Composable
@@ -663,3 +642,30 @@ fun MissingFieldsDialog(onDismiss: () -> Unit) {
         }
     )
 }
+
+@Composable
+fun DeleteConfirmationDialog(
+    onDismiss: () -> Unit,
+    onConfirm: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Delete Address") },
+        text = { Text("Are you sure you want to delete this address?") },
+        confirmButton = {
+            TextButton(
+                onClick = onConfirm,
+                colors = ButtonDefaults.textButtonColors(contentColor = Color.Red)
+            ) {
+                Text("Delete")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+    )
+}
+
+

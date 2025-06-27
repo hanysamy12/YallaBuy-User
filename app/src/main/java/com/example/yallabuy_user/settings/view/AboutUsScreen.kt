@@ -2,16 +2,20 @@ package com.mariammuhammad.yallabuy.View.Settings
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -26,6 +30,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -33,58 +39,67 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.yallabuy_user.R
 
-@Composable
-fun AboutUsScreen(
-    onNavigateBack: () -> Unit = {}
-) {
-    Scaffold(
-        topBar = {
-            AboutUsTopAppBar(onNavigateBack = onNavigateBack)
-        },
-        containerColor = Color.White
-    ) { paddingValues ->
-        AboutUsContent(paddingValues = paddingValues, function = {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(200.dp)
-                    .background(Color.LightGray), // Placeholder background
-                contentAlignment = Alignment.Center
-            ) {
-                Text("Image Placeholder", color = Color.DarkGray)
-            }
-        })
-    }
-}
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AboutUsTopAppBar(onNavigateBack: () -> Unit) {
-    TopAppBar(
-        title = { Text("About Us", color = Color.White, fontWeight = FontWeight.Bold) },
-        navigationIcon = {
-            IconButton(onClick = onNavigateBack) {
-                Icon(
-                    imageVector = Icons.Filled.ArrowBack,
-                    contentDescription = "Back",
-                    tint = Color.White
+fun AboutUsScreen(
+    onNavigateBack: () -> Unit = {},
+    setTopBar: ((@Composable () -> Unit)) -> Unit
+) {
+    setTopBar {
+        CenterAlignedTopAppBar(
+            title = {
+                Text(
+                    "About Us", color = Color.White,
+                    fontFamily = FontFamily(Font(R.font.caprasimo_regular)),
+                    fontWeight = FontWeight.Bold
                 )
+            },
+            colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                containerColor = colorResource(R.color.teal_80)
+            ),
+            navigationIcon = {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Start
+                ) {
+                    IconButton(onClick = onNavigateBack) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
+                            contentDescription = "Back"
+                        )
+                    }
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_app),
+                        contentDescription = "App Icon",
+                        tint = Color.Unspecified,
+                        //modifier = Modifier.padding(start = 5.dp)
+                    )
+                }
             }
-        },
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = colorResource(R.color.dark_blue)
+
         )
-    )
+    }
+    AboutUsContent(function = {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(200.dp)
+                .background(Color.LightGray),
+            contentAlignment = Alignment.Center
+        ) {
+            Text("Image Placeholder", color = Color.DarkGray)
+        }
+    })
 }
 
+
 @Composable
-fun AboutUsContent(paddingValues: PaddingValues, function: @Composable () -> Unit) {
+fun AboutUsContent(function: @Composable () -> Unit) {
     Column(
         modifier = Modifier
-            .padding(paddingValues)
-            //.padding(16.dp)
+            .padding(6.dp)
             .fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally 
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
         Image(
@@ -102,7 +117,7 @@ fun AboutUsContent(paddingValues: PaddingValues, function: @Composable () -> Uni
             text = "YallaBuy",
             fontSize = 28.sp,
             fontWeight = FontWeight.Bold,
-            color = colorResource(R.color.dark_blue)
+            color = colorResource(R.color.dark_turquoise)
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -112,7 +127,7 @@ fun AboutUsContent(paddingValues: PaddingValues, function: @Composable () -> Uni
             text = "It is an m-Commerce Application that presents products from different vendors and enables the authenticated users to add/remove products to/from their shopping carts and complete the whole shopping cycle online through the app.",
             fontSize = 16.sp,
             textAlign = TextAlign.Center,
-            color = colorResource(R.color.dark_blue),
+            color = colorResource(R.color.dark_turquoise),
             modifier = Modifier.padding(horizontal = 16.dp)
         )
 
@@ -121,25 +136,3 @@ fun AboutUsContent(paddingValues: PaddingValues, function: @Composable () -> Uni
 }
 
 
-@Preview(showBackground = true, name = "About Us Preview")
-@Composable
-fun AboutUsScreenPreview() {
-    Scaffold(
-        topBar = {
-            AboutUsTopAppBar(onNavigateBack = {})
-        },
-        containerColor = Color.White
-    ) { paddingValues ->
-        AboutUsContent(paddingValues = paddingValues) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(200.dp)
-                    .background(Color.LightGray),
-                contentAlignment = Alignment.Center
-            ) {
-                Text("Image Placeholder", color = Color.DarkGray)
-            }
-        }
-    }
-}

@@ -19,32 +19,32 @@ import kotlinx.coroutines.launch
 
 class AddressViewModel(
     private val repository: RepositoryInterface,
-    ) : ViewModel() {
+    ) : ViewModel(), IAddressViewModel {
 
     private val _addressState = MutableStateFlow<ApiResponse<AddressesResponse>>(ApiResponse.Loading)
-    val addressState: StateFlow<ApiResponse<AddressesResponse>> = _addressState.asStateFlow()
+    override val addressState: StateFlow<ApiResponse<AddressesResponse>> = _addressState.asStateFlow()
 
-    private val _addressesList = MutableStateFlow<List<Address>>(emptyList())
-     val addressesList = _addressesList.asStateFlow()
+    val _addressesList = MutableStateFlow<List<Address>>(emptyList())
+     override val addressesList = _addressesList.asStateFlow()
 
     private val _singleAddressState = MutableStateFlow<ApiResponse<NewAddressResponse>>(ApiResponse.Loading)
-    val singleAddressState: StateFlow<ApiResponse<NewAddressResponse>> = _singleAddressState.asStateFlow()
+    override val singleAddressState: StateFlow<ApiResponse<NewAddressResponse>> = _singleAddressState.asStateFlow()
 
     private val _createUpdateState = MutableStateFlow<ApiResponse<NewAddressResponse>>(ApiResponse.Loading)
-    val createUpdateState: StateFlow<ApiResponse<NewAddressResponse>> = _createUpdateState.asStateFlow()
+    override val createUpdateState: StateFlow<ApiResponse<NewAddressResponse>> = _createUpdateState.asStateFlow()
 
     private val _deleteState = MutableStateFlow<ApiResponse<Unit>>(ApiResponse.Loading)
-    val deleteState: StateFlow<ApiResponse<Unit>> = _deleteState.asStateFlow()
+    override val deleteState: StateFlow<ApiResponse<Unit>> = _deleteState.asStateFlow()
 
     private var customerId: Long =0L
 
-      fun  setCustomerId(id: Long) {
+      override fun  setCustomerId(id: Long) {
             customerId = id
         }
 
-    fun getCustomerId() = customerId
+    override fun getCustomerId() = customerId
 
-    fun getAddresses() {
+    override fun getAddresses() {
         viewModelScope.launch {
             _addressState.value = ApiResponse.Loading
             repository.getAddresses(customerId)
@@ -58,30 +58,35 @@ class AddressViewModel(
         }
     }
 
-
-    @SuppressLint("SuspiciousIndentation")
-    fun createAddress(addressBody: AddressBody) {
+    override fun createAddress(addressBody: AddressBody) {
+        if (customerId == 0L) {
+            //Log.e("AddressViewModel", "CustomerId not set before creating address!")
+            return
+        }
         viewModelScope.launch {
-            Log.i("TAG", "createAddress: $addressBody")
+            //Log.i("TAG", "createAddress: $addressBody")
             _createUpdateState.value = ApiResponse.Loading
-            repository.createCustomerAddress(customerId, addressBody)
 
+            repository.createCustomerAddress(customerId, addressBody)
                 .catch { e -> _createUpdateState.value = ApiResponse.Failure(e) }
                 .collect { response ->
-                    run {
-                        //getAddresses()
-                        _addressesList.update {
-                          val mutableList =  it.toMutableList()
-                            mutableList.add(addressBody.address)
-                            mutableList.toList()
+                    val newAddress = response.address
+
+                    _addressesList.update { list ->
+                        val newAddress = response.address
+                        val updatedList = if (newAddress.default) {
+                            list.map { it.copy(default = false) } + newAddress
+                        } else {
+                            list + newAddress
                         }
-                        _createUpdateState.value = ApiResponse.Success(response)
+                        updatedList
                     }
+                    _createUpdateState.value = ApiResponse.Success(response)
                 }
         }
     }
 
-    fun updateAddress( addressId: Long, updatedAddressBody: AddressBody) {
+    override fun updateAddress(addressId: Long, updatedAddressBody: AddressBody) {
         viewModelScope.launch {
             _createUpdateState.value = ApiResponse.Loading
             repository.updateCustomerAddress(customerId, addressId, updatedAddressBody)
@@ -90,8 +95,10 @@ class AddressViewModel(
                 .collect { response ->
                     response.address.let { updated ->
                         _addressesList.update { list ->
-                            list.map {
-                                if (it.id == addressId) updated else it
+                            if (updated.default) {
+                                list.map { it.copy(default = (it.id == updated.id)) }
+                            } else {
+                                list.map { if (it.id == updated.id) updated else it }
                             }
                         }
                     }
@@ -100,7 +107,7 @@ class AddressViewModel(
         }
     }
 
-    fun deleteAddress(addressId: Long) {
+    override fun deleteAddress(addressId: Long) {
         viewModelScope.launch {
             _deleteState.value = ApiResponse.Loading
             try {
@@ -114,7 +121,7 @@ class AddressViewModel(
             }
         }
     }
-    fun setDefaultAddress(selectedAddress: Address) {
+    override fun setDefaultAddress(selectedAddress: Address) {
         viewModelScope.launch {
             if (selectedAddress.default) return@launch
 
@@ -140,17 +147,16 @@ class AddressViewModel(
                 }
         }
     }
+
+    fun trimAddressFromZip(fullAddress: String): String {
+        val regex = Regex("""\d{4,6}""")
+        val match = regex.find(fullAddress)
+        return if (match != null) {
+            fullAddress.substring(0, match.range.first).trimEnd(',', ' ', '\n')
+        } else {
+            fullAddress
+        }
+    }
+
 }
 
-//class AddressViewModelFactory(
-//    private val addressRepository: IAddressRepository,
-//    private val customerId: Long
-//) : ViewModelProvider.Factory {
-//    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-//        if (modelClass.isAssignableFrom(AddressViewModel::class.java)) {
-//            @Suppress("UNCHECKED_CAST")
-//            return AddressViewModel(addressRepository, customerId) as T
-//        }
-//        throw IllegalArgumentException("Unknown ViewModel class")
-//    }
-//}

@@ -1,5 +1,6 @@
 package com.example.yallabuy_user.ui.navigation
 
+import android.net.Uri
 import androidx.compose.ui.graphics.painter.Painter
 import kotlinx.serialization.Serializable
 
@@ -23,35 +24,17 @@ sealed class ScreenRoute(val route: String) {
 
     @Serializable
     data object Profile : ScreenRoute("profile")
-    /*    @Serializable
-        data class ProductsScreen (val collectionId:Long?): ScreenRoute("products/$collectionId?")*/
 
     @Serializable
-    data class ProductsScreen(val vendorName: String?, val categoryID: Long?) : ScreenRoute(
-        route = "products/{vendorName}/{categoryID}"
-    ) {
-        companion object {
-            const val BASE_ROUTE = "products"
-            const val FULL_ROUTE = "products/{vendorName}/{categoryID}"
-            fun createRoute(vendorName: String?, categoryID: Long?): String {
-                return if (vendorName != null || categoryID != null) "products/$vendorName/$categoryID" else BASE_ROUTE
-            }
-        }
-    }
+    data class ProductsScreen(val vendorName: String?, val categoryID: Long?, val title: String?) : ScreenRoute(
+        "products/{vendorName}/{categoryID}/{title}"
+    )
 
     @Serializable
     data object PreviousOrders : ScreenRoute("previous_orders")
 
     @Serializable
-    data class PreviousOrderDetails(val orderId: Long?) :
-        ScreenRoute(route = "previous_orders/$orderId") {
-        companion object {
-            const val BASE_ROUTE = "previous_orders"
-            const val FULL_ROUTE = "previous_orders/{orderId}"
-            fun createRoute(orderId: Long?): String {
-                return if (orderId != null) "$BASE_ROUTE/$orderId" else BASE_ROUTE
-            }
-        }
+    data class PreviousOrderDetails(val orderId: Long?) : ScreenRoute("previous_orders/$orderId") {
     }
 
     @Serializable
@@ -62,9 +45,6 @@ sealed class ScreenRoute(val route: String) {
 
     @Serializable
     data object Login : ScreenRoute("Login")
-
-//    @Serializable //I added that
-//    data class ProductInfo(val productId: Long)
 
     @Serializable
     data object Settings : ScreenRoute("settings")
@@ -84,11 +64,29 @@ sealed class ScreenRoute(val route: String) {
     @Serializable
     data object Address : ScreenRoute("address")
 
+    @Serializable
+    data class AddressForm(
+        val addressId: Long,
+        val fullAddress: String,
+        val city: String,
+        val country: String
+    ) : ScreenRoute("address_form? \"addressId={addressId}&fullAddress={fullAddress}&city={city}&country={country}") {
+        fun createRoute(): String =
+            "address_form?addressId=${addressId}&fullAddress=${Uri.encode(fullAddress)}&city=${Uri.encode(city)}&country=${Uri.encode(country)}"
+    }
+
+    @Serializable
+    data class Payment(val total: Double) : ScreenRoute("payment")
+
+
 //@Serializable
 //data class Address(val customerId: Long) : ScreenRoute("address/{customerId}") {
 //    companion object {
 //        fun createRoute(customerId: Long) = "address/$customerId"
 //    }
 //}
+
+    @Serializable
+    data class OrderCheckOut(val orderId: Long, val totalAmount: Double) : ScreenRoute("new_order")
 
 }

@@ -2,7 +2,6 @@ package com.example.yallabuy_user.settings.view
 
 import android.Manifest
 import android.content.Intent
-import android.location.Address
 import android.location.Geocoder
 import android.net.Uri
 import android.os.Build
@@ -11,17 +10,16 @@ import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.LocationOn
@@ -30,6 +28,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -53,12 +52,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.navigation.NavController
 import com.example.yallabuy_user.R
 import com.example.yallabuy_user.settings.viewmodel.AddressViewModel
 import com.example.yallabuy_user.utilities.LocationPermissionManager
@@ -75,7 +77,6 @@ import org.koin.androidx.compose.koinViewModel
 import java.util.Locale
 
 
-
 //Permissions
 //check location enabled or not and do it as we did in climate app
 //move the camera to user location
@@ -86,16 +87,60 @@ import java.util.Locale
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MapLocationScreen(
-    viewModel: AddressViewModel= koinViewModel(),
+    viewModel: AddressViewModel = koinViewModel(),
     locationPermissionManager: LocationPermissionManager,
     onNavigateBack: () -> Unit,
-   // onLocationConfirmed: (Address) -> Unit
+    navController: NavController,
+    setTopBar: ((@Composable () -> Unit)) -> Unit,
 ) {
+    LaunchedEffect(Unit) {
+        setTopBar {
+            CenterAlignedTopAppBar(
+                title = {
+                    Text(
+                        "Map", color = Color.White,
+                        fontFamily = FontFamily(Font(R.font.caprasimo_regular)),
+                        fontWeight = FontWeight.Bold
+                    )
+                },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = colorResource(R.color.teal_80)
+                ),
+                navigationIcon = {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Start
+                    ) {
+                        IconButton(onClick = onNavigateBack) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
+                                contentDescription = "Back"
+
+                            )
+                        }
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_app),
+                            contentDescription = "App Icon",
+                            tint = Color.Unspecified,
+                            //modifier = Modifier.padding(start = 5.dp)
+                        )
+                    }
+                }
+
+            )
+        }
+    }
+    val context = LocalContext.current
+    val activity = LocalActivity.current
     var selectedLocation by remember { mutableStateOf(LatLng(30.0444, 31.2357)) }
     var currentAddress by remember { mutableStateOf("Searching for address...") }
+    var city by remember { mutableStateOf("") }
+    var country by remember { mutableStateOf("") }
 
-    val context = LocalContext.current
-    val lifecycleOwner = LocalLifecycleOwner.current
+    val cameraPositionState = rememberCameraPositionState {
+        position = CameraPosition.fromLatLngZoom(selectedLocation, 15f)
+    }
+
 
     var showRationaleDialog by remember { mutableStateOf(false) }
     var showPermissionDeniedDialog by remember { mutableStateOf(false) }
@@ -106,16 +151,9 @@ fun MapLocationScreen(
     var showLocationSettingsDialog by remember { mutableStateOf(false) }
     var showInternetDialog by remember { mutableStateOf(false) }
 
-    var showRecipientDialog by remember { mutableStateOf(false) }
-
-
-    val geocoder = remember { Geocoder(context, Locale.getDefault()) }
-
-    val cameraPositionState = rememberCameraPositionState {
-        position = CameraPosition.fromLatLngZoom(selectedLocation, 15f)
-    }
-
-    val activity = LocalActivity.current
+    //val geocoder = remember { Geocoder(context, Locale.getDefault()) }
+    //var detectedAddress by remember { mutableStateOf("Tap on the map to select an address") }
+    //var showEditDialog by remember { mutableStateOf(false) }
 
     val launcher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -144,44 +182,37 @@ fun MapLocationScreen(
         )
     }
 
-
-
-
-//    LaunchedEffect(cameraPositionState.position) {
-//        delay(500)
-//        updateAddressFromLocation(
-//            geocoder = geocoder,
-//            location = cameraPositionState.position.target,
-//            onAddressUpdated = { address ->
-//                currentAddress = address
-//            }
-//        )
-//    }
-
     LaunchedEffect(cameraPositionState.isMoving) {
         if (!cameraPositionState.isMoving) {
             selectedLocation = cameraPositionState.position.target
-
             Geocoder(context, Locale.getDefault()).getFromLocation(
                 selectedLocation.latitude,
                 selectedLocation.longitude,
                 1,
                 object : Geocoder.GeocodeListener {
-                    override fun onGeocode(addresses: MutableList<Address>) {
-                        currentAddress = if (addresses.isNotEmpty()) {
-                            addresses[0].getAddressLine(0) ?: "Address not found"
+                    override fun onGeocode(addresses: MutableList<android.location.Address>) {
+                        if (addresses.isNotEmpty()) {
+                            val addr = addresses[0]
+                            currentAddress = addr.getAddressLine(0) ?: "Address not found"
+                            city = addr.locality ?: ""
+                            country = addr.countryName ?: ""
                         } else {
-                            "Address not found"
+                            currentAddress = "Address not found"
+                            city = ""
+                            country = ""
                         }
                     }
 
                     override fun onError(errorMessage: String?) {
                         currentAddress = "Address not found"
+                        city = ""
+                        country = ""
                     }
                 }
             )
         }
     }
+
 
     LaunchedEffect(Unit) {
         locationPermissionManager.checkPermission() //internet
@@ -190,29 +221,15 @@ fun MapLocationScreen(
     }
 
     LaunchedEffect(Unit) {
-        if (!PermissionUtils.checkPermission(context)){
+        if (!PermissionUtils.checkPermission(context)) {
             launcher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
         }
     }
-
-//    LaunchedEffect(hasPermission) {
-//        if (!hasPermission) {
-//            locationPermissionManager.requestPermission()
-//        }
-//    }
 
     LaunchedEffect(isLocationEnabled, hasPermission) {
         showLocationSettingsDialog = hasPermission && !isLocationEnabled
     }
 
-    LaunchedEffect(hasPermission, isLocationEnabled) {
-//        if (hasPermission && isLocationEnabled) {
-//            locationPermissionManager.getUserCurrentLocation(context) { latLng ->
-//                selectedLocation = latLng
-//                cameraPositionState.move(CameraUpdateFactory.newLatLngZoom(latLng, 15f))
-//            }
-//        }
-    }
 
     if (showInternetDialog) {
         AlertDialog(
@@ -319,26 +336,11 @@ fun MapLocationScreen(
     }
 
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Select delivery location", color = Color.White) },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                            contentDescription = "Back",
-                            tint = Color.White
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = colorResource(id = R.color.dark_blue)
-                )
-            )
-        }
+
     ) { paddingValues ->
         Box(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                .fillMaxSize()
                 .padding(paddingValues)
         ) {
 
@@ -383,10 +385,6 @@ fun MapLocationScreen(
                 }
             }
 
-
-
-
-
             Icon(
                 imageVector = Icons.Default.LocationOn,
                 contentDescription = "Location Marker",
@@ -394,15 +392,11 @@ fun MapLocationScreen(
                     .size(48.dp)
                     .align(Alignment.Center)
                     .offset(y = (-24).dp),
-                tint = colorResource(id = R.color.dark_blue)
+                tint = colorResource(id = R.color.dark_turquoise)
             )
 
             FloatingActionButton(
                 onClick = {
-//                    getCurrentLocation(context) { location ->
-//                        selectedLocation = location
-//                        cameraPositionState.position = CameraPosition.fromLatLngZoom(location, 15f)
-                    //}
                 },
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
@@ -412,13 +406,18 @@ fun MapLocationScreen(
                 Icon(
                     imageVector = Icons.Default.LocationOn,
                     contentDescription = "My Location",
-                    tint = colorResource(id = R.color.dark_blue)
+                    tint = colorResource(id = R.color.dark_turquoise)
                 )
             }
 
             Button(
                 onClick = {
-                    showRecipientDialog = true
+                    navController.navigate(
+                        "address_form" +
+                                "?fullAddress=${Uri.encode(currentAddress)}" +
+                                "&city=${Uri.encode(city)}" +
+                                "&country=${Uri.encode(country)}"
+                    )
                 },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -426,7 +425,7 @@ fun MapLocationScreen(
                     .align(Alignment.BottomCenter),
                 shape = RoundedCornerShape(8.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = colorResource(id = R.color.dark_blue)
+                    containerColor = colorResource(id = R.color.dark_turquoise)
                 )
             ) {
                 Text(
@@ -435,65 +434,8 @@ fun MapLocationScreen(
                     fontSize = 18.sp
                 )
             }
-        }
 
-        
+
+        }
     }
-
-
-}
-
-@Composable
-fun RecipientDialog(
-    address: String,
-    onDismiss: () -> Unit,
-    onSubmit: (firstName: String, lastName: String, phone: String, address: String) -> Unit
-) {
-    var firstName by remember { mutableStateOf("") }
-    var lastName by remember { mutableStateOf("") }
-    var phone by remember { mutableStateOf("") }
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        confirmButton = {
-            TextButton(onClick = {
-                onSubmit(firstName, lastName, phone, address)
-            }) {
-                Text("Save")
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Cancel")
-            }
-        },
-        title = { Text("Enter recipient details") },
-        text = {
-            Column {
-                OutlinedTextField(
-                    value = firstName,
-                    onValueChange = { firstName = it },
-                    label = { Text("Recipient First Name") },
-                    singleLine = true
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                OutlinedTextField(
-                    value = lastName,
-                    onValueChange = { lastName = it },
-                    label = { Text("Recipient Last Name") },
-                    singleLine = true
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                OutlinedTextField(
-                    value = phone,
-                    onValueChange = { phone = it },
-                    label = { Text("Phone Number") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
-                    singleLine = true
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text("Full address: $address", style = MaterialTheme.typography.bodySmall)
-            }
-        }
-    )
 }

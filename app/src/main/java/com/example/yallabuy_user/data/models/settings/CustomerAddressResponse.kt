@@ -2,6 +2,7 @@ package com.example.yallabuy_user.data.models.settings
 
 import com.google.gson.annotations.SerializedName
 
+
 data class Address(
     @SerializedName("id")
     var id: Long = 0,
@@ -32,7 +33,6 @@ data class Address(
 
     override fun getDetailedDescription(): String = "Recipient Name: $firstName $lastName" +
             "\nRecipient Phone Number: $phone\n$fullAddress"
-
 }
 
 data class AddressBody(

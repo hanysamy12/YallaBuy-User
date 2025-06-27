@@ -137,12 +137,26 @@ dependencies {
 
     //Async image
     implementation("io.coil-kt:coil-compose:2.4.0")
+    implementation("io.coil-kt:coil:2.5.0")
+    implementation("io.coil-kt:coil-gif:2.5.0")
+
 
     //json
     implementation ("com.airbnb.android:lottie-compose:6.1.0")
 
+    //////Test
+    androidTestImplementation("androidx.test.ext:junit:1.1.5")
+    testImplementation("io.mockk:mockk:1.13.8")
+    testImplementation("androidx.test.ext:junit-ktx:1.1.5")
+    testImplementation("androidx.test:core-ktx:1.5.0")
+    testImplementation("org.robolectric:robolectric:4.11.1")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.1")
+    testImplementation(kotlin("test"))
 
     //google
     implementation("com.google.maps.android:maps-compose:6.5.2")
     implementation("com.google.android.libraries.places:places:3.3.0")
+
+    //payment
+    implementation ("com.google.android.gms:play-services-wallet:19.3.0")
 }

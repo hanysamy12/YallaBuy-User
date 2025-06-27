@@ -1,6 +1,7 @@
 package com.mariammuhammad.yallabuy.View.Settings
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -11,17 +12,19 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Scaffold
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -32,6 +35,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -46,9 +51,49 @@ import com.example.yallabuy_user.ui.navigation.ScreenRoute
 //We need to navigate here and tto change the function name
 //remove the view Model since it's static data and make everything here
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsScreen(navController: NavController) {
+fun SettingsScreen(navController: NavController, setTopBar: ((@Composable () -> Unit)) -> Unit) {
 
+    LaunchedEffect(Unit) {
+        setTopBar {
+            setTopBar {
+                CenterAlignedTopAppBar(
+                    title = {
+                        Text(
+                            "Settings", color = Color.White,
+                            fontFamily = FontFamily(Font(R.font.caprasimo_regular)),
+                            fontWeight = FontWeight.Bold
+                        )
+                    },
+                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                        containerColor = colorResource(R.color.teal_80)
+                    ),
+                    navigationIcon = {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Start
+                        ) {
+                            IconButton(onClick = { navController.popBackStack() }) {
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
+                                    contentDescription = "Back"
+
+                                )
+                            }
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_app),
+                                contentDescription = "App Icon",
+                                tint = Color.Unspecified,
+                                //modifier = Modifier.padding(start = 5.dp)
+                            )
+                        }
+                    }
+
+                )
+            }
+        }
+    }
     var showLoginDialog by remember { mutableStateOf(false) }
     val context = LocalContext.current
 
@@ -59,8 +104,7 @@ fun SettingsScreen(navController: NavController) {
             onClick = {
                 if (CustomerIdPreferences.getData(context) != 0L) {
                     navController.navigate(ScreenRoute.Address.route)
-                }
-                else{
+                } else {
                     showLoginDialog = true
 
                 }
@@ -88,52 +132,26 @@ fun SettingsScreen(navController: NavController) {
             }
         ),
 
-        SettingsItem(
-            title = "Previous Orders",
-            icon = R.drawable.app_icon2,
-            onClick = {
-                navController.navigate(ScreenRoute.PreviousOrders.route)
+        )
+
+
+    SettingsListContent(
+        settingsItems = settingsItems,
+        modifier = Modifier.padding(6.dp)
+    )
+
+    if (showLoginDialog) {
+        LoginPromptDialog(
+            onDismiss = { showLoginDialog = false },
+            onConfirm = {
+                showLoginDialog = false
+                navController.navigate(ScreenRoute.Login.route)
             }
         )
-    )
-
-    Scaffold(
-        topBar = { SettingsTopAppBar() },
-        containerColor = Color.White
-    ) { innerPadding ->
-        SettingsListContent(
-            settingsItems = settingsItems,
-            modifier = Modifier.padding(innerPadding)
-        )
-
-        if (showLoginDialog) {
-            LoginPromptDialog(
-                onDismiss = { showLoginDialog = false },
-                onConfirm = {
-                    showLoginDialog = false
-                    navController.navigate(ScreenRoute.Login.route)
-                }
-            )
-        }
     }
+
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun SettingsTopAppBar() {
-    TopAppBar(
-        title = {
-            Text(
-                text = "Settings",
-                color = Color.White,
-                fontWeight = FontWeight.Bold
-            )
-        },
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = colorResource(R.color.dark_blue)
-        )
-    )
-}
 
 @Composable
 fun LoginPromptDialog(
@@ -197,14 +215,14 @@ fun SettingsListItem(item: SettingsItem) {
         Text(
             text = item.title,
             fontSize = 16.sp,
-            color = colorResource(id = R.color.dark_blue),
+            color = colorResource(id = R.color.dark_turquoise),
             modifier = Modifier.weight(1f)
         )
         Icon(
             imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
             contentDescription = "Navigate",
             modifier = Modifier.size(16.dp),
-            tint = colorResource(R.color.dark_blue)
+            tint = colorResource(R.color.dark_turquoise)
         )
     }
 }

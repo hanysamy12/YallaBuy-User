@@ -15,10 +15,14 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -26,6 +30,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -38,15 +46,51 @@ import com.example.yallabuy_user.utilities.ApiResponse
 import org.koin.androidx.compose.koinViewModel
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PreviousOrdersScreen(
-    navController: NavController, orderViewModel: OrdersViewModel = koinViewModel()
+    navController: NavController, orderViewModel: OrdersViewModel = koinViewModel(),
+    setTopBar: (@Composable () -> Unit) -> Unit
 ) {
 
     val uiOrdersState by orderViewModel.orders.collectAsState()
-
+    val context = LocalContext.current
     LaunchedEffect(Unit) {
-        orderViewModel.getPreviousOrders(8792449548606)
+        setTopBar {
+            CenterAlignedTopAppBar(
+                title = {
+                    Text(
+                        "Latest Orders", color = Color.White,
+                        fontFamily = FontFamily(Font(R.font.caprasimo_regular)),
+                        fontWeight = FontWeight.Bold
+                    )
+                },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = Color(0xFF3B9A94)
+                ),
+                navigationIcon = {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Start
+                    ) {
+                        IconButton(onClick = { navController.popBackStack() }) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
+                                contentDescription = "Back"
+
+                            )
+                        }
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_app),
+                            contentDescription = "App Icon",
+                            tint = Color.Unspecified,
+                            //modifier = Modifier.padding(start = 5.dp)
+                        )
+                    }
+                }
+            )
+        }
+        orderViewModel.getPreviousOrders(context)
     }
     Box {
 
@@ -67,17 +111,32 @@ fun PreviousOrdersScreen(
 
                 is ApiResponse.Success<*> -> {
                     val orders = (uiOrdersState as ApiResponse.Success).data
-
-                    LazyColumn(modifier = Modifier.fillMaxSize()) {
-                        items(orders.size) { index ->
-                            OrderItem(
-                                orders[index], onOrderClicked = {
-                                    navController.navigate(
-                                        ScreenRoute.PreviousOrderDetails.createRoute(
-                                            it
+                    if (orders.isNotEmpty()) {
+                        LazyColumn(modifier = Modifier.fillMaxSize()) {
+                            items(orders.size) { index ->
+                                OrderItem(
+                                    orders[index],
+                                    onOrderClicked = {
+                                        navController.navigate(
+                                            ScreenRoute.PreviousOrderDetails(orderId = it)
                                         )
-                                    )
-                                })
+                                    },
+                                )
+                            }
+                        }
+                    } else {
+                        Column(
+                            Modifier.fillMaxSize(),
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            AsyncImage(
+                                modifier = Modifier
+                                    .size(150.dp)
+                                    .background(shape = RoundedCornerShape(12.dp), color = Color.White),
+                                model = R.drawable.empty_cart,
+                                contentDescription = ""
+                            )
                         }
                     }
                 }

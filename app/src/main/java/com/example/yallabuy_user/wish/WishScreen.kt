@@ -3,6 +3,7 @@ package com.example.yallabuy_user.wish
 import DraftOrderLineItem
 import android.util.Log
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -29,9 +30,12 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -44,6 +48,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -63,27 +70,77 @@ import com.example.yallabuy_user.utilities.ApiResponse
 import org.koin.androidx.compose.koinViewModel
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun WishScreen(navController: NavController, wishListViewModel: WishViewModel = koinViewModel()) {
+fun WishScreen(
+    navController: NavController,
+    wishListViewModel: WishViewModel = koinViewModel(),
+    setTopBar: (@Composable () -> Unit) -> Unit
+) {
+
 
     val allWishListProduct = wishListViewModel.allWishListProduct.collectAsState().value
+    val resetWishListSharedPreference =
+        wishListViewModel.resetWishListSharedPreference.collectAsState().value
     val context = LocalContext.current
     val showLoading = remember { mutableStateOf(false) }
     LaunchedEffect(allWishListProduct) {
         wishListViewModel.getAllProductFromWishList(WishListIdPref.getWishListId(context))
+
+        setTopBar {
+            CenterAlignedTopAppBar(
+                title = {
+                    Text(
+                        "Wish List", color = Color.White,
+                        fontFamily = FontFamily(Font(R.font.caprasimo_regular)),
+                        fontWeight = FontWeight.Bold
+                    )
+                },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = Color(0xFF3B9A94)
+                ),
+                navigationIcon = {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_app),
+                        contentDescription = "App Icon",
+                        tint = Color.Unspecified, // Optional: set tint if needed
+                        modifier = Modifier.padding(start = 12.dp)
+                    )
+                }
+            )
+        }
     }
 
+    if (resetWishListSharedPreference) {
+        Log.i("checkingWishList", "WishScreen saving shared preference  ")
+        WishListIdPref.saveWishListID(context, 0L)
+    }
     when (allWishListProduct) {
         is ApiResponse.Failure -> {
-            Log.i("TAG", "WishScreen fail")
+            Log.i("wishList", "WishScreen fail")
         }
 
         ApiResponse.Loading -> {
+            Log.i("wishList", "WishScreen loading")
             showLoading.value = true
         }
 
         is ApiResponse.Success -> {
-            WishListItems(allWishListProduct.data, navController , wishListViewModel)
+            if (allWishListProduct.data.isNotEmpty()) {
+                WishListItems(allWishListProduct.data, navController, wishListViewModel)
+            } else {
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Image(
+                        painterResource(R.drawable.empty_wish_list),
+                        contentDescription = "empty",
+                        modifier = Modifier.size(250.dp)
+                    )
+                }
+            }
         }
     }
 }
@@ -103,7 +160,7 @@ fun WishListItems(
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         itemsIndexed(draftOrderLineItems) { _, product ->
-            WishListItemCard(product, navController , wishListViewModel  )
+            WishListItemCard(product, navController, wishListViewModel)
         }
     }
 }
@@ -122,7 +179,11 @@ fun WishListItemCard(
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         onClick = {
             Log.i("ids", "WishListItemCard ${product.properties?.get(1)?.value?.toLong()} ")
-            navController.navigate(ScreenRoute.ProductInfo(product.properties?.get(1)?.value?.toLong() ?: 0))
+            navController.navigate(
+                ScreenRoute.ProductInfo(
+                    product.properties?.get(1)?.value?.toLong() ?: 0
+                )
+            )
         }
     ) {
         Column(
@@ -146,8 +207,8 @@ fun WishListItemCard(
                         .align(Alignment.TopEnd)
                         .padding(8.dp)
                         .zIndex(1f),
-                    wishListViewModel ,
-                    product.title ,
+                    wishListViewModel,
+                    product.title,
                 )
             }
 
@@ -203,9 +264,9 @@ fun DeleteProductAlert(
         // Alert Dialog Box
         AlertDialog(
             dismissButton = {
-                TextButton (
+                TextButton(
                     onClick = {
-                       onDismissRequest()
+                        onDismissRequest()
                     }, colors = ButtonDefaults.buttonColors(
                         containerColor = Color.Transparent,
                         contentColor = Color.Black
@@ -213,19 +274,21 @@ fun DeleteProductAlert(
                 ) {
                     Text("Cancel")
                 }
-            } ,
+            },
             // set dismiss request
             onDismissRequest = {
                 onDismissRequest()
             },
             // configure confirm button
             confirmButton = {
-                TextButton (
+                TextButton(
                     onClick = {
                         onConfirmation()
                         wishListViewModel.deleteProductFromWishList(
-                            WishListIdPref.getWishListId(context) , CustomerIdPreferences.getData(context)
-                        ,title?:"not found")
+                            WishListIdPref.getWishListId(context),
+                            CustomerIdPreferences.getData(context),
+                            title ?: "not found"
+                        )
                     }, colors = ButtonDefaults.buttonColors(
                         containerColor = Color.Transparent,
                         contentColor = Color.Red
@@ -300,15 +363,15 @@ fun HeartInCircle(
     }
 
     if (showErrorDialog.value) {
-        DeleteProductAlert (
+        DeleteProductAlert(
             onConfirmation = {
                 showErrorDialog.value = false
             },
             onDismissRequest = {
                 showErrorDialog.value = false
-            } ,
-            wishListViewModel ,
-            title ,
+            },
+            wishListViewModel,
+            title,
         )
     }
 

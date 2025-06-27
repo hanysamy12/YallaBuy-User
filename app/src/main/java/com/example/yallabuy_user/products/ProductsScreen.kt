@@ -15,13 +15,17 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -32,9 +36,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.yallabuy_user.R
 import com.example.yallabuy_user.collections.Product
 import com.example.yallabuy_user.data.models.ProductsItem
 import com.example.yallabuy_user.home.ProgressShow
@@ -44,27 +53,54 @@ import org.koin.androidx.compose.koinViewModel
 
 private const val TAG = "ProductsScreen"
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProductsScreen(
     navController: NavController,
-    isFilterBarShown: Boolean = false,
     vendorName: String? = null,
     categoryID: Long? = null,
-    viewModel: ProductsViewModel = koinViewModel()
+    viewModel: ProductsViewModel = koinViewModel(),
+    setTopBar: (@Composable () -> Unit) -> Unit,
+    title: String?
 ) {
     val uiProductsState by viewModel.products.collectAsState()
     val searchQuery = remember { mutableStateOf("") }
 
+    var isFilterBarShown by remember { mutableStateOf(false) }
     var maxPrice by remember { mutableFloatStateOf(0f) }
     var minPrice by remember { mutableFloatStateOf(0f) }
     var currentPrice by remember { mutableFloatStateOf(0f) }
-    var priceUnit by remember { mutableStateOf("EG") }
-    val currencyOptions = listOf("EGP", "$", "€", "SAR")
 
 
     var isPriceSet by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) {
 
+        setTopBar {
+            CenterAlignedTopAppBar(
+                title = {
+                    Text(
+                        title ?: "All Products", color = Color.White,
+                        fontFamily = FontFamily(Font(R.font.caprasimo_regular)),
+                        fontWeight = FontWeight.Bold
+                    )
+                },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = Color(0xFF3B9A94)
+                ),
+                actions = {
+                    IconButton(
+                        onClick = { isFilterBarShown = !isFilterBarShown },
+                        content = {
+                            Icon(
+                                painter = painterResource(R.drawable.ic_filter),
+                                contentDescription = "Search Icon"
+                            )
+                        }
+
+                    )
+                }
+            )
+        }
         categoryID?.let { viewModel.getCategoryProducts(categoryID) } ?: viewModel.getProducts(
             vendorName
         )
@@ -112,7 +148,10 @@ fun ProductsScreen(
                     modifier = Modifier
                         .padding(horizontal = 12.dp)
                 ) {
-                    Text("Price:${currentPrice.toInt()} ${Common.currencyCode.getCurrencyCode()}", fontSize = 13.sp)
+                    Text(
+                        "Price:${currentPrice.toInt()} ${Common.currencyCode.getCurrencyCode()}",
+                        fontSize = 13.sp
+                    )
                     Slider(
                         modifier = Modifier
                             .height(22.dp),

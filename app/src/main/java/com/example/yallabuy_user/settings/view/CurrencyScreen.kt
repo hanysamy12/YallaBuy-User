@@ -2,7 +2,9 @@ package com.example.yallabuy_user.settings.view
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -11,6 +13,7 @@ import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -30,9 +33,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.yallabuy_user.R
@@ -45,60 +52,69 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun CurrencyScreen(
     viewModel: CurrencyViewModel = koinViewModel(),
-    onNavigateBack: () -> Unit
+    onNavigateBack: () -> Unit,
+    setTopBar: @Composable (content: @Composable () -> Unit) -> Unit
 ) {
     val selectedCurrency by viewModel.selectedCurrency.collectAsState()
     val currencyState by viewModel.currencyState.collectAsState()
     val availableCurrencies = listOf("USD", "EUR", "EGP", "SAR")
-
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        "Currency Preference",
-                        color = Color.White,
-                        fontWeight = FontWeight.Bold
-                    )
-                },
-                navigationIcon = {
+    setTopBar {
+        CenterAlignedTopAppBar(
+            title = {
+                Text(
+                    "Currency", color = Color.White,
+                    fontFamily = FontFamily(Font(R.font.caprasimo_regular)),
+                    fontWeight = FontWeight.Bold
+                )
+            },
+            colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                containerColor = colorResource(R.color.teal_80)
+            ),
+            navigationIcon = {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Start
+                ) {
                     IconButton(onClick = onNavigateBack) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                            contentDescription = "Back",
-                            tint = Color.White
+                            contentDescription = "Back"
+
                         )
                     }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = colorResource(R.color.dark_blue)
-                )
-            )
-        },
-        containerColor = Color.White
-    ) {  paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(paddingValues)
-                .padding(horizontal = 16.dp, vertical = 8.dp)
-        ) {
-            Text(
-                text = "Choose your preferred currency",
-                style = MaterialTheme.typography.titleMedium,
-                color = colorResource(R.color.dark_blue),
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_app),
+                        contentDescription = "App Icon",
+                        tint = Color.Unspecified,
+                        //modifier = Modifier.padding(start = 5.dp)
+                    )
+                }
+            }
 
-            CurrencyPreferenceDropdown(
-                selectedCurrency = selectedCurrency,
-                availableCurrencies = availableCurrencies,
-                onCurrencySelected = viewModel::selectCurrency
-            )
-        }
+        )
+    }
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(6.dp)
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+    ) {
+        Text(
+            text = "Choose your preferred currency",
+            style = MaterialTheme.typography.titleMedium,
+            color = colorResource(R.color.dark_turquoise),
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+
+        CurrencyPreferenceDropdown(
+            selectedCurrency = selectedCurrency,
+            availableCurrencies = availableCurrencies,
+            onCurrencySelected = viewModel::selectCurrency
+        )
     }
 }
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CurrencyPreferenceDropdown(
@@ -117,21 +133,20 @@ fun CurrencyPreferenceDropdown(
             value = selectedCurrency,
             onValueChange = {},
             readOnly = true,
-            label = { Text("Preferred Currency", color = colorResource(R.color.dark_blue)) },
+            label = { Text("Preferred Currency", color = colorResource(R.color.dark_turquoise)) },
             trailingIcon = {
                 Icon(
                     imageVector = if (expanded) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown,
-                    contentDescription = null,
-                    modifier = Modifier.clickable { expanded = !expanded }
+                    contentDescription = null
                 )
             },
             colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(
-                focusedBorderColor = colorResource(R.color.dark_blue),
-                unfocusedBorderColor = colorResource(R.color.dark_blue).copy(alpha = 0.7f),
-                focusedLabelColor = colorResource(R.color.dark_blue),
-                unfocusedLabelColor = colorResource(R.color.dark_blue).copy(alpha = 0.7f),
-                focusedTextColor = colorResource(R.color.dark_blue),
-                unfocusedTextColor = colorResource(R.color.dark_blue)
+                focusedBorderColor = colorResource(R.color.dark_turquoise),
+                unfocusedBorderColor = colorResource(R.color.dark_turquoise).copy(alpha = 0.7f),
+                focusedLabelColor = colorResource(R.color.dark_turquoise),
+                unfocusedLabelColor = colorResource(R.color.dark_turquoise).copy(alpha = 0.7f),
+                focusedTextColor = colorResource(R.color.dark_turquoise),
+                unfocusedTextColor = colorResource(R.color.dark_turquoise)
             ),
             modifier = Modifier.menuAnchor()
         )
@@ -145,7 +160,7 @@ fun CurrencyPreferenceDropdown(
                     text = {
                         Text(
                             text = currencyCode,
-                            color = colorResource(R.color.dark_blue)
+                            color = colorResource(R.color.dark_turquoise)
                         )
                     },
                     onClick = {
@@ -162,38 +177,3 @@ fun CurrencyPreferenceDropdown(
         }
     }
 }
-//
-//@SuppressLint("ViewModelConstructorInComposable")
-//@Preview(showBackground = true)
-//@Composable
-//fun CurrencyPreferenceSettingPreview() {
-//    // Dummy ViewModel for preview
-//    class PreviewViewModel : CurrencyViewModel(object : CurrencyPreferenceManager {
-//
-//        private val flow = MutableStateFlow("EGP")
-//        override suspend fun getPreferredCurrency(): String = flow.value
-//        override suspend fun setPreferredCurrency(currencyCode: String) { flow.value = currencyCode }
-//        override val preferredCurrencyFlow: Flow<String> = flow
-//    })
-//
-//    MaterialTheme {
-//        CurrencyScreen(viewModel = PreviewViewModel())
-//    }
-//}
-//
-//@SuppressLint("ViewModelConstructorInComposable")
-//@Preview(showBackground = true)
-//@Composable
-//fun CurrencyPreferenceSettingUSDPreview() {
-//    // dummy ViewModel for preview
-//    class PreviewViewModel : CurrencyViewModel(object : CurrencyPreferenceManager {
-//        private val flow = MutableStateFlow("USD")
-//        override suspend fun getPreferredCurrency(): String = flow.value
-//        override suspend fun setPreferredCurrency(currencyCode: String) { flow.value = currencyCode }
-//        override val preferredCurrencyFlow: Flow<String> = flow
-//    })
-//
-//    MaterialTheme {
-//        CurrencyScreen(viewModel = PreviewViewModel())
-//    }
-//}

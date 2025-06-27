@@ -1,6 +1,8 @@
 package com.example.yallabuy_user.orders
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
+import com.example.yallabuy_user.authentication.login.CustomerIdPreferences
 import com.example.yallabuy_user.data.models.Order
 import com.example.yallabuy_user.data.models.OrdersItem
 import com.example.yallabuy_user.repo.RepositoryInterface
@@ -18,8 +20,9 @@ class OrdersViewModel(private val repository: RepositoryInterface) : OrdersViewM
     private val _orderProducts = MutableStateFlow<ApiResponse<Order>>(ApiResponse.Loading)
     val orderProducts: MutableStateFlow<ApiResponse<Order>> = _orderProducts
 
-    override suspend fun getPreviousOrders(userID: Long) {
+    override suspend fun getPreviousOrders(context: Context) {
         try {
+           val userID = CustomerIdPreferences.getData(context)
             repository.getPreviousOrders(userID).map { it.orders.orEmpty().filterNotNull() }
                 .catch { e -> _orders.value = ApiResponse.Failure(e) }
                 .collect { orders -> _orders.value = ApiResponse.Success(orders) }
