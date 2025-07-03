@@ -4,11 +4,11 @@ _A modern mobile shopping experience built with Jetpack Compose, Firebase, and S
 
 ---
 ## 📱 **Screenshots**
+
 | Home | Product Details | Cart | Checkout |
 |------|------------------|------|----------|
-| ![WhatsApp Image 2025-06-24 at 1 05 04 AM](https://github.com/user-attachments/assets/f97b8a80-75ec-41c8-8fb8-f9df31c5edc1) | ![WhatsApp Image 2025-06-24 at 1 05 07 AM](https://github.com/user-attachments/assets/7a52450c-24e4-45f6-9e68-8aedf02c873d) |
-![WhatsApp Image 2025-06-24 at 1 05 03 AM (2)](https://github.com/user-attachments/assets/51acf4f6-b243-4d39-8186-0b8bb5eb8b6b) |
-![WhatsApp Image 2025-06-24 at 1 05 06 AM](https://github.com/user-attachments/assets/04b7c675-2ebb-4b8a-8fa1-b699eb11bb9d) |
+| ![Home](https://github.com/user-attachments/assets/f97b8a80-75ec-41c8-8fb8-f9df31c5edc1) | ![Details](https://github.com/user-attachments/assets/7a52450c-24e4-45f6-9e68-8aedf02c873d) | ![Cart](https://github.com/user-attachments/assets/51acf4f6-b243-4d39-8186-0b8bb5eb8b6b) | ![Checkout](https://github.com/user-attachments/assets/04b7c675-2ebb-4b8a-8fa1-b699eb11bb9d) |
+
 ---
 
 ## 🚀 **Features**
