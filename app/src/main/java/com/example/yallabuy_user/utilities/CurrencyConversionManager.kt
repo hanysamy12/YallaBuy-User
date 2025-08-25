@@ -1,8 +1,7 @@
 package com.example.yallabuy_user.utilities
 
 import android.util.Log
-import com.example.yallabuy_user.data.local.CurrencyPreferenceManager
-import com.example.yallabuy_user.repo.ICurrencyRepository
+import com.example.yallabuy_user.domainLayer.repoInterface.ICurrencyRepository
 
 class CurrencyConversionManager(
     val currencyRepository: ICurrencyRepository
@@ -11,10 +10,10 @@ class CurrencyConversionManager(
     private var cachedRates: Map<String, Double>? = null
     // This stores the base currency (the currency in which the user’s amounts are originally denominated).
     // It is initialized with a default value from CurrencyPreferenceManager.DEFAULT_CURRENCY.
-    private var baseCurrency: String = CurrencyPreferenceManager.DEFAULT_CURRENCY
+    private var baseCurrency: String = com.example.yallabuy_user.dataLayer.data.local.CurrencyPreferenceManager.DEFAULT_CURRENCY
     private var lastUpdateTime: Long = 0L
 
-    private val expirationMillis = CurrencyPreferenceManager.RATE_EXPIRATION_MS
+    private val expirationMillis = com.example.yallabuy_user.dataLayer.data.local.CurrencyPreferenceManager.RATE_EXPIRATION_MS
 
     suspend fun convertAmount(amountInBase: Double): Double {
         val preferredCurrency = currencyRepository.getPreferredCurrency()

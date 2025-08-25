@@ -1,12 +1,8 @@
 package com.example.yallabuy_user.Settings
 
-import com.example.yallabuy_user.data.models.settings.Address
-import com.example.yallabuy_user.data.models.settings.AddressBody
-import com.example.yallabuy_user.data.models.settings.AddressesResponse
-import com.example.yallabuy_user.data.models.settings.NewAddressResponse
-import com.example.yallabuy_user.repo.RepositoryInterface
-import com.example.yallabuy_user.settings.viewmodel.AddressViewModel
-import com.example.yallabuy_user.utilities.ApiResponse
+import com.example.yallabuy_user.domainLayer.repoInterface.RepositoryInterface
+import com.example.yallabuy_user.presentationLayer.settings.viewmodel.AddressViewModel
+import com.example.yallabuy_user.presentationLayer.ApiResponse
 import io.mockk.coEvery
 import io.mockk.mockk
 import junit.framework.TestCase.assertEquals
@@ -50,18 +46,21 @@ class AddressViewModelTest {
 
     @Test
     fun `getAddresses emits Success and updates addressesList`() = runCurrentTest {
-        val mockAddresses = listOf(Address(
-            id = 1,
-            default = false,
-            customerId = 123L,
-            phone = "0100000000",
-            firstName = "Mariam",
-            lastName = "Mo",
-            fullAddress = "123 Helwan",
-            city = "Cairo",
-            country = "Egypt"
-        ))
-        val response = AddressesResponse(addresses = mockAddresses)
+        val mockAddresses = listOf(
+            com.example.yallabuy_user.dataLayer.data.models.settings.Address(
+                id = 1,
+                default = false,
+                customerId = 123L,
+                phone = "0100000000",
+                firstName = "Mariam",
+                lastName = "Mo",
+                fullAddress = "123 Helwan",
+                city = "Cairo",
+                country = "Egypt"
+            )
+        )
+        val response =
+            com.example.yallabuy_user.dataLayer.data.models.settings.AddressesResponse(addresses = mockAddresses)
 
         coEvery { repository.getAddresses(123L) } returns flowOf(response)
 
@@ -74,7 +73,7 @@ class AddressViewModelTest {
 
     @Test
     fun `createAddress adds new address and emits Success`() = runCurrentTest {
-        val newAddress = Address(
+        val newAddress = com.example.yallabuy_user.dataLayer.data.models.settings.Address(
             id = 2,
             default = false,
             customerId = 123L,
@@ -85,8 +84,10 @@ class AddressViewModelTest {
             city = "Giza",
             country = "Egypt"
         )
-        val addressBody = AddressBody(address = newAddress)
-        val response = NewAddressResponse(address = newAddress)
+        val addressBody =
+            com.example.yallabuy_user.dataLayer.data.models.settings.AddressBody(address = newAddress)
+        val response =
+            com.example.yallabuy_user.dataLayer.data.models.settings.NewAddressResponse(address = newAddress)
 
         coEvery { repository.createCustomerAddress(123L, addressBody) } returns flowOf(response)
 
@@ -100,7 +101,7 @@ class AddressViewModelTest {
 
     @Test
     fun `updateAddress modifies address in list and emits Success`() = runCurrentTest {
-        val oldAddress = Address(
+        val oldAddress = com.example.yallabuy_user.dataLayer.data.models.settings.Address(
             id = 3,
             default = false,
             customerId = 123L,
@@ -116,8 +117,10 @@ class AddressViewModelTest {
             phone = "0222222222",
             default = true
         )
-        val updatedBody = AddressBody(address = updatedAddress)
-        val response = NewAddressResponse(address = updatedAddress)
+        val updatedBody =
+            com.example.yallabuy_user.dataLayer.data.models.settings.AddressBody(address = updatedAddress)
+        val response =
+            com.example.yallabuy_user.dataLayer.data.models.settings.NewAddressResponse(address = updatedAddress)
 
         viewModel._addressesList.value = listOf(oldAddress)
 
@@ -133,7 +136,7 @@ class AddressViewModelTest {
 
     @Test
     fun `deleteAddress removes address and emits Success`() = runCurrentTest {
-        val addressToDelete = Address(
+        val addressToDelete = com.example.yallabuy_user.dataLayer.data.models.settings.Address(
             id = 4,
             default = false,
             customerId = 123L,

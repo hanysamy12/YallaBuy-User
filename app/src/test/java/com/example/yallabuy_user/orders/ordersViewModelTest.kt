@@ -2,13 +2,9 @@ package com.example.yallabuy_user.orders
 
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.example.yallabuy_user.data.models.LineItemsItem
-import com.example.yallabuy_user.data.models.Order
-import com.example.yallabuy_user.data.models.OrderDetailsResponse
-import com.example.yallabuy_user.data.models.OrdersItem
-import com.example.yallabuy_user.data.models.OrdersResponse
-import com.example.yallabuy_user.repo.RepositoryInterface
-import com.example.yallabuy_user.utilities.ApiResponse
+import com.example.yallabuy_user.presentationLayer.orders.OrdersViewModel
+import com.example.yallabuy_user.domainLayer.repoInterface.RepositoryInterface
+import com.example.yallabuy_user.presentationLayer.ApiResponse
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.flow.flowOf
@@ -32,39 +28,40 @@ class ordersViewModelTest {
 
     @Test
     fun getPreviewsOrders_returnPreOrdersForCustomer() = runTest {
-        val mockSimpleOrdersResponse = OrdersResponse(
-            orders = listOf(
-                OrdersItem(
-                    id = 1001,
-                    orderNumber = 1,
-                    lineItems = listOf(
-                        LineItemsItem(
-                            title = "T-Shirt",
-                            price = "20.00"
-                        ),
-                        LineItemsItem(
-                            title = "Shoes",
-                            price = "25.00"
+        val mockSimpleOrdersResponse =
+            com.example.yallabuy_user.dataLayer.data.models.OrdersResponse(
+                orders = listOf(
+                    com.example.yallabuy_user.dataLayer.data.models.OrdersItem(
+                        id = 1001,
+                        orderNumber = 1,
+                        lineItems = listOf(
+                            com.example.yallabuy_user.dataLayer.data.models.LineItemsItem(
+                                title = "T-Shirt",
+                                price = "20.00"
+                            ),
+                            com.example.yallabuy_user.dataLayer.data.models.LineItemsItem(
+                                title = "Shoes",
+                                price = "25.00"
+                            )
                         )
-                    )
-                ),
-                OrdersItem(
-                    id = 1002,
-                    orderNumber = 2,
-                    lineItems = listOf(
-                        LineItemsItem(
-                            title = "Mug",
-                            price = "15.00"
-                        ),
-                        LineItemsItem(
-                            title = "Hat",
-                            price = "10.00"
-                        )
+                    ),
+                    com.example.yallabuy_user.dataLayer.data.models.OrdersItem(
+                        id = 1002,
+                        orderNumber = 2,
+                        lineItems = listOf(
+                            com.example.yallabuy_user.dataLayer.data.models.LineItemsItem(
+                                title = "Mug",
+                                price = "15.00"
+                            ),
+                            com.example.yallabuy_user.dataLayer.data.models.LineItemsItem(
+                                title = "Hat",
+                                price = "10.00"
+                            )
 
+                        )
                     )
                 )
             )
-        )
         coEvery { repository.getPreviousOrders(1L) } returns flowOf(mockSimpleOrdersResponse)
         viewModel.getPreviousOrders(ApplicationProvider.getApplicationContext())
         val result = viewModel.orders.value
@@ -76,17 +73,17 @@ class ordersViewModelTest {
 
     @Test
     fun getPreviewsOrderById_returnRightOrder() = runTest {
-        val fakeOrder = OrderDetailsResponse(
-            order = Order(
+        val fakeOrder = com.example.yallabuy_user.dataLayer.data.models.OrderDetailsResponse(
+            order = com.example.yallabuy_user.dataLayer.data.models.Order(
                 id = 1L,
                 currency = "EGP",
                 totalPrice = "100.00",
                 lineItems = listOf(
-                    LineItemsItem(
+                    com.example.yallabuy_user.dataLayer.data.models.LineItemsItem(
                         title = "T-Shirt",
                         price = "20.00"
                     ),
-                    LineItemsItem(
+                    com.example.yallabuy_user.dataLayer.data.models.LineItemsItem(
                         title = "Shoes",
                         price = "25.00"
                     )

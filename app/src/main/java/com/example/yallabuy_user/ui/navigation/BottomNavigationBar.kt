@@ -30,7 +30,7 @@ import com.example.yallabuy_user.R
 fun BottomNavigationBar(navController: NavController) {
     val navigationItems = listOf(
         NavigationItem("Home", painterResource(R.drawable.ic_home), ScreenRoute.Home.route),
-        NavigationItem("Wish List", painterResource(R.drawable.ic_wish), ScreenRoute.WishList.route),
+        NavigationItem("Wish", painterResource(R.drawable.ic_wish), ScreenRoute.WishList.route),
         NavigationItem("Category", painterResource(R.drawable.ic_collections), ScreenRoute.Collections.route),
         NavigationItem("Cart", painterResource(R.drawable.ic_cart), ScreenRoute.Cart.route),
         NavigationItem("Profile", painterResource(R.drawable.ic_account), ScreenRoute.Profile.route)

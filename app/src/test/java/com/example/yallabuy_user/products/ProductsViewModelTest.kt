@@ -1,11 +1,9 @@
 package com.example.yallabuy_user.products
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.example.yallabuy_user.data.models.ProductImage
-import com.example.yallabuy_user.data.models.ProductResponse
-import com.example.yallabuy_user.data.models.ProductsItem
-import com.example.yallabuy_user.repo.RepositoryInterface
-import com.example.yallabuy_user.utilities.ApiResponse
+import com.example.yallabuy_user.presentationLayer.products.ProductsViewModel
+import com.example.yallabuy_user.domainLayer.repoInterface.RepositoryInterface
+import com.example.yallabuy_user.presentationLayer.ApiResponse
 import com.example.yallabuy_user.utilities.CurrencyConversionManager
 import io.mockk.coEvery
 import io.mockk.mockk
@@ -34,34 +32,34 @@ class ProductsViewModelTest {
 
 @Test
 fun getProducts_returnVendorProducts() = runTest {
-    val fakeProductResponse = ProductResponse(
+    val fakeProductResponse = com.example.yallabuy_user.dataLayer.data.models.ProductResponse(
         products = listOf(
-            ProductsItem(
+            com.example.yallabuy_user.dataLayer.data.models.ProductsItem(
                 id = 1L,
                 title = "Nike Air Max",
                 vendor = "Nike",
                 productType = "Shoes",
-                image = ProductImage(src = "https://example.com/nike.jpg"),
+                image = com.example.yallabuy_user.dataLayer.data.models.ProductImage(src = "https://example.com/nike.jpg"),
                 status = "active"
-            ), ProductsItem(
+            ), com.example.yallabuy_user.dataLayer.data.models.ProductsItem(
                 id = 2L,
                 title = "Adidas Ultra Boost",
                 vendor = "Adidas",
                 productType = "Shoes",
-                image = ProductImage(src = "https://example.com/adidas.jpg"),
+                image = com.example.yallabuy_user.dataLayer.data.models.ProductImage(src = "https://example.com/adidas.jpg"),
                 status = "active"
-            ), ProductsItem(
+            ), com.example.yallabuy_user.dataLayer.data.models.ProductsItem(
                 id = 3L,
                 title = "Puma RS-X",
                 vendor = "Puma",
                 productType = "Shoes",
-                image = ProductImage(src = "https://example.com/puma.jpg"),
+                image = com.example.yallabuy_user.dataLayer.data.models.ProductImage(src = "https://example.com/puma.jpg"),
                 status = "active"
             )
         )
     )
     coEvery { repository.getAllProducts() } returns flowOf(
-        ProductResponse(
+        com.example.yallabuy_user.dataLayer.data.models.ProductResponse(
             products = fakeProductResponse.products?.filter { it?.vendor == "Nike" })
     )
 
@@ -74,40 +72,40 @@ fun getProducts_returnVendorProducts() = runTest {
 
 @Test
 fun getCategoryProducts_returnCorrectCategoryProducts() = runTest {
-    val fakeProductResponse = ProductResponse(
+    val fakeProductResponse = com.example.yallabuy_user.dataLayer.data.models.ProductResponse(
         products = listOf(
-            ProductsItem(
+            com.example.yallabuy_user.dataLayer.data.models.ProductsItem(
                 id = 1L,
                 title = "Nike Air Max",
                 vendor = "Men",
                 productType = "Shoes",
-                image = ProductImage(src = "https://example.com/nike.jpg"),
+                image = com.example.yallabuy_user.dataLayer.data.models.ProductImage(src = "https://example.com/nike.jpg"),
                 status = "active"
-            ), ProductsItem(
+            ), com.example.yallabuy_user.dataLayer.data.models.ProductsItem(
                 id = 2L,
                 title = "Adidas Ultra Boost",
                 vendor = "Women",
                 productType = "Shoes",
-                image = ProductImage(src = "https://example.com/adidas.jpg"),
+                image = com.example.yallabuy_user.dataLayer.data.models.ProductImage(src = "https://example.com/adidas.jpg"),
                 status = "active"
-            ), ProductsItem(
+            ), com.example.yallabuy_user.dataLayer.data.models.ProductsItem(
                 id = 3L,
                 title = "Puma RS-X",
                 vendor = "Puma",
                 productType = "Shoes",
-                image = ProductImage(src = "https://example.com/puma.jpg"),
+                image = com.example.yallabuy_user.dataLayer.data.models.ProductImage(src = "https://example.com/puma.jpg"),
                 status = "active"
             )
         )
     )
-    val fakeCategoryProducts = ProductResponse(
+    val fakeCategoryProducts = com.example.yallabuy_user.dataLayer.data.models.ProductResponse(
         products = listOf(
-            ProductsItem(
+            com.example.yallabuy_user.dataLayer.data.models.ProductsItem(
                 id = 1L,
                 title = "Nike Air Max",
                 vendor = "Men",
                 productType = "Shoes",
-                image = ProductImage(src = "https://example.com/nike.jpg"),
+                image = com.example.yallabuy_user.dataLayer.data.models.ProductImage(src = "https://example.com/nike.jpg"),
                 status = "active"
             )
         )

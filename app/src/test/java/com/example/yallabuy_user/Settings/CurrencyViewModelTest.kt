@@ -1,8 +1,8 @@
 package com.example.yallabuy_user.Settings
 
-import com.example.yallabuy_user.repo.ICurrencyRepository
-import com.example.yallabuy_user.settings.viewmodel.CurrencyViewModel
-import com.example.yallabuy_user.utilities.ApiResponse
+import com.example.yallabuy_user.domainLayer.repoInterface.ICurrencyRepository
+import com.example.yallabuy_user.presentationLayer.settings.viewmodel.CurrencyViewModel
+import com.example.yallabuy_user.presentationLayer.ApiResponse
 import io.mockk.coEvery
 import io.mockk.mockk
 import junit.framework.TestCase.assertEquals

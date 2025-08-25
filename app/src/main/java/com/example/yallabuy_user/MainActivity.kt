@@ -36,3 +36,28 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+/*
+Clean Architecture usually has 3 main layers:
+
+--Presentation Layer (UI)
+
+-Jetpack Compose screens, ViewModels.
+
+-Uses StateFlow observe UI state.
+
+-Talks only to the Domain layer (not directly to Repository/Retrofit).
+
+--Domain Layer (Business Rules)
+
+-Contains Entities (business models) and Use Cases (Interactors).
+
+-Pure Kotlin (no Android/Retrofit/Room dependencies).
+
+-Exposes simple functions like GetProductsUseCase, AddToCartUseCase.
+
+--Data Layer (Data Sources)
+
+-Handles API (Retrofit), Local DB (Room/DataStore), Firebase, etc.
+
+-Implements repository interfaces defined in Domain layer.
+ */

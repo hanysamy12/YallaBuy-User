@@ -1,33 +1,24 @@
 package com.example.yallabuy_user.di
 
 import android.util.Log
-import com.example.yallabuy_user.authentication.login.LoginViewModel
-import com.example.yallabuy_user.authentication.registration.RegistrationViewModel
-import com.example.yallabuy_user.cart.viewmodel.CartViewModel
-import com.example.yallabuy_user.home.HomeViewModel
-import com.example.yallabuy_user.repo.RepositoryInterface
-import com.example.yallabuy_user.data.remote.ApiService
-import com.example.yallabuy_user.data.remote.AuthInterceptor
-import com.example.yallabuy_user.data.remote.FireBaseService
-import com.example.yallabuy_user.data.remote.RemoteDataSource
-import com.example.yallabuy_user.data.remote.RemoteDataSourceInterface
-import com.example.yallabuy_user.orders.OrdersViewModel
-import com.example.yallabuy_user.productInfo.ProductInfoViewModel
-import com.example.yallabuy_user.repo.Repository
-import com.example.yallabuy_user.products.ProductsViewModel
-import com.example.yallabuy_user.profile.ProfileViewModel
+import com.example.yallabuy_user.presentationLayer.authentication.login.LoginViewModel
+import com.example.yallabuy_user.presentationLayer.authentication.registration.RegistrationViewModel
+import com.example.yallabuy_user.presentationLayer.cart.viewmodel.CartViewModel
+import com.example.yallabuy_user.presentationLayer.home.HomeViewModel
+import com.example.yallabuy_user.domainLayer.repoInterface.RepositoryInterface
+import com.example.yallabuy_user.dataLayer.data.remote.FireBaseService
+import com.example.yallabuy_user.presentationLayer.orders.OrdersViewModel
+import com.example.yallabuy_user.presentationLayer.productInfo.ProductInfoViewModel
+import com.example.yallabuy_user.dataLayer.repoImp.Repository
+import com.example.yallabuy_user.presentationLayer.products.ProductsViewModel
+import com.example.yallabuy_user.presentationLayer.profile.ProfileViewModel
 import com.example.yallabuy_user.utilities.CurrencyConversionManager
-import com.example.yallabuy_user.data.local.CurrencyPreferenceManager
-import com.example.yallabuy_user.data.local.CurrencyPreferenceManagerImpl
-import com.example.yallabuy_user.data.remote.CurrencyRemoteDataSource
-import com.example.yallabuy_user.data.remote.CurrencyRemoteDataSourceImpl
-import com.example.yallabuy_user.data.remote.ExchangeRateApiService
-import com.example.yallabuy_user.orders.NewOrderViewModel
-import com.example.yallabuy_user.repo.CurrencyRepository
-import com.example.yallabuy_user.repo.ICurrencyRepository
-import com.example.yallabuy_user.settings.viewmodel.AddressViewModel
-import com.example.yallabuy_user.settings.viewmodel.CurrencyViewModel
-import com.example.yallabuy_user.wish.WishViewModel
+import com.example.yallabuy_user.presentationLayer.orders.NewOrderViewModel
+import com.example.yallabuy_user.dataLayer.repoImp.CurrencyRepository
+import com.example.yallabuy_user.domainLayer.repoInterface.ICurrencyRepository
+import com.example.yallabuy_user.presentationLayer.settings.viewmodel.AddressViewModel
+import com.example.yallabuy_user.presentationLayer.settings.viewmodel.CurrencyViewModel
+import com.example.yallabuy_user.presentationLayer.wish.WishViewModel
 import com.google.firebase.auth.FirebaseAuth
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
@@ -40,8 +31,8 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 val dataModule = module {
-    single<AuthInterceptor> { AuthInterceptor() }
-    single<Interceptor> { get<AuthInterceptor>() }
+    single<com.example.yallabuy_user.dataLayer.data.remote.AuthInterceptor> { com.example.yallabuy_user.dataLayer.data.remote.AuthInterceptor() }
+    single<Interceptor> { get<com.example.yallabuy_user.dataLayer.data.remote.AuthInterceptor>() }
     factory {
         val httpClientLoggingInterceptor = HttpLoggingInterceptor { msg ->
             Log.i("NetworkInterceptor", "Result : $msg")
@@ -60,16 +51,16 @@ val dataModule = module {
             .build()
     }
 
-    factory<ApiService> {
-        get<Retrofit>(named("shopifyRetrofit")).create(ApiService::class.java)
+    factory<com.example.yallabuy_user.dataLayer.data.remote.ApiService> {
+        get<Retrofit>(named("shopifyRetrofit")).create(com.example.yallabuy_user.dataLayer.data.remote.ApiService::class.java)
     }
 
     single { FirebaseAuth.getInstance() }
     single { FireBaseService(get()) }
 
 
-    single<RemoteDataSourceInterface> {
-        RemoteDataSource(get() , get())
+    single<com.example.yallabuy_user.dataLayer.data.remote.RemoteDataSourceInterface> {
+        com.example.yallabuy_user.dataLayer.data.remote.RemoteDataSource(get(), get())
     }
     single<RepositoryInterface> {
         Repository(get())
@@ -83,16 +74,16 @@ val dataModule = module {
             .build()
     }
 
-    factory<ExchangeRateApiService> {
-        get<Retrofit>(named("currencyRetrofit")).create(ExchangeRateApiService::class.java)
+    factory<com.example.yallabuy_user.dataLayer.data.remote.ExchangeRateApiService> {
+        get<Retrofit>(named("currencyRetrofit")).create(com.example.yallabuy_user.dataLayer.data.remote.ExchangeRateApiService::class.java)
     }
 
-    single<CurrencyRemoteDataSource> {
-        CurrencyRemoteDataSourceImpl(get())
+    single<com.example.yallabuy_user.dataLayer.data.remote.CurrencyRemoteDataSource> {
+        com.example.yallabuy_user.dataLayer.data.remote.CurrencyRemoteDataSourceImpl(get())
     }
 
-    single<CurrencyPreferenceManager>{
-        CurrencyPreferenceManagerImpl(androidContext())
+    single<com.example.yallabuy_user.dataLayer.data.local.CurrencyPreferenceManager>{
+        com.example.yallabuy_user.dataLayer.data.local.CurrencyPreferenceManagerImpl(androidContext())
     }
     single<ICurrencyRepository>{
         CurrencyRepository(get(), get())

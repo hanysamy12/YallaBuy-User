@@ -1,22 +1,10 @@
 package com.example.yallabuy_user.repo
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.example.yallabuy_user.data.models.BrandResponse
-import com.example.yallabuy_user.data.models.Coupon.DiscountCodeCoupon
-import com.example.yallabuy_user.data.models.Image
-import com.example.yallabuy_user.data.models.LineItemsItem
-import com.example.yallabuy_user.data.models.OrdersItem
-import com.example.yallabuy_user.data.models.OrdersResponse
-import com.example.yallabuy_user.data.models.ProductImage
-import com.example.yallabuy_user.data.models.ProductResponse
-import com.example.yallabuy_user.data.models.ProductsItem
-import com.example.yallabuy_user.data.models.SmartCollectionsItem
-import com.example.yallabuy_user.data.models.VariantsItem
 import com.example.yallabuy_user.data.models.cart.DraftOrderBody
 import com.example.yallabuy_user.data.models.cart.DraftOrderCart
-import com.example.yallabuy_user.data.models.settings.Address
-import com.example.yallabuy_user.data.models.settings.AddressesResponse
-import com.example.yallabuy_user.data.remote.RemoteDataSourceInterface
+import com.example.yallabuy_user.dataLayer.repoImp.Repository
+import com.example.yallabuy_user.domainLayer.repoInterface.RepositoryInterface
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.flow.first
@@ -30,7 +18,7 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class RepositoryTest {
-    private lateinit var remoteDataSource: RemoteDataSourceInterface
+    private lateinit var remoteDataSource: com.example.yallabuy_user.dataLayer.data.remote.RemoteDataSourceInterface
     private lateinit var repository: RepositoryInterface
 
     @Before
@@ -41,22 +29,22 @@ class RepositoryTest {
 
     @Test
     fun getAllBrands_returnTheeSmartCollections() = runTest {
-        val fakeResponse = BrandResponse(
+        val fakeResponse = com.example.yallabuy_user.dataLayer.data.models.BrandResponse(
             smartCollections = listOf(
-                SmartCollectionsItem(
+                com.example.yallabuy_user.dataLayer.data.models.SmartCollectionsItem(
                     id = 1L,
                     title = "Nike",
-                    image = Image(src = "https://example.com/nike.png")
+                    image = com.example.yallabuy_user.dataLayer.data.models.Image(src = "https://example.com/nike.png")
                 ),
-                SmartCollectionsItem(
+                com.example.yallabuy_user.dataLayer.data.models.SmartCollectionsItem(
                     id = 2L,
                     title = "Adidas",
-                    image = Image(src = "https://example.com/adidas.png")
+                    image = com.example.yallabuy_user.dataLayer.data.models.Image(src = "https://example.com/adidas.png")
                 ),
-                SmartCollectionsItem(
+                com.example.yallabuy_user.dataLayer.data.models.SmartCollectionsItem(
                     id = 3L,
                     title = "Puma",
-                    image = Image(src = "https://example.com/puma.png")
+                    image = com.example.yallabuy_user.dataLayer.data.models.Image(src = "https://example.com/puma.png")
                 )
             )
         )
@@ -75,36 +63,36 @@ class RepositoryTest {
 
     @Test
     fun getAllProducts_returnThreeLineItems() = runTest {
-        val fakeProductResponse = ProductResponse(
+        val fakeProductResponse = com.example.yallabuy_user.dataLayer.data.models.ProductResponse(
             products = listOf(
-                ProductsItem(
+                com.example.yallabuy_user.dataLayer.data.models.ProductsItem(
                     id = 1L,
                     title = "Product 1",
                     vendor = "Nike",
                     productType = "Shoes",
-                    image = ProductImage(src = "https://example.com/product1.jpg"),
+                    image = com.example.yallabuy_user.dataLayer.data.models.ProductImage(src = "https://example.com/product1.jpg"),
                     variants = listOf(
-                        VariantsItem(price = "100.0")
+                        com.example.yallabuy_user.dataLayer.data.models.VariantsItem(price = "100.0")
                     )
                 ),
-                ProductsItem(
+                com.example.yallabuy_user.dataLayer.data.models.ProductsItem(
                     id = 2L,
                     title = "Product 2",
                     vendor = "Adidas",
                     productType = "Shirt",
-                    image = ProductImage(src = "https://example.com/product2.jpg"),
+                    image = com.example.yallabuy_user.dataLayer.data.models.ProductImage(src = "https://example.com/product2.jpg"),
                     variants = listOf(
-                        VariantsItem(price = "200.0")
+                        com.example.yallabuy_user.dataLayer.data.models.VariantsItem(price = "200.0")
                     )
                 ),
-                ProductsItem(
+                com.example.yallabuy_user.dataLayer.data.models.ProductsItem(
                     id = 3L,
                     title = "Product 3",
                     vendor = "Puma",
                     productType = "Pants",
-                    image = ProductImage(src = "https://example.com/product3.jpg"),
+                    image = com.example.yallabuy_user.dataLayer.data.models.ProductImage(src = "https://example.com/product3.jpg"),
                     variants = listOf(
-                        VariantsItem(price = "150.0")
+                        com.example.yallabuy_user.dataLayer.data.models.VariantsItem(price = "150.0")
                     )
                 )
             )
@@ -121,31 +109,31 @@ class RepositoryTest {
     @Test
     fun getPreviousOrders_returnTwoOrders() = runTest {
 
-        val fakeOrdersResponse = OrdersResponse(
+        val fakeOrdersResponse = com.example.yallabuy_user.dataLayer.data.models.OrdersResponse(
             orders = listOf(
-                OrdersItem(
+                com.example.yallabuy_user.dataLayer.data.models.OrdersItem(
                     id = 1L,
                     currentTotalPrice = "120.00",
                     lineItems = listOf(
-                        LineItemsItem(
+                        com.example.yallabuy_user.dataLayer.data.models.LineItemsItem(
                             title = "Running Shoes",
                             price = "70.00"
                         ),
-                        LineItemsItem(
+                        com.example.yallabuy_user.dataLayer.data.models.LineItemsItem(
                             title = "Socks Pack",
                             price = "50.00"
                         )
                     )
                 ),
-                OrdersItem(
+                com.example.yallabuy_user.dataLayer.data.models.OrdersItem(
                     id = 2L,
                     currentTotalPrice = "200.00",
                     lineItems = listOf(
-                        LineItemsItem(
+                        com.example.yallabuy_user.dataLayer.data.models.LineItemsItem(
                             title = "Gym Bag",
                             price = "120.00"
                         ),
-                        LineItemsItem(
+                        com.example.yallabuy_user.dataLayer.data.models.LineItemsItem(
                             title = "Water Bottle",
                             price = "80.00"
                         )
@@ -169,28 +157,29 @@ class RepositoryTest {
 
     @Test
     fun getAddresses_returnsCorrectAddresses() = runTest {
-        val fakeResponse = AddressesResponse(
-            addresses = listOf(
-                Address(
-                    id = 1L, fullAddress = "234 Maadi", default = true,
-                    customerId = 123L,
-                    phone = "0123456789",
-                    firstName = "Mariam",
-                    lastName = "Muhammad",
-                    city = "Cairo",
-                    country = "Egypt"
-                ),
-                Address(
-                    id = 2L, fullAddress = "1020 Shatby", default = false,
-                    customerId = 456L,
-                    phone = "0124681033",
-                    firstName = "Alyaa",
-                    lastName = "Youssef",
-                    city = "Alex",
-                    country = "Egypt"
+        val fakeResponse =
+            com.example.yallabuy_user.dataLayer.data.models.settings.AddressesResponse(
+                addresses = listOf(
+                    com.example.yallabuy_user.dataLayer.data.models.settings.Address(
+                        id = 1L, fullAddress = "234 Maadi", default = true,
+                        customerId = 123L,
+                        phone = "0123456789",
+                        firstName = "Mariam",
+                        lastName = "Muhammad",
+                        city = "Cairo",
+                        country = "Egypt"
+                    ),
+                    com.example.yallabuy_user.dataLayer.data.models.settings.Address(
+                        id = 2L, fullAddress = "1020 Shatby", default = false,
+                        customerId = 456L,
+                        phone = "0124681033",
+                        firstName = "Alyaa",
+                        lastName = "Youssef",
+                        city = "Alex",
+                        country = "Egypt"
+                    )
                 )
             )
-        )
         coEvery { remoteDataSource.getAddresses(100L) } returns flowOf(fakeResponse)
 
         val result = repository.getAddresses(100L).first()
@@ -223,7 +212,7 @@ class RepositoryTest {
     @Test
     fun getAllCouponsForRule_returnsCoupons() = runTest {
         val coupons = listOf(
-            DiscountCodeCoupon(
+            com.example.yallabuy_user.dataLayer.data.models.Coupon.DiscountCodeCoupon(
                 code = "SAVE10",
                 id = 1L,
                 priceRuleId = 99L,
@@ -231,7 +220,7 @@ class RepositoryTest {
                 createdAt = "2025-06-15",
                 updatedAt = "2025-06-22"
             ),
-            DiscountCodeCoupon(
+            com.example.yallabuy_user.dataLayer.data.models.Coupon.DiscountCodeCoupon(
                 code = "SUMMER10",
                 id = 2L,
                 priceRuleId = 99L,

@@ -1,12 +1,12 @@
 package com.example.yallabuy_user.cart
 
-import com.example.yallabuy_user.cart.viewmodel.CartViewModel
+import com.example.yallabuy_user.presentationLayer.cart.viewmodel.CartViewModel
 import com.example.yallabuy_user.data.models.cart.DraftOrderBody
 import com.example.yallabuy_user.data.models.cart.DraftOrderCart
 import com.example.yallabuy_user.data.models.cart.DraftOrderResponse
 import com.example.yallabuy_user.data.models.cart.LineItem
-import com.example.yallabuy_user.repo.RepositoryInterface
-import com.example.yallabuy_user.utilities.ApiResponse
+import com.example.yallabuy_user.domainLayer.repoInterface.RepositoryInterface
+import com.example.yallabuy_user.presentationLayer.ApiResponse
 import com.example.yallabuy_user.utilities.CurrencyConversionManager
 import io.mockk.*
 import kotlinx.coroutines.*
