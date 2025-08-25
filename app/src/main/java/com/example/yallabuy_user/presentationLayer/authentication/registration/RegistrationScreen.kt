@@ -78,12 +78,12 @@ fun RegistrationScreen(
     setTopBar: (@Composable () -> Unit) -> Unit
 ) {
 
-    var createAccount = registrationViewModel.createAccount
+    val createAccount = registrationViewModel.createAccount
     val validationError = registrationViewModel.validationError.collectAsState().value
     val createAccountError = registrationViewModel.errorInCreatingAccount
     val isAccountCreated = remember { mutableStateOf(false) }
-    var createAccountErrorText = remember { mutableStateOf("") }
-    var showDialog = remember { mutableStateOf(false) }
+    val createAccountErrorText = remember { mutableStateOf("") }
+    val showDialog = remember { mutableStateOf(false) }
     val showProgressBar = remember { mutableStateOf(false) }
     val email = remember { mutableStateOf("") }
     val userName = remember { mutableStateOf("") }
@@ -337,7 +337,7 @@ fun RegistrationTextFeilds(
         )
         if (validationError?.contains("Password") == true) {
             Text(
-                text = validationError ?: "",
+                text = validationError,
                 color = MaterialTheme.colorScheme.error,
                 style = MaterialTheme.typography.bodySmall,
                 modifier = Modifier.padding(start = 16.dp, top = 5.dp)
@@ -358,7 +358,7 @@ fun RegistrationTextFeilds(
         )
         if (validationError?.contains("Confirm") == true) {
             Text(
-                text = validationError ?: "",
+                text = validationError,
                 color = MaterialTheme.colorScheme.error,
                 style = MaterialTheme.typography.bodySmall,
                 modifier = Modifier.padding(start = 16.dp, top = 5.dp)

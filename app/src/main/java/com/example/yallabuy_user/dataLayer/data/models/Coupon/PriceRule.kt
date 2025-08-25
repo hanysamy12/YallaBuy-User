@@ -21,7 +21,7 @@ data class PriceRule(
 )
 
 data class PriceRulesResponse(
-    val price_rules: List<com.example.yallabuy_user.dataLayer.data.models.Coupon.PriceRule>
+    val price_rules: List<PriceRule>
 )
 
 data class DiscountCodeCoupon(
@@ -41,7 +41,7 @@ data class DiscountCodeCoupon(
 
 data class DiscountCodesResponse(
     @SerializedName("discount_codes")
-    val discountCodes: List<com.example.yallabuy_user.dataLayer.data.models.Coupon.DiscountCodeCoupon>
+    val discountCodes: List<DiscountCodeCoupon>
 )
 
 data class CouponItem(

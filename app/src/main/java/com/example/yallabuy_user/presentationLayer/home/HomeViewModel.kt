@@ -3,6 +3,7 @@ package com.example.yallabuy_user.presentationLayer.home
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.yallabuy_user.dataLayer.data.models.Coupon.PriceRule
 import com.example.yallabuy_user.domainLayer.repoInterface.RepositoryInterface
 import com.example.yallabuy_user.presentationLayer.ApiResponse
 import com.example.yallabuy_user.dataLayer.data.models.CustomCollectionsItem
@@ -26,8 +27,7 @@ class HomeViewModel(private val repo: RepositoryInterface) : ViewModel(), HomeVi
     val allCoupons: StateFlow<ApiResponse<List<com.example.yallabuy_user.dataLayer.data.models.Coupon.DiscountCodeCoupon>>> = _allCoupons
 
     private val _priceRules =
-        MutableStateFlow<ApiResponse<List<com.example.yallabuy_user.dataLayer.data.models.Coupon.PriceRule>>>(ApiResponse.Loading)
-    val priceRules: StateFlow<ApiResponse<List<com.example.yallabuy_user.dataLayer.data.models.Coupon.PriceRule>>> = _priceRules
+        MutableStateFlow<ApiResponse<List<PriceRule>>>(ApiResponse.Loading)
 
     init {
         viewModelScope.launch {

@@ -117,7 +117,7 @@ fun AddressFormScreen(
                     showValidationError = true
                 } else {
                     val newAddress =
-                        com.example.yallabuy_user.dataLayer.data.models.settings.Address(
+                        Address(
                             id = addressId ?: 0,
                             customerId = viewModel.getCustomerId(),
                             firstName = firstName,
@@ -129,7 +129,7 @@ fun AddressFormScreen(
                             default = false
                         )
                     viewModel.createAddress(
-                        com.example.yallabuy_user.dataLayer.data.models.settings.AddressBody(
+                        AddressBody(
                             newAddress
                         )
                     )

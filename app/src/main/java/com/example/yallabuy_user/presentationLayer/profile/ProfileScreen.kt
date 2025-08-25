@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
+//noinspection UsingMaterialAndMaterial3Libraries
 import androidx.compose.material.TabRowDefaults.Divider
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -119,7 +120,7 @@ fun ProfileScreen(
         Spacer(modifier = Modifier.height(32.dp))
 
         SettingsListItem(
-            item = com.example.yallabuy_user.dataLayer.data.models.settings.SettingsItem(
+            item = SettingsItem(
                 title = "Settings",
                 icon = R.drawable.settings,
                 onClick = {
@@ -130,7 +131,7 @@ fun ProfileScreen(
 
 
         SettingsListItem(
-            item = com.example.yallabuy_user.dataLayer.data.models.settings.SettingsItem(
+            item = SettingsItem(
                 title = "Previous Orders",
                 icon = R.drawable.ic_colored_cart,
                 onClick = {
@@ -146,7 +147,7 @@ fun ProfileScreen(
         )
 
         SettingsListItem(
-            item = com.example.yallabuy_user.dataLayer.data.models.settings.SettingsItem(
+            item = SettingsItem(
                 title = when {
                     userName.isNullOrBlank() -> {
                         "Login"

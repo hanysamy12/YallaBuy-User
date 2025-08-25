@@ -12,7 +12,6 @@ import kotlinx.coroutines.flow.StateFlow
 class ProfileViewModel() : ViewModel() {
 
     private val _uiState = MutableStateFlow(ProfileUiState())
-    val uiState: StateFlow<ProfileUiState> = _uiState
 
     private val _logoutState = MutableStateFlow(false)
     val logoutState: StateFlow<Boolean> = _logoutState

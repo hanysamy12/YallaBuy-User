@@ -43,7 +43,7 @@ fun PaymentScreen(
     val activity = context as? Activity
     var selectedPayment by remember { mutableStateOf("CASH") }
 
-    val launcher = rememberLauncherForActivityResult(
+    rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartIntentSenderForResult()
     ) { result ->
         if (result.resultCode == Activity.RESULT_OK) {

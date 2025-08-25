@@ -16,7 +16,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.util.Locale
 
-private const val TAG = "ProductsViewModel"
 
 class ProductsViewModel(private val repo: RepositoryInterface,
                         private val currencyConversionManager: CurrencyConversionManager
@@ -132,7 +131,7 @@ class ProductsViewModel(private val repo: RepositoryInterface,
     override fun searchForProduct(productName: String) {
         viewModelScope.launch {
             val filterProducts = originalProducts.filter { product ->
-                product.title?.contains(productName.toUpperCase(Locale.ROOT)) ?: false
+                product.title?.contains(productName.uppercase(Locale.ROOT)) ?: false
             }
             _products.emit(ApiResponse.Success(filterProducts))
         }

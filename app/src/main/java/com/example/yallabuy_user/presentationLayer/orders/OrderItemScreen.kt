@@ -165,7 +165,7 @@ fun OrderItemScreen(
 
 @Composable
 private fun OrderProductItem(
-    product: com.example.yallabuy_user.dataLayer.data.models.LineItemsItem?,
+    product: LineItemsItem?,
     currentCode: String?,
     onOrderClicked: (Long) -> Unit
 ) {

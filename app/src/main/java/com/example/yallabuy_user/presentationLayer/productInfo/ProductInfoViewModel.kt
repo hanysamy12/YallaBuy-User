@@ -70,9 +70,9 @@ class ProductInfoViewModel(
             try {
                 val customerResponse = repo.getUserById(customerId)
                 customerResponse.collect { customer ->
-                    val note = customer.customer.note ?: ""
+                    val note = customer.customer.note
                     val noteString = note as? String
-                    val tags = customer.customer.tags ?: ""
+                    val tags = customer.customer.tags
 
                     if (isWishlist) {
                         if (noteString.isNullOrBlank() || noteString == "") {

@@ -84,7 +84,7 @@ fun LoginScreen(
     val loginUser = loginViewModel.loginUser.collectAsState().value
     val loginUserError = loginViewModel.loginUserError
     val showErrorDialog = remember { mutableStateOf(false) }
-    var loginUserErrorInText = remember { mutableStateOf("") }
+    val loginUserErrorInText = remember { mutableStateOf("") }
     val customerData = loginViewModel.customerData.collectAsState().value
     val context = LocalContext.current
 
@@ -254,7 +254,7 @@ fun LoginScreen(
             }
         }
         if (showErrorDialog.value) {
-            LoginAlert(showErrorDialog, onConfirmation = {
+            LoginAlert(onConfirmation = {
                 showErrorDialog.value = false
             }, onDismissRequest = {
                 showErrorDialog.value = false
@@ -288,7 +288,7 @@ fun LoginTextFeilds(
         )
         if (validationError?.contains("Email") == true) {
             Text(
-                text = validationError ?: "",
+                text = validationError,
                 color = MaterialTheme.colorScheme.error,
                 style = MaterialTheme.typography.bodySmall,
                 modifier = Modifier.padding(start = 16.dp, top = 5.dp)
@@ -309,7 +309,7 @@ fun LoginTextFeilds(
         )
         if (validationError?.contains("Password") == true) {
             Text(
-                text = validationError ?: "",
+                text = validationError,
                 color = MaterialTheme.colorScheme.error,
                 style = MaterialTheme.typography.bodySmall,
                 modifier = Modifier.padding(start = 16.dp, top = 5.dp)
@@ -320,7 +320,6 @@ fun LoginTextFeilds(
 
 @Composable
 fun LoginAlert(
-    isLoginSuccess: MutableState<Boolean>,
     onConfirmation: () -> Unit,
     onDismissRequest: () -> Unit,
     loginErrorText: MutableState<String>

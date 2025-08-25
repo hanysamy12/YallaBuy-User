@@ -23,13 +23,13 @@ data class Address(
 
     val country: String,
 
-) : com.example.yallabuy_user.dataLayer.data.models.settings.AddressDisplayInfo {
+) : AddressDisplayInfo {
     //full address in a formatted string
-    fun getAddressString(): String = "$firstName $lastName\n$fullAddress"
+   // fun getAddressString(): String = "$firstName $lastName\n$fullAddress"
 
     override fun getRecipientFullName(): String = "$firstName $lastName"
 
-    override fun getAddressLine(): String = "$fullAddress"
+    override fun getAddressLine(): String = fullAddress
 
     override fun getDetailedDescription(): String = "Recipient Name: $firstName $lastName" +
             "\nRecipient Phone Number: $phone\n$fullAddress"
@@ -37,17 +37,17 @@ data class Address(
 
 data class AddressBody(
     @SerializedName("address")
-    var address: com.example.yallabuy_user.dataLayer.data.models.settings.Address
+    var address: Address
 )
 
 data class AddressesResponse(
     @field:SerializedName("addresses")
-    var addresses: List<com.example.yallabuy_user.dataLayer.data.models.settings.Address>
+    var addresses: List<Address>
 )
 
 data class NewAddressResponse(
     @field:SerializedName("customer_address")
-    var address: com.example.yallabuy_user.dataLayer.data.models.settings.Address
+    var address: Address
 )
 
 class DeleteResponse

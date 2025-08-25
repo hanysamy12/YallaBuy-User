@@ -50,7 +50,7 @@ class RegistrationViewModel(
     private fun createUserOnShopify(email: String, password: String, userName: String){
         viewModelScope.launch {
             try {
-               val response =  repositoryInterface.createUserOnShopify(email , password , userName)
+                repositoryInterface.createUserOnShopify(email , password , userName)
                 Log.i("shopify", "createUserOnShopify response in view model is success")
             }catch (e : Exception){
                 Log.i("TAG", "createUserOnShopify error is ${e.message} ")

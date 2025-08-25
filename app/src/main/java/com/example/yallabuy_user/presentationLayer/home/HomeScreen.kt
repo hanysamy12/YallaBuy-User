@@ -335,7 +335,6 @@ fun CouponsCarousel(
             val coupon = coupons[page]
             CouponImage(
                 imageResId = coupon.imageResId,
-                couponCode = coupon.code,
                 onClick = { onCouponClick(coupon.code) })
         }
 
@@ -371,7 +370,7 @@ fun CouponsCarousel(
 
 @Composable
 fun CouponImage(
-    imageResId: Int, couponCode: String, onClick: () -> Unit
+    imageResId: Int, onClick: () -> Unit
 ) {
     Box(
         modifier = Modifier

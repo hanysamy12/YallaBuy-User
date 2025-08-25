@@ -13,7 +13,7 @@ data class DraftOrder(
     val created_at: String,
     val created_on_api_version_handle: String,
     val currency: String,
-    val customer: com.example.yallabuy_user.dataLayer.data.models.wishListDraftOrder.response.Customer,
+    val customer: Customer,
     val email: String,
     val id: Long,
     val invoice_sent_at: Any,

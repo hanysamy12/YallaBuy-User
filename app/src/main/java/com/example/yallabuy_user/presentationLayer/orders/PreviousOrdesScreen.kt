@@ -146,7 +146,7 @@ fun PreviousOrdersScreen(
 }
 
 @Composable
-private fun OrderItem(order: com.example.yallabuy_user.dataLayer.data.models.OrdersItem, onOrderClicked: (Long) -> Unit) {
+private fun OrderItem(order: OrdersItem, onOrderClicked: (Long) -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()

@@ -64,7 +64,7 @@ class AddressViewModel(
             repository.createCustomerAddress(customerId, addressBody)
                 .catch { e -> _createUpdateState.value = ApiResponse.Failure(e) }
                 .collect { response ->
-                    val newAddress = response.address
+                    response.address
 
                     _addressesList.update { list ->
                         val newAddress = response.address

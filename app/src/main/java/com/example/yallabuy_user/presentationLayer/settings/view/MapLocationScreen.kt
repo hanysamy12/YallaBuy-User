@@ -59,7 +59,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.yallabuy_user.R
-import com.example.yallabuy_user.presentationLayer.settings.viewmodel.AddressViewModel
 import com.example.yallabuy_user.utilities.LocationPermissionManager
 import com.example.yallabuy_user.utilities.PermissionUtils
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -70,7 +69,6 @@ import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapType
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.rememberCameraPositionState
-import org.koin.androidx.compose.koinViewModel
 import java.util.Locale
 
 
@@ -84,11 +82,10 @@ import java.util.Locale
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MapLocationScreen(
-    viewModel: AddressViewModel = koinViewModel(),
     locationPermissionManager: LocationPermissionManager,
     onNavigateBack: () -> Unit,
     navController: NavController,
-    setTopBar: ((@Composable () -> Unit)) -> Unit,
+    setTopBar: (@Composable () -> Unit) -> Unit,
 ) {
     LaunchedEffect(Unit) {
         setTopBar {

@@ -184,7 +184,7 @@ fun CartScreen(
                                     price = cartViewModel.convertedPrices[item.variantID]
                                         ?: item.price,
                                     currencySymbol = Common.currencyCode.getCurrencyCode(),
-                                    quantity = item.quantity.toInt(),
+                                    quantity = item.quantity,
                                     imageUrl = item.properties.find {
                                         it.name.lowercase() == "image"
                                     }?.value ?: "",

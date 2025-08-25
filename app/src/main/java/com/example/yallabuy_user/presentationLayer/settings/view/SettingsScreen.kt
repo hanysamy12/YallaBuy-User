@@ -98,7 +98,7 @@ fun SettingsScreen(navController: NavController, setTopBar: ((@Composable () -> 
     val context = LocalContext.current
 
     val settingsItems = listOf(
-        com.example.yallabuy_user.dataLayer.data.models.settings.SettingsItem(
+        SettingsItem(
             title = "Address",
             icon = R.drawable.location_on,
             onClick = {
@@ -110,21 +110,21 @@ fun SettingsScreen(navController: NavController, setTopBar: ((@Composable () -> 
                 }
             }
         ),
-        com.example.yallabuy_user.dataLayer.data.models.settings.SettingsItem(
+        SettingsItem(
             title = "Currency",
             icon = R.drawable.currency_exchange,
             onClick = {
                 navController.navigate(ScreenRoute.Currency.route)
             }
         ),
-        com.example.yallabuy_user.dataLayer.data.models.settings.SettingsItem(
+        SettingsItem(
             title = "Contact us",
             icon = R.drawable.headset_mic,
             onClick = {
                 navController.navigate(ScreenRoute.ContactUs.route)
             }
         ),
-        com.example.yallabuy_user.dataLayer.data.models.settings.SettingsItem(
+        SettingsItem(
             title = "About us",
             icon = R.drawable.info,
             onClick = {
@@ -177,7 +177,7 @@ fun LoginPromptDialog(
 
 @Composable
 fun SettingsListContent(
-    settingsItems: List<com.example.yallabuy_user.dataLayer.data.models.settings.SettingsItem>,
+    settingsItems: List<SettingsItem>,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(
@@ -197,7 +197,7 @@ fun SettingsListContent(
 }
 
 @Composable
-fun SettingsListItem(item: com.example.yallabuy_user.dataLayer.data.models.settings.SettingsItem) {
+fun SettingsListItem(item: SettingsItem) {
     Row(
         modifier = Modifier
             .fillMaxWidth()

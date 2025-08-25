@@ -9,7 +9,7 @@ data class CategoryResponse(
 
 data class CustomCollectionsItem(
     val publishedScope: String? = null,
-    val image: com.example.yallabuy_user.dataLayer.data.models.Image? = null,
+    val image: Image? = null,
     val bodyHtml: Any? = null,
     val templateSuffix: Any? = null,
     val updatedAt: String? = null,

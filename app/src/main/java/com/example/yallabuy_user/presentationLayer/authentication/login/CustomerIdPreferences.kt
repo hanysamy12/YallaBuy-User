@@ -1,6 +1,8 @@
 package com.example.yallabuy_user.presentationLayer.authentication.login
 
 import android.content.Context
+import androidx.core.content.edit
+
 class CustomerIdPreferences {
     companion object {
         private const val PREF_NAME = "customer_id"
@@ -8,9 +10,9 @@ class CustomerIdPreferences {
 
         fun saveCustomerID(context: Context, value: Long) {
             val sharedPreferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
-            val editor = sharedPreferences.edit()
-            editor.putLong(PREF_NAME, value)
-            editor.apply()
+            sharedPreferences.edit {
+                putLong(PREF_NAME, value)
+            }
         }
 
         fun getData(context: Context): Long {
@@ -20,9 +22,9 @@ class CustomerIdPreferences {
 
         fun saveCustomerName(context: Context , name : String){
             val sharedPreferences = context.getSharedPreferences(PREF_NAME_, Context.MODE_PRIVATE)
-            val editor = sharedPreferences.edit()
-            editor.putString(PREF_NAME_, name)
-            editor.apply()
+            sharedPreferences.edit {
+                putString(PREF_NAME_, name)
+            }
         }
 
         fun getCustomerName(context: Context): String? {

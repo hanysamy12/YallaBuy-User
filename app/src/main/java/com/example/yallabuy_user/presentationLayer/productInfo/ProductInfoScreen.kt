@@ -245,8 +245,8 @@ fun ProductInfoScreen(
 
 
 @Composable
-fun ProductImage(data: com.example.yallabuy_user.dataLayer.data.models.productInfo.ProductInfoResponse, showSnackBar: (String) -> Unit) {
-    val images = data?.product?.images ?: emptyList()
+fun ProductImage(data: ProductInfoResponse, showSnackBar: (String) -> Unit) {
+    val images = data.product.images
     val pagerState = rememberPagerState()
 
     Column(
@@ -305,13 +305,13 @@ fun ProductImage(data: com.example.yallabuy_user.dataLayer.data.models.productIn
 
 @Composable
 fun ProductDetail(
-    data: com.example.yallabuy_user.dataLayer.data.models.productInfo.ProductInfoResponse,
+    data:ProductInfoResponse,
     onAddToCartClick: (DraftOrderBody,String) -> Unit,
     cartViewModel: CartViewModel
 ) {
 
 
-    var productCounter by remember { mutableIntStateOf(1) }
+    val productCounter by remember { mutableIntStateOf(1) }
     val context = LocalContext.current
 
     var selectedSize by remember { mutableStateOf("") }
@@ -320,7 +320,7 @@ fun ProductDetail(
 
     Column {
         Text(
-            data?.product?.title ?: "No Title Available",
+            data.product?.title ?: "No Title Available",
             fontSize = 20.sp, fontWeight = FontWeight.Bold,
             color = Color.Black,
             modifier = Modifier.padding(5.dp)
@@ -333,7 +333,7 @@ fun ProductDetail(
             color = Color.Gray
         )
         Text(
-            data.product.body_html ?: "No Description Available",
+            data.product.body_html,
             color = Color.Black,
             modifier = Modifier.padding(5.dp)
         )
@@ -567,7 +567,7 @@ fun SizesDropDownMenu(
 
 @Composable
 fun ColorDropDownMenu(
-    data: com.example.yallabuy_user.dataLayer.data.models.productInfo.ProductInfoResponse,
+    data: ProductInfoResponse,
     onColorSelected: (String) -> Unit
 ) {
 
@@ -646,10 +646,10 @@ fun ColorDropDownMenu(
 }
 
 @Composable
-fun Price(data: com.example.yallabuy_user.dataLayer.data.models.productInfo.ProductInfoResponse, count: Int) {
-    var priceInBound = remember { mutableDoubleStateOf(0.0) }
+fun Price(data: ProductInfoResponse, count: Int) {
+    val priceInBound = remember { mutableDoubleStateOf(0.0) }
     priceInBound.doubleValue =
-        ((data?.product?.variants?.get(0)?.price?.toDoubleOrNull() ?: 0.0)) * count
+        ((data.product.variants.get(0).price.toDoubleOrNull() ?: 0.0)) * count
     Text(
         text = "  Total Price : ${priceInBound.doubleValue} EGP",
         modifier = Modifier.padding(10.dp),

@@ -92,7 +92,7 @@ fun AddressScreen(
 //    }
 
     var showDialog by remember { mutableStateOf(false) }
-    var addressToEdit: com.example.yallabuy_user.dataLayer.data.models.settings.Address? by remember { mutableStateOf(null) }
+    var addressToEdit: Address? by remember { mutableStateOf(null) }
     var showEditConfirmation by remember { mutableStateOf(false) }
 
     LaunchedEffect(customerId) {
@@ -179,13 +179,13 @@ fun AddressScreen(
             onConfirm = { newAddress ->
                 if (addressToEdit != null) {
                     viewModel.updateAddress(newAddress.id,
-                        com.example.yallabuy_user.dataLayer.data.models.settings.AddressBody(
+                        AddressBody(
                             newAddress
                         )
                     )
                 } else {
                     viewModel.createAddress(
-                        com.example.yallabuy_user.dataLayer.data.models.settings.AddressBody(
+                        AddressBody(
                             newAddress
                         )
                     )
@@ -200,13 +200,13 @@ fun AddressScreen(
 
 @Composable
 fun AddressScreenContent(
-    addressState: ApiResponse<com.example.yallabuy_user.dataLayer.data.models.settings.AddressesResponse>,
+    addressState: ApiResponse<AddressesResponse>,
     viewModel: AddressViewModel,
     paddingValues: PaddingValues,
-    onEditAddress: (com.example.yallabuy_user.dataLayer.data.models.settings.Address) -> Unit,
+    onEditAddress: (Address) -> Unit,
 ) {
 
-    val addressList = viewModel.addressesList.collectAsStateWithLifecycle()
+    viewModel.addressesList.collectAsStateWithLifecycle()
 
 
     Column(
@@ -251,10 +251,10 @@ fun AddressScreenContent(
 
 @Composable
 fun AddressList(
-    addresses: List<com.example.yallabuy_user.dataLayer.data.models.settings.Address>,
-    onEditAddress: (com.example.yallabuy_user.dataLayer.data.models.settings.Address) -> Unit,
+    addresses: List<Address>,
+    onEditAddress: (Address) -> Unit,
     onDeleteAddress: (Long) -> Unit,
-    onSetDefault: (com.example.yallabuy_user.dataLayer.data.models.settings.Address) -> Unit
+    onSetDefault: (Address) -> Unit
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -274,7 +274,7 @@ fun AddressList(
 
 @Composable
 fun AddressItem(
-    address: com.example.yallabuy_user.dataLayer.data.models.settings.Address,
+    address: Address,
     onEdit: () -> Unit,
     onDelete: () -> Unit,
     onSetDefault: () -> Unit
@@ -368,9 +368,9 @@ fun AddressItem(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditAddressDialog(
-    address: com.example.yallabuy_user.dataLayer.data.models.settings.Address?,
+    address: Address?,
     onDismiss: () -> Unit,
-    onConfirm: (com.example.yallabuy_user.dataLayer.data.models.settings.Address) -> Unit
+    onConfirm: (Address) -> Unit
 ) {
     var firstName by remember { mutableStateOf(address?.firstName ?: "") }
     var lastName by remember { mutableStateOf(address?.lastName ?: "") }
@@ -383,7 +383,7 @@ fun EditAddressDialog(
         "Red Sea", "Fayoum", "Beni Suef", "Minya", "Assiut", "Sohag",
         "Qena", "Luxor", "Aswan", "New Valley (El Wadi El Gedid)", "Matrouh"
     )
-    var country = "Egypt" //by remember { mutableStateOf(address?.country ?: "") }
+    val country = "Egypt" //by remember { mutableStateOf(address?.country ?: "") }
     var fullAddress by remember { mutableStateOf(address?.fullAddress ?: "") }
     var isDefault by remember { mutableStateOf(address?.default ?: false) }
 
@@ -495,7 +495,7 @@ fun EditAddressDialog(
                         showValidationError = true
                     } else {
                         val newAddress =
-                            com.example.yallabuy_user.dataLayer.data.models.settings.Address(
+                            Address(
                                 id = address?.id ?: 0,
                                 firstName = firstName,
                                 lastName = lastName,

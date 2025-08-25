@@ -51,7 +51,6 @@ fun CurrencyScreen(
     setTopBar: @Composable (content: @Composable () -> Unit) -> Unit
 ) {
     val selectedCurrency by viewModel.selectedCurrency.collectAsState()
-    val currencyState by viewModel.currencyState.collectAsState()
     val availableCurrencies = listOf("USD", "EUR", "EGP", "SAR")
     setTopBar {
         CenterAlignedTopAppBar(

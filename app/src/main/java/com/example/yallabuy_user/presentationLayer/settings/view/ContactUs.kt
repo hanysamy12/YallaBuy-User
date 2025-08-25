@@ -108,7 +108,7 @@ fun ContactUsScreen(
 
 @Composable
 fun ContactUsContent(
-    contacts: List<com.example.yallabuy_user.dataLayer.data.models.settings.ContactUs>,
+    contacts: List<ContactUs>,
     imageContent: @Composable () -> Unit
 ) {
     LazyColumn(
@@ -148,7 +148,7 @@ fun ContactUsContent(
 }
 
 @Composable
-fun ContactCard(contact: com.example.yallabuy_user.dataLayer.data.models.settings.ContactUs) {
+fun ContactCard(contact: ContactUs) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -196,23 +196,23 @@ fun ContactCard(contact: com.example.yallabuy_user.dataLayer.data.models.setting
 @Composable
 fun ContactUsScreenPreview() {
     val previewContacts = listOf(
-        com.example.yallabuy_user.dataLayer.data.models.settings.ContactUs(
+        ContactUs(
             "Hany Samy",
             "01226902530",
             "hanysamy111@outlook.com"
         ),
 
-        com.example.yallabuy_user.dataLayer.data.models.settings.ContactUs(
+        ContactUs(
             "Mariam Muhammad",
             "01123456789",
             "mariammuhammad911@gmail.com"
         ),
-        com.example.yallabuy_user.dataLayer.data.models.settings.ContactUs(
+        ContactUs(
             name = "Moaz Mamdouh",
             phone = "01095030319",
             email = "moaz.mamdoouh@gmail.com"
         ),
-        com.example.yallabuy_user.dataLayer.data.models.settings.ContactUs(
+        ContactUs(
             name = "Ziad Elshemy",
             phone = "01067058501",
             email = "ziadmohamedelshemy@gmail.com"

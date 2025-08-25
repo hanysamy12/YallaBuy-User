@@ -75,7 +75,7 @@ import com.example.yallabuy_user.presentationLayer.settings.view.CurrencyScreen
 import com.example.yallabuy_user.presentationLayer.settings.view.MapLocationScreen
 import com.example.yallabuy_user.utilities.LocationPermissionManager
 import com.example.yallabuy_user.presentationLayer.wish.WishScreen
-import com.mariammuhammad.yallabuy.View.Settings.AboutUsScreen
+import com.example.yallabuy_user.presentationLayer.settings.view.AboutUsScreen
 import com.mariammuhammad.yallabuy.View.Settings.ContactUsScreen
 import com.mariammuhammad.yallabuy.View.Settings.SettingsScreen
 
@@ -203,8 +203,8 @@ fun MainScreen() {
 
                 MapLocationScreen(
                     locationPermissionManager = locationPermissionManager,
-                    navController = navController,
                     onNavigateBack = { navController.popBackStack() },
+                    navController = navController,
                     setTopBar = { topBarContent.value = it })
             }
 

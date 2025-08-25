@@ -36,14 +36,11 @@ class CartViewModel(private val cartRepository: RepositoryInterface,
     private val _showOutOfStockDialog = MutableStateFlow(false)
     val showOutOfStockDialog: StateFlow<Boolean> = _showOutOfStockDialog.asStateFlow()
 
-    val cartTotalInPreferredCurrency = MutableStateFlow<Double?>(null)
     val convertedPrices = mutableStateMapOf<Long, String>()
 
     private val _cartTotalRaw = MutableStateFlow<Double?>(null)
-    val cartTotalRaw: StateFlow<Double?> = _cartTotalRaw.asStateFlow()
 
     private val _preferredCurrency = MutableStateFlow(Currency.EGP)
-    val preferredCurrency: StateFlow<Currency> = _preferredCurrency
 
 
     private fun fetchCartByDraftOrderId(draftOrderId: Long) {

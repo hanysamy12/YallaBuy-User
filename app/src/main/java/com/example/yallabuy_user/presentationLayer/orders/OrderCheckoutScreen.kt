@@ -70,10 +70,8 @@ import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.yallabuy_user.R
 import com.example.yallabuy_user.presentationLayer.authentication.login.CustomerIdPreferences
 import com.example.yallabuy_user.presentationLayer.cart.viewmodel.CartSharedPreference
-import com.example.yallabuy_user.dataLayer.data.models.CreateLineItem
 import com.example.yallabuy_user.dataLayer.data.models.CreateShippingAddress
 import com.example.yallabuy_user.dataLayer.data.models.cart.LineItem
-import com.example.yallabuy_user.dataLayer.data.models.settings.Address
 import com.example.yallabuy_user.presentationLayer.home.ProgressShow
 import com.example.yallabuy_user.ui.navigation.ScreenRoute
 import com.example.yallabuy_user.presentationLayer.ApiResponse
@@ -112,7 +110,7 @@ fun OrderCheckoutScreen(
     var createLineItems: List<com.example.yallabuy_user.dataLayer.data.models.CreateLineItem> = listOf()
     var couponCode by remember { mutableStateOf("") }
     var shippingAddress =
-        com.example.yallabuy_user.dataLayer.data.models.CreateShippingAddress(id = -1L)
+        CreateShippingAddress(id = -1L)
     var totalCost by remember { mutableStateOf("") }
     var isCash by remember { mutableStateOf(true) }
     val customerId = CustomerIdPreferences.getData(context)
@@ -184,10 +182,8 @@ fun OrderCheckoutScreen(
                 viewModel.convertItemPrices(order)
             }
 
-            val cartTotal = passedTotalPrice
-
             val discount = couponResult?.takeIf { it.isValid }?.discountValue ?: 0.0
-            val discountedTotal = (cartTotal - discount).coerceAtLeast(0.0)
+            val discountedTotal = (passedTotalPrice - discount).coerceAtLeast(0.0)
 
             LaunchedEffect(discountedTotal) {
                 viewModel.convertTotalAmount(discountedTotal)
@@ -211,14 +207,14 @@ fun OrderCheckoutScreen(
                         is ApiResponse.Failure -> {
                             Text((uiAddressState.value as ApiResponse.Failure).toString())
                             shippingAddress =
-                                com.example.yallabuy_user.dataLayer.data.models.CreateShippingAddress(
+                                CreateShippingAddress(
                                     id = -1L
                                 )
                         }
 
                         ApiResponse.Loading -> {
                             shippingAddress =
-                                com.example.yallabuy_user.dataLayer.data.models.CreateShippingAddress(
+                                CreateShippingAddress(
                                     id = -1L
                                 )
                         }
@@ -232,7 +228,7 @@ fun OrderCheckoutScreen(
                                 NoAddress { navController.navigate(ScreenRoute.Address.route) }
                             } else {
                                 shippingAddress =
-                                    com.example.yallabuy_user.dataLayer.data.models.CreateShippingAddress(
+                                    CreateShippingAddress(
                                         id = addresses.first().id
                                     )
                                 DropdownField(
@@ -241,7 +237,7 @@ fun OrderCheckoutScreen(
                                     options = addresses
                                 ) {
                                     shippingAddress =
-                                        com.example.yallabuy_user.dataLayer.data.models.CreateShippingAddress(
+                                        CreateShippingAddress(
                                             id = it
                                         )
                                 }
@@ -272,7 +268,7 @@ fun OrderCheckoutScreen(
                                     // call verification
                                     viewModel.validateCoupon(
                                         code = couponCode,
-                                        cartTotal = cartTotal
+                                        cartTotal = passedTotalPrice
                                     )
                                 }
                             }, modifier = Modifier, shape = RoundedCornerShape(8.dp),
@@ -303,7 +299,7 @@ fun OrderCheckoutScreen(
                         if (couponResult?.isValid == true) {
                             Column(horizontalAlignment = Alignment.End) {
                                 Text( //cartTotal
-                                    text = "$currencySymbol ${"%.2f".format(cartTotal)}",
+                                    text = "$currencySymbol ${"%.2f".format(passedTotalPrice)}",
                                     fontSize = 18.sp,
                                     color = Color.Gray,
                                     textDecoration = TextDecoration.LineThrough
@@ -317,7 +313,7 @@ fun OrderCheckoutScreen(
                             }
                         } else {
                             Text(
-                                "${"%.2f".format(cartTotal)} $currencySymbol",
+                                "${"%.2f".format(passedTotalPrice)} $currencySymbol",
                                 fontSize = 22.sp,
                                 fontWeight = FontWeight.Bold
                             )
