@@ -11,7 +11,6 @@ import com.example.yallabuy_user.dataLayer.data.models.cart.LineItem
 import com.example.yallabuy_user.dataLayer.data.models.cart.UpdateCustomerBody
 import com.example.yallabuy_user.domainLayer.repoInterface.RepositoryInterface
 import com.example.yallabuy_user.presentationLayer.ApiResponse
-import com.example.yallabuy_user.utilities.Currency
 import com.example.yallabuy_user.utilities.CurrencyConversionManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -37,10 +36,6 @@ class CartViewModel(private val cartRepository: RepositoryInterface,
     val showOutOfStockDialog: StateFlow<Boolean> = _showOutOfStockDialog.asStateFlow()
 
     val convertedPrices = mutableStateMapOf<Long, String>()
-
-    private val _cartTotalRaw = MutableStateFlow<Double?>(null)
-
-    private val _preferredCurrency = MutableStateFlow(Currency.EGP)
 
 
     private fun fetchCartByDraftOrderId(draftOrderId: Long) {

@@ -17,7 +17,6 @@ interface CurrencyPreferenceManager {
 
     companion object {
         const val DEFAULT_CURRENCY = "EGP"
-        val SUPPORTED_CURRENCIES = listOf("USD", "EUR", "EGP", "SAR")
         const val RATE_EXPIRATION_MS = 24 * 60 * 60 * 1000 // 24 hours
     }
 }

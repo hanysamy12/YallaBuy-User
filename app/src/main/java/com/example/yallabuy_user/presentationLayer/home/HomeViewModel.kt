@@ -61,7 +61,7 @@ class HomeViewModel(private val repo: RepositoryInterface) : ViewModel(), HomeVi
         }
     }
 
-    private suspend fun fetchAllCouponsForAllPriceRules(priceRules: List<com.example.yallabuy_user.dataLayer.data.models.Coupon.PriceRule>) {
+    private suspend fun fetchAllCouponsForAllPriceRules(priceRules: List<PriceRule>) {
         try {
             _allCoupons.value = ApiResponse.Loading // Set loading state for coupons
             val allCouponsList = mutableListOf<com.example.yallabuy_user.dataLayer.data.models.Coupon.DiscountCodeCoupon>()
