@@ -1,8 +1,8 @@
 package com.example.yallabuy_user.repo
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.example.yallabuy_user.data.models.cart.DraftOrderBody
-import com.example.yallabuy_user.data.models.cart.DraftOrderCart
+import com.example.yallabuy_user.dataLayer.data.models.cart.DraftOrderBody
+import com.example.yallabuy_user.dataLayer.data.models.cart.DraftOrderCart
 import com.example.yallabuy_user.dataLayer.repoImp.Repository
 import com.example.yallabuy_user.domainLayer.repoInterface.RepositoryInterface
 import io.mockk.coEvery

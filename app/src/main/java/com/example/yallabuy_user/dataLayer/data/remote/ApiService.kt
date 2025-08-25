@@ -102,11 +102,11 @@ interface ApiService {
     ): com.example.yallabuy_user.dataLayer.data.models.wishListDraftOrder.response.WishListDraftOrderResponse
 
     //address
-    @GET("customers/{customer_id}/addresses/{address_id}.json")
-    suspend fun getCustomerAddressById(
-        @Path("customer_id") customerId: Long,
-        @Path("address_id") addressId: Long,
-    ): com.example.yallabuy_user.dataLayer.data.models.settings.NewAddressResponse
+//    @GET("customers/{customer_id}/addresses/{address_id}.json")
+//    suspend fun getCustomerAddressById(
+//        @Path("customer_id") customerId: Long,
+//        @Path("address_id") addressId: Long,
+//    ): com.example.yallabuy_user.dataLayer.data.models.settings.NewAddressResponse
 
     @GET("customers/{customer_id}/addresses.json")
     suspend fun getAddresses(

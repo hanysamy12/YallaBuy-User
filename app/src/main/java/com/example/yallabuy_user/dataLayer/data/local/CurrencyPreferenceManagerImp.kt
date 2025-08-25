@@ -3,9 +3,10 @@ package com.example.yallabuy_user.dataLayer.data.local
 import android.content.Context
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import androidx.core.content.edit
 
 class CurrencyPreferenceManagerImpl(
-    private val context: Context
+    context: Context
 ) : CurrencyPreferenceManager {
 
     private val prefs = context.getSharedPreferences("currency_prefs", Context.MODE_PRIVATE)
@@ -14,24 +15,24 @@ class CurrencyPreferenceManagerImpl(
     private val timeKey = "last_update_time"
 
     private val currencyFlow = MutableStateFlow(prefs.getString(currencyKey,
-        CurrencyPreferenceManager.Companion.DEFAULT_CURRENCY
-    ) ?: CurrencyPreferenceManager.Companion.DEFAULT_CURRENCY
+        CurrencyPreferenceManager.DEFAULT_CURRENCY
+    ) ?: CurrencyPreferenceManager.DEFAULT_CURRENCY
     )
     override val preferredCurrencyFlow: Flow<String> = currencyFlow
 
     override suspend fun setPreferredCurrency(currencyCode: String) {
-        prefs.edit().putString(currencyKey, currencyCode).apply()
+        prefs.edit { putString(currencyKey, currencyCode) }
         currencyFlow.emit(currencyCode)
     }
 
     override suspend fun getPreferredCurrency(): String {
         return prefs.getString(currencyKey,
-            CurrencyPreferenceManager.Companion.DEFAULT_CURRENCY
-        ) ?: CurrencyPreferenceManager.Companion.DEFAULT_CURRENCY
+            CurrencyPreferenceManager.DEFAULT_CURRENCY
+        ) ?: CurrencyPreferenceManager.DEFAULT_CURRENCY
     }
 
     override suspend fun setCurrencyRate(rate: Double) {
-        prefs.edit().putFloat(rateKey, rate.toFloat()).apply()
+        prefs.edit { putFloat(rateKey, rate.toFloat()) }
     }
 
     override suspend fun getCurrencyRate(): Double? {
@@ -39,7 +40,7 @@ class CurrencyPreferenceManagerImpl(
     }
 
     override suspend fun setLastUpdateTime(timestamp: Long) {
-        prefs.edit().putLong(timeKey, timestamp).apply()
+        prefs.edit { putLong(timeKey, timestamp) }
     }
 
     override suspend fun getLastUpdateTime(): Long? {

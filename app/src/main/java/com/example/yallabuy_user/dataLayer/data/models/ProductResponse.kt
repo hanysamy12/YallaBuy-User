@@ -3,7 +3,7 @@ package com.example.yallabuy_user.dataLayer.data.models
 import com.google.gson.annotations.SerializedName
 
 data class ProductResponse(
-	val products: List<com.example.yallabuy_user.dataLayer.data.models.ProductsItem?>? = null
+	val products: List<ProductsItem?>? = null
 )
 
 data class OptionsItem(
@@ -14,12 +14,12 @@ data class OptionsItem(
 )
 
 data class ProductsItem(
-    val image: com.example.yallabuy_user.dataLayer.data.models.ProductImage? = null,
+    val image: ProductImage? = null,
     val bodyHtml: String? = null,
-    val images: List<com.example.yallabuy_user.dataLayer.data.models.ImagesItem?>? = null,
+    val images: List<ImagesItem?>? = null,
     val createdAt: String? = null,
     val handle: String? = null,
-    val variants: List<com.example.yallabuy_user.dataLayer.data.models.VariantsItem?>? = null,
+    val variants: List<VariantsItem?>? = null,
     val title: String? = null,
     val tags: String? = null,
     val publishedScope: String? = null,
@@ -29,7 +29,7 @@ data class ProductsItem(
     val updatedAt: String? = null,
     val vendor: String? = null,
     val adminGraphqlApiId: String? = null,
-    val options: List<com.example.yallabuy_user.dataLayer.data.models.OptionsItem?>? = null,
+    val options: List<OptionsItem?>? = null,
     val id: Long? = null,
     val publishedAt: String? = null,
     val status: String? = null

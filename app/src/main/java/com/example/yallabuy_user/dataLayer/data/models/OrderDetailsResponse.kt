@@ -4,18 +4,18 @@ import com.google.gson.annotations.SerializedName
 
 
 data class OrderDetailsResponse(
-    val order: com.example.yallabuy_user.dataLayer.data.models.Order? = null
+    val order: Order? = null
 )
 
 data class Order(
     @SerializedName("line_items")
-    val lineItems: List<com.example.yallabuy_user.dataLayer.data.models.LineItemsItem?>? = null,
+    val lineItems: List<LineItemsItem?>? = null,
     val id: Long? = null,
     @SerializedName("current_total_price_set")
-    val currentTotalPriceSet: com.example.yallabuy_user.dataLayer.data.models.CurrentTotalPriceSet? = null,
+    val currentTotalPriceSet: CurrentTotalPriceSet? = null,
     val currency: String? = null,
     @SerializedName("shipping_address")
-    val shippingAddress: com.example.yallabuy_user.dataLayer.data.models.ShippingAddress? = null,
+    val shippingAddress: ShippingAddress? = null,
     val email: String? = null,
     @SerializedName("total_price")
     val totalPrice: String? = null,
@@ -25,18 +25,18 @@ data class Order(
 
 data class CreateOrderRequest(
     @SerializedName("order")
-    val order: com.example.yallabuy_user.dataLayer.data.models.CreateOrder
+    val order: CreateOrder
 )
 
 data class CreateOrder(
     @SerializedName("line_items")
-    val lineItems: List<com.example.yallabuy_user.dataLayer.data.models.CreateLineItem>,
+    val lineItems: List<CreateLineItem>,
     @SerializedName("discount_codes")
-    val discountCodes: List<com.example.yallabuy_user.dataLayer.data.models.DiscountCode>? = null,
+    val discountCodes: List<DiscountCode>? = null,
     @SerializedName("shipping_address")
-    val shippingAddress: com.example.yallabuy_user.dataLayer.data.models.CreateShippingAddress,
-    val customer: com.example.yallabuy_user.dataLayer.data.models.CreateCustomer,
-    val transactions: List<com.example.yallabuy_user.dataLayer.data.models.CreateTransaction>,
+    val shippingAddress: CreateShippingAddress,
+    val customer: CreateCustomer,
+    val transactions: List<CreateTransaction>,
     @SerializedName("financial_status")
     val financialStatus: String,
 //    @SerializedName("fulfillment_status")

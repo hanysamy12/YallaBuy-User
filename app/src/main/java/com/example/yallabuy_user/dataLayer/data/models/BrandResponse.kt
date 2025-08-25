@@ -4,14 +4,14 @@ import com.google.gson.annotations.SerializedName
 
 data class BrandResponse(
 	@SerializedName("smart_collections")
-	val smartCollections: List<com.example.yallabuy_user.dataLayer.data.models.SmartCollectionsItem?>? = null
+	val smartCollections: List<SmartCollectionsItem?>? = null
 )
 
 data class SmartCollectionsItem(
-    val image: com.example.yallabuy_user.dataLayer.data.models.Image? = null,
+    val image: Image? = null,
     val bodyHtml: String? = null,
     val handle: String? = null,
-    val rules: List<com.example.yallabuy_user.dataLayer.data.models.RulesItem?>? = null,
+    val rules: List<RulesItem?>? = null,
     val title: String? = null,
     val publishedScope: String? = null,
     val templateSuffix: Any? = null,

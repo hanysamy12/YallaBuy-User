@@ -1,10 +1,10 @@
 package com.example.yallabuy_user.cart
 
 import com.example.yallabuy_user.presentationLayer.cart.viewmodel.CartViewModel
-import com.example.yallabuy_user.data.models.cart.DraftOrderBody
-import com.example.yallabuy_user.data.models.cart.DraftOrderCart
-import com.example.yallabuy_user.data.models.cart.DraftOrderResponse
-import com.example.yallabuy_user.data.models.cart.LineItem
+import com.example.yallabuy_user.dataLayer.data.models.cart.DraftOrderBody
+import com.example.yallabuy_user.dataLayer.data.models.cart.DraftOrderCart
+import com.example.yallabuy_user.dataLayer.data.models.cart.DraftOrderResponse
+import com.example.yallabuy_user.dataLayer.data.models.cart.LineItem
 import com.example.yallabuy_user.domainLayer.repoInterface.RepositoryInterface
 import com.example.yallabuy_user.presentationLayer.ApiResponse
 import com.example.yallabuy_user.utilities.CurrencyConversionManager

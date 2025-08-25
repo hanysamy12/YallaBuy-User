@@ -3,7 +3,7 @@ package com.example.yallabuy_user.dataLayer.data.models
 import com.google.gson.annotations.SerializedName
 
 data class OrdersResponse(
-	val orders: List<com.example.yallabuy_user.dataLayer.data.models.OrdersItem?>? = null
+	val orders: List<OrdersItem?>? = null
 )
 
 
@@ -29,8 +29,8 @@ data class ShopMoney(
 
 
 data class CurrentTotalPriceSet(
-    val shopMoney: com.example.yallabuy_user.dataLayer.data.models.ShopMoney? = null,
-    val presentmentMoney: com.example.yallabuy_user.dataLayer.data.models.PresentmentMoney? = null
+    val shopMoney: ShopMoney? = null,
+    val presentmentMoney: PresentmentMoney? = null
 )
 
 data class PresentmentMoney(
@@ -41,7 +41,7 @@ data class PresentmentMoney(
 
 data class OrdersItem(
     @SerializedName("line_items")
-	val lineItems: List<com.example.yallabuy_user.dataLayer.data.models.LineItemsItem?>? = null,
+	val lineItems: List<LineItemsItem?>? = null,
     val id: Long? = null,
     @SerializedName("app_id")
 	val appId: Long? = null,

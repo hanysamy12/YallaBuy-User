@@ -2,8 +2,8 @@ package com.example.yallabuy_user.home
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.yallabuy_user.presentationLayer.home.HomeViewModel
-import com.example.yallabuy_user.data.models.CategoryResponse
-import com.example.yallabuy_user.data.models.CustomCollectionsItem
+import com.example.yallabuy_user.dataLayer.data.models.CategoryResponse
+import com.example.yallabuy_user.dataLayer.data.models.CustomCollectionsItem
 import com.example.yallabuy_user.domainLayer.repoInterface.RepositoryInterface
 import com.example.yallabuy_user.presentationLayer.ApiResponse
 import io.mockk.coEvery
