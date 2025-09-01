@@ -64,7 +64,7 @@ val dataModule = module {
     }
 
     factory<ApiService> {
-        get<Retrofit>(named("shopifyRetrofit")).create(com.example.yallabuy_user.dataLayer.data.remote.ApiService::class.java)
+        get<Retrofit>(named("shopifyRetrofit")).create(ApiService::class.java)
     }
 
     single { FirebaseAuth.getInstance() }
